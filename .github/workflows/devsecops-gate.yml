@@ -21,7 +21,7 @@ on:
   pull_request:
     branches: [dev, main]
   push:
-    branches: [dev, main]
+    branches: [dev, main, patched]
 
 permissions:
   contents: read
@@ -165,6 +165,9 @@ jobs:
         id: report
         if: always() && !cancelled()
         env:
+          LINT_OUTCOME: ${{ steps.lint.outcome }}
+          SERVER_OUTCOME: ${{ steps.server.outcome }}
+          SCAN_OUTCOME: ${{ steps.scan.outcome }}
           GITHUB_SHA: ${{ github.sha }}
         run: python3 ci/sonarqube.py report --timeout 600
 
