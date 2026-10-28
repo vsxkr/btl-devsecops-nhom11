@@ -1,0 +1,5 @@
+$ conftest test fixtures/Dockerfile.hardened -p policy/ --namespace dockerfile
+WARN - fixtures/Dockerfile.hardened - dockerfile - SUPPLY-CHAIN: base image 'php:8.2-apache' is not pinned by digest.
+
+11 tests, 10 passed, 1 warning, 0 failures, 0 exceptions
+exit=0

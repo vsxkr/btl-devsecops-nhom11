@@ -1,0 +1,12 @@
+So sanh ma thoat cua Semgrep, do ngay 2026-10-28, semgrep 1.182.1
+
+Pipeline hien tai cua nhom (devsecops-pipeline.yml:189-196) KHONG truyen --error:
+  semgrep scan --config ... --json -o reports/semgrep/semgrep.json InlaneWeb
+
+Hau qua do duoc tren cung mot bo luat va cung mot ma nguon:
+  toan ung dung, mac dinh (29 phat hien)         exit=0
+  toan ung dung, co --error                      exit=1
+  fixture co y sai, co --error (8 phat hien)     exit=1
+  fixture da va, co --error (0 phat hien)        exit=0
+
+Ket luan: thieu --error thi cong Semgrep khong bao gio chan duoc dieu gi.

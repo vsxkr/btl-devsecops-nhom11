@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+# Git commit-msg hook: Kiểm tra định dạng Conventional Commits cục bộ trước khi commit
+COMMIT_MSG_FILE="$1"
+
+if [ -f "$COMMIT_MSG_FILE" ]; then
+    COMMIT_MSG=$(head -n 1 "$COMMIT_MSG_FILE")
+else
+    COMMIT_MSG="$1"
+fi
+
+# Chạy kiểm tra qua python/python3
+if command -v python3 >/dev/null 2>&1; then
+    PY_BIN="python3"
+elif command -v python >/dev/null 2>&1; then
+    PY_BIN="python"
+elif command -v py >/dev/null 2>&1; then
+    PY_BIN="py"
+else
+    echo "⚠️ Không tìm thấy Python để chạy policy guard, bỏ qua kiểm tra."
+    exit 0
+fi
+
+"$PY_BIN" ci/policy_guard.py "$COMMIT_MSG"
+EXIT_CODE=$?
+
+if [ $EXIT_CODE -ne 0 ]; then
+  echo ""
+  echo "======================================================================"
+  echo "❌ [Local Git Hook] Lệnh commit đã bị HỦY BỎ ngay trên máy của bạn!"
+  echo "💡 Vui lòng đặt lại tiêu đề commit theo chuẩn: <loại>(<phạm_vi>): <mô tả>"
+  echo "   Ví dụ: feat(auth): thêm chức năng xác thực token JWT"
+  echo "======================================================================"
+  exit 1
+fi

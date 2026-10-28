@@ -1,0 +1,13 @@
+$ conftest test fixtures/Dockerfile.insecure -p policy/ --namespace dockerfile
+FAIL - fixtures/Dockerfile.insecure - dockerfile - ATTACK-SURFACE: EXPOSE '22' covers administrative/database port 22.
+FAIL - fixtures/Dockerfile.insecure - dockerfile - ATTACK-SURFACE: EXPOSE '3306' covers administrative/database port 3306.
+FAIL - fixtures/Dockerfile.insecure - dockerfile - ATTACK-SURFACE: EXPOSE '5432/tcp' covers administrative/database port 5432.
+FAIL - fixtures/Dockerfile.insecure - dockerfile - LEAST-PRIVILEGE: final stage runs as 'root'.
+FAIL - fixtures/Dockerfile.insecure - dockerfile - OBSERVABILITY: HEALTHCHECK NONE disables health reporting.
+FAIL - fixtures/Dockerfile.insecure - dockerfile - PROVENANCE: required OCI label 'org.opencontainers.image.revision' is missing.
+FAIL - fixtures/Dockerfile.insecure - dockerfile - PROVENANCE: required OCI label 'org.opencontainers.image.source' is missing.
+FAIL - fixtures/Dockerfile.insecure - dockerfile - SUPPLY-CHAIN: base image 'php:latest' uses :latest.
+FAIL - fixtures/Dockerfile.insecure - dockerfile - SUPPLY-CHAIN: use COPY instead of ADD (ADD can fetch remote URLs and auto-extract archives).
+
+11 tests, 2 passed, 0 warnings, 9 failures, 0 exceptions
+exit=1

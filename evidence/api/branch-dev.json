@@ -1,0 +1,108 @@
+{
+  "name": "dev",
+  "commit": {
+    "sha": "d1f79fb6a5e7142c5d201f52954f783c86c315d0",
+    "node_id": "C_kwDOVJXRBtoAKGQxZjc5ZmI2YTVlNzE0MmM1ZDIwMWY1Mjk1NGY3ODNjODZjMzE1ZDA",
+    "commit": {
+      "author": {
+        "name": "namng",
+        "email": "91205435+wtfwhoyouare@users.noreply.github.com",
+        "date": "2026-10-24T07:21:20Z"
+      },
+      "committer": {
+        "name": "namng",
+        "email": "91205435+wtfwhoyouare@users.noreply.github.com",
+        "date": "2026-10-24T07:21:20Z"
+      },
+      "message": "Merge branch 'origin/main' into dev",
+      "tree": {
+        "sha": "39b278e1cccc6440a34d3f554d58266b95227821",
+        "url": "https://api.github.com/repos/wtfwhoyouare/PTIT-DevOps-SonarQube/git/trees/39b278e1cccc6440a34d3f554d58266b95227821"
+      },
+      "url": "https://api.github.com/repos/wtfwhoyouare/PTIT-DevOps-SonarQube/git/commits/d1f79fb6a5e7142c5d201f52954f783c86c315d0",
+      "comment_count": 0,
+      "verification": {
+        "verified": false,
+        "reason": "unsigned",
+        "signature": null,
+        "payload": null,
+        "verified_at": null
+      }
+    },
+    "url": "https://api.github.com/repos/wtfwhoyouare/PTIT-DevOps-SonarQube/commits/d1f79fb6a5e7142c5d201f52954f783c86c315d0",
+    "html_url": "https://github.com/wtfwhoyouare/PTIT-DevOps-SonarQube/commit/d1f79fb6a5e7142c5d201f52954f783c86c315d0",
+    "comments_url": "https://api.github.com/repos/wtfwhoyouare/PTIT-DevOps-SonarQube/commits/d1f79fb6a5e7142c5d201f52954f783c86c315d0/comments",
+    "author": {
+      "login": "wtfwhoyouare",
+      "id": 91205435,
+      "node_id": "MDQ6VXNlcjkxMjA1NDM1",
+      "avatar_url": "https://avatars.githubusercontent.com/u/91205435?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/wtfwhoyouare",
+      "html_url": "https://github.com/wtfwhoyouare",
+      "followers_url": "https://api.github.com/users/wtfwhoyouare/followers",
+      "following_url": "https://api.github.com/users/wtfwhoyouare/following{/other_user}",
+      "gists_url": "https://api.github.com/users/wtfwhoyouare/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/wtfwhoyouare/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/wtfwhoyouare/subscriptions",
+      "organizations_url": "https://api.github.com/users/wtfwhoyouare/orgs",
+      "repos_url": "https://api.github.com/users/wtfwhoyouare/repos",
+      "events_url": "https://api.github.com/users/wtfwhoyouare/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/wtfwhoyouare/received_events",
+      "type": "User",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "committer": {
+      "login": "wtfwhoyouare",
+      "id": 91205435,
+      "node_id": "MDQ6VXNlcjkxMjA1NDM1",
+      "avatar_url": "https://avatars.githubusercontent.com/u/91205435?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/wtfwhoyouare",
+      "html_url": "https://github.com/wtfwhoyouare",
+      "followers_url": "https://api.github.com/users/wtfwhoyouare/followers",
+      "following_url": "https://api.github.com/users/wtfwhoyouare/following{/other_user}",
+      "gists_url": "https://api.github.com/users/wtfwhoyouare/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/wtfwhoyouare/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/wtfwhoyouare/subscriptions",
+      "organizations_url": "https://api.github.com/users/wtfwhoyouare/orgs",
+      "repos_url": "https://api.github.com/users/wtfwhoyouare/repos",
+      "events_url": "https://api.github.com/users/wtfwhoyouare/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/wtfwhoyouare/received_events",
+      "type": "User",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "parents": [
+      {
+        "sha": "028363b0cd477db719551b58c5c79a298977fc8f",
+        "url": "https://api.github.com/repos/wtfwhoyouare/PTIT-DevOps-SonarQube/commits/028363b0cd477db719551b58c5c79a298977fc8f",
+        "html_url": "https://github.com/wtfwhoyouare/PTIT-DevOps-SonarQube/commit/028363b0cd477db719551b58c5c79a298977fc8f"
+      },
+      {
+        "sha": "9c9197d91c02cf907696b3d4127bb3f9d4faf418",
+        "url": "https://api.github.com/repos/wtfwhoyouare/PTIT-DevOps-SonarQube/commits/9c9197d91c02cf907696b3d4127bb3f9d4faf418",
+        "html_url": "https://github.com/wtfwhoyouare/PTIT-DevOps-SonarQube/commit/9c9197d91c02cf907696b3d4127bb3f9d4faf418"
+      }
+    ]
+  },
+  "_links": {
+    "self": "https://api.github.com/repos/wtfwhoyouare/PTIT-DevOps-SonarQube/branches/dev",
+    "html": "https://github.com/wtfwhoyouare/PTIT-DevOps-SonarQube/tree/dev"
+  },
+  "protected": false,
+  "protection": {
+    "enabled": false,
+    "required_status_checks": {
+      "enforcement_level": "off",
+      "contexts": [
+
+      ],
+      "checks": [
+
+      ]
+    }
+  },
+  "protection_url": "https://api.github.com/repos/wtfwhoyouare/PTIT-DevOps-SonarQube/branches/dev/protection"
+}

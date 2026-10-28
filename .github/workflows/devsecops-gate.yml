@@ -1,0 +1,281 @@
+# =============================================================================
+# devsecops-gate.yml — Day chuyen CO CHAN THAT.
+#
+# Nguyen tac: moi chang la mot CONG. Cong that bai thi cac chang sau bi bo qua,
+# va pull request khong hop nhat duoc. Khong co cong nao chi bao cao.
+#
+# Day chinh la cho ban goc cua nhom bi loi: bien ENFORCE_QUALITY_GATE duoc gan
+# `${{ inputs.enforce_quality_gate || 'false' }}`, va vi `inputs` chi ton tai voi
+# workflow_dispatch nen gia tri luon la 'false'. Trong khi do ci/sonarqube.py doc
+# bien nay voi gia tri mac dinh "true" o ca hai cho (dong 393 va 434), tuc script
+# von fail-closed. Cach sua la KHONG ghi de bien do.
+#
+# Viec ghi nhan trang thai hien tai ma khong chan la mot cong viec KHAC, nam o
+# workflow security-baseline.yml. Hai thu nay khong duoc dung chung mot ten.
+#
+# Phien ban cong cu duoc ghim, theo cach lab Conftest huong dan o muc 4.
+# =============================================================================
+name: devsecops-gate
+
+on:
+  pull_request:
+    branches: [dev, main]
+  push:
+    branches: [dev, main]
+
+permissions:
+  contents: read
+
+env:
+  CONFTEST_VERSION: 0.71.1
+  SEMGREP_VERSION: 1.182.1
+  TRIVY_VERSION: 0.70.0
+  PYTHONIOENCODING: utf-8
+
+jobs:
+  # ---------------------------------------------------------------------------
+  stage1_policy_guard:
+    name: "[CHANG 1] Policy Guard, ten commit va pull request"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Kiem quy uoc dat ten commit va PR
+        run: python3 ci/policy_guard.py
+
+  # ---------------------------------------------------------------------------
+  stage1_policy_as_code:
+    name: "[CHANG 1] Policy as Code, cau hinh va quan tri"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Cai Conftest ban ghim
+        run: |
+          curl -sSL "https://github.com/open-policy-agent/conftest/releases/download/v${CONFTEST_VERSION}/conftest_${CONFTEST_VERSION}_Linux_x86_64.tar.gz" \
+            | tar xz conftest
+          ./conftest --version
+
+      - name: Kiem chinh sach truoc khi dung lam cong
+        # Lab Conftest, Step 2: phai cho unit test cua chinh luat dat TRUOC khi
+        # dung luat de chan bat ky thu gi.
+        run: |
+          mkdir -p evidence
+          ./conftest verify -p policy/ --no-color | tee evidence/ci-00-conftest-verify.txt
+          grep -qE "[1-9][0-9]* tests, [0-9]+ passed, 0 .*0 failures" evidence/ci-00-conftest-verify.txt
+
+      - name: Chinh sach lop build, Dockerfile
+        run: |
+          for f in app/InlaneWeb/web/Dockerfile app/InlaneWeb/db/Dockerfile; do
+            echo "== $f =="
+            ./conftest test "$f" -p policy/ --namespace dockerfile --no-color \
+              | tee -a evidence/ci-01-dockerfile.txt
+          done
+
+      - name: Chinh sach lop trien khai, Compose
+        run: |
+          for f in app/InlaneWeb/docker-compose.yml \
+                   app/InlaneWeb/docker-compose.prod.yml \
+                   app/InlaneWeb/docker-compose.monitoring.yml; do
+            echo "== $f =="
+            ./conftest test "$f" -p policy/ --namespace compose --no-color \
+              | tee -a evidence/ci-02-compose.txt
+          done
+
+      - name: Bao dam cong thuc su danh gia, khong phai 0 test
+        # Bay duoc ghi trong ca handout va lab: thieu --namespace thi Conftest in
+        # "0 tests, 0 failures" va tra ma thoat 0, trong khi khong danh gia gi.
+        run: |
+          if grep -qE "^0 tests," evidence/ci-01-dockerfile.txt evidence/ci-02-compose.txt; then
+            echo "LOI: co lan chay danh gia 0 test, cong nay khong kiem gi ca"
+            exit 1
+          fi
+
+      - name: Chinh sach lop quan tri, bao ve nhanh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          for b in main dev; do
+            curl -sSL -H "Authorization: Bearer $GH_TOKEN" \
+              -H "Accept: application/vnd.github+json" \
+              "${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/branches/${b}" \
+              | python3 -c "import json,sys; d=json.load(sys.stdin); json.dump({'name':d.get('name'),'protected':d.get('protected'),'protection':d.get('protection')}, open('branch-'+sys.argv[1]+'.json','w'))" "$b"
+            ./conftest test "branch-${b}.json" -p policy/ --namespace repo --no-color \
+              | tee -a evidence/ci-03-branch-protection.txt
+          done
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: evidence-policy-as-code
+          path: evidence/
+
+  # ---------------------------------------------------------------------------
+  stage2_security_as_code:
+    name: "[CHANG 2] Security as Code, SonarQube va Semgrep"
+    runs-on: ubuntu-latest
+    needs: [stage1_policy_guard, stage1_policy_as_code]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Kiem cu phap PHP
+        id: lint
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq php-cli
+          mkdir -p evidence
+          find app/InlaneWeb/web/src tests -name '*.php' -print0 \
+            | xargs -0 -n1 php -l | tee evidence/ci-04-php-lint.txt
+          ! grep -qi "error" evidence/ci-04-php-lint.txt
+
+      - name: SonarQube tam thoi va cong chat luong
+        id: sonar
+        # KHONG dat ENFORCE_QUALITY_GATE. ci/sonarqube.py mac dinh "true" nen
+        # cong chan khi quality gate o trang thai ERROR.
+        run: |
+          python3 ci/sonarqube.py bootstrap
+          python3 ci/sonarqube.py report
+
+      - name: Semgrep, bo luat P1 den P5 cua nhom cong cac bo cong khai
+        run: |
+          python3 -m pip install --quiet "semgrep==${SEMGREP_VERSION}"
+          semgrep --metrics off --error \
+            --config ci/semgrep-policy-php.yml \
+            --config ci/semgrep-local-rules.yml \
+            --config p/owasp-top-ten \
+            --config p/php \
+            --config p/security-audit \
+            --config p/cwe-top-25 \
+            --json -o evidence/ci-05-semgrep.json \
+            app/InlaneWeb tests
+          # --error la bat buoc: khong co no thi Semgrep tra 0 du co phat hien.
+
+      - name: Chung minh cap fixture hai chieu
+        run: |
+          set +e
+          semgrep --metrics off --error --config ci/semgrep-policy-php.yml \
+            fixtures/php/profile_update.vulnerable.php > evidence/ci-06-fixture-vulnerable.txt 2>&1
+          VULN_RC=$?
+          semgrep --metrics off --error --config ci/semgrep-policy-php.yml \
+            fixtures/php/profile_update.patched.php > evidence/ci-07-fixture-patched.txt 2>&1
+          PATCH_RC=$?
+          set -e
+          echo "ban co y sai: exit=$VULN_RC (ky vong 1)"
+          echo "ban da va    : exit=$PATCH_RC (ky vong 0)"
+          [ "$VULN_RC" -ne 0 ] && [ "$PATCH_RC" -eq 0 ]
+
+      - name: Cong ket qua cuoi cua chang
+        if: always() && steps.lint.conclusion != 'skipped'
+        env:
+          LINT_OUTCOME: ${{ steps.lint.outcome }}
+          SCAN_OUTCOME: ${{ steps.sonar.outcome }}
+        run: python3 ci/sonarqube.py check
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: evidence-security-as-code
+          path: evidence/
+
+  # ---------------------------------------------------------------------------
+  stage3_supply_chain:
+    name: "[CHANG 3] Chuoi cung ung, CVE va SBOM"
+    runs-on: ubuntu-latest
+    needs: [stage1_policy_as_code]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Cai Trivy ban ghim
+        run: |
+          curl -sSL "https://github.com/aquasecurity/trivy/releases/download/v${TRIVY_VERSION}/trivy_${TRIVY_VERSION}_Linux-64bit.tar.gz" \
+            | tar xz trivy
+          ./trivy --version
+
+      - name: SBOM cho hai anh nen
+        run: |
+          mkdir -p evidence sbom
+          ./trivy image --quiet --format cyclonedx -o sbom/php-8.2-apache.cdx.json php:8.2-apache
+          ./trivy image --quiet --format cyclonedx -o sbom/mariadb-10.11.cdx.json mariadb:10.11
+          python3 -c "import json,glob; [print(p, len(json.load(open(p))['components']), 'thanh phan') for p in sorted(glob.glob('sbom/*.json'))]" \
+            | tee evidence/ci-08-sbom.txt
+
+      - name: Quet bi mat
+        run: ./trivy fs --scanners secret --no-progress app/ | tee evidence/ci-09-trivy-secret.txt
+
+      - name: Cong CVE, chan khi co CRITICAL
+        # Hai deck cua mon hoc ghi "builds fail on High CVEs". --exit-code 1 la
+        # bat buoc; khong co no thi Trivy tra 0 du co 119 lo hong.
+        run: |
+          set +e
+          ./trivy image --quiet --severity CRITICAL --exit-code 1 php:8.2-apache \
+            | tee evidence/ci-10-trivy-cve-web.txt
+          WEB_RC=${PIPESTATUS[0]}
+          ./trivy image --quiet --severity CRITICAL --exit-code 1 mariadb:10.11 \
+            | tee evidence/ci-11-trivy-cve-db.txt
+          DB_RC=${PIPESTATUS[0]}
+          set -e
+          echo "php:8.2-apache exit=$WEB_RC | mariadb:10.11 exit=$DB_RC"
+          [ "$WEB_RC" -eq 0 ] && [ "$DB_RC" -eq 0 ]
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: evidence-supply-chain
+          path: |
+            evidence/
+            sbom/
+
+  # ---------------------------------------------------------------------------
+  stage4_test_driven_security:
+    name: "[CHANG 4] Test-Driven Security"
+    runs-on: ubuntu-latest
+    needs: [stage2_security_as_code]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Chay bo test hanh vi
+        run: |
+          mkdir -p evidence
+          bash tests/security/run.sh --keep-up 2>&1 | tee evidence/ci-12-tds.txt
+      - name: Compliance as Code tren container dang chay
+        run: |
+          docker run --rm \
+            -v /var/run/docker.sock:/var/run/docker.sock:ro \
+            -v "$PWD/compliance:/profile" \
+            chef/inspec exec /profile \
+            --input container=ilfreight_web \
+            --chef-license=accept-silent \
+            --reporter cli json:/dev/null 2>&1 | tee evidence/ci-13-inspec.txt
+      - name: Ha stack
+        if: always()
+        run: docker compose -f app/InlaneWeb/docker-compose.yml down -v || true
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: evidence-tds-cac
+          path: evidence/
+
+  # ---------------------------------------------------------------------------
+  stage5_gate_summary:
+    name: "[CHANG 5] Tong ket cong"
+    runs-on: ubuntu-latest
+    needs: [stage1_policy_guard, stage1_policy_as_code, stage2_security_as_code, stage3_supply_chain, stage4_test_driven_security]
+    if: always()
+    steps:
+      - name: Ghi ket qua tung cong vao Step Summary
+        run: |
+          {
+            echo "## Ket qua cac cong DevSecOps"
+            echo
+            echo "| Chang | Cong | Ket qua |"
+            echo "|---|---|---|"
+            echo "| 1 | Policy Guard | ${{ needs.stage1_policy_guard.result }} |"
+            echo "| 1 | Policy as Code | ${{ needs.stage1_policy_as_code.result }} |"
+            echo "| 2 | Security as Code | ${{ needs.stage2_security_as_code.result }} |"
+            echo "| 3 | Chuoi cung ung | ${{ needs.stage3_supply_chain.result }} |"
+            echo "| 4 | TDS va CaC | ${{ needs.stage4_test_driven_security.result }} |"
+          } >> "$GITHUB_STEP_SUMMARY"
+      - name: Chan khi co bat ky cong nao that bai
+        if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')
+        run: |
+          echo "Co cong that bai, pull request nay khong duoc hop nhat."
+          exit 1

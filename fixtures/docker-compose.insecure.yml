@@ -1,0 +1,20 @@
+# Ban CO Y sai o lop trien khai, dung de chung minh bo luat compose bat duoc.
+name: inlaneweb-insecure
+services:
+  db:
+    image: inlaneweb-db:latest          # VI PHAM SUPPLY-CHAIN
+    privileged: true                     # VI PHAM LEAST-PRIVILEGE
+    user: root                           # VI PHAM LEAST-PRIVILEGE
+    ports:
+      - "0.0.0.0:3306:3306"              # VI PHAM ATTACK-SURFACE x2
+    environment:                         # dang tu dien
+      MYSQL_ROOT_PASSWORD: password      # VI PHAM CREDENTIALS
+      DB_USER: root                      # VI PHAM LEAST-PRIVILEGE
+  grafana:
+    image: grafana/grafana:11.0.0
+    ports:
+      - "3000:3000"                      # VI PHAM ATTACK-SURFACE (khong co host IP)
+    environment:                         # dang danh sach
+      - GF_SECURITY_ADMIN_PASSWORD=abc123   # VI PHAM CREDENTIALS
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock   # VI PHAM ISOLATION

@@ -1,0 +1,19 @@
+name: inlaneweb-runtime
+title: InlaneWeb container runtime baseline
+maintainer: Nhom 11, M26CQAT01-B
+license: Apache-2.0
+summary: >-
+  Compliance as Code cho thoi diem CHAY, doi chieu trang thai thuc te cua
+  container voi cac yeu cau an toan toi thieu. Khac voi Policy as Code o cho
+  Policy as Code doc TEP CAU HINH truoc khi trien khai, con profile nay doc
+  trang thai that cua container dang chay qua `docker inspect`, nen no bat duoc
+  ca truong hop cau hinh khai bao mot dang ma thuc te lai khac.
+version: 1.0.0
+inspec_version: '>= 5.0'
+supports:
+  - platform: os
+inputs:
+  - name: container
+    description: Ten container can kiem
+    type: string
+    value: ilfreight_web

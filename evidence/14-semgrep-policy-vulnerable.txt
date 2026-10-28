@@ -1,0 +1,86 @@
+$ semgrep --metrics off --error --config ci/semgrep-policy-php.yml fixtures/php/profile_update.vulnerable.php
+               
+               
+┌─────────────┐
+│ Scan Status │
+└─────────────┘
+  Scanning 1 file tracked by git with 8 Code rules:
+  Scanning 1 file with 8 php rules.
+                
+                
+┌──────────────┐
+│ Scan Summary │
+└──────────────┘
+✅ Scan completed successfully.
+ • Findings: 8 (8 blocking)
+ • Rules run: 8
+ • Targets scanned: 1
+ • Parsed lines: ~100.0%
+ • No ignore information available
+Ran 8 rules on 1 file: 8 findings.
+                   
+                   
+┌─────────────────┐
+│ 8 Code Findings │
+└─────────────────┘
+                                              
+    fixtures\php\profile_update.vulnerable.php
+   ❯❯❱ ci.policy-p2-client-supplied-identity
+          ❰❰ Blocking ❱❱
+          POLICY-P2 (RBAC): dinh danh doi tuong duoc lay tu dau vao client roi dung de tra cuu hoac sua ban  
+          ghi. Phai lay tu phien da xac thuc va kiem quyen so huu. Semgrep chi bat duoc duong di cua du lieu;
+          viec thieu phep kiem quyen so huu phai do test hanh vi chung minh.                                 
+                                                                                                             
+           17┆ $row = query_one($sql);
+   
+   ❯❯❱ ci.policy-p4-sql-injection
+          ❰❰ Blocking ❱❱
+          POLICY-P4 (kiem tra dau vao): du lieu tu client di vao chuoi truy van tho. Dung cau lenh chuan bi
+          truoc voi tham so rang buoc.                                                                     
+                                                                                                           
+           17┆ $row = query_one($sql);
+   
+   ❯❯❱ ci.policy-p1-unrestricted-write
+          ❰❰ Blocking ❱❱
+          POLICY-P1 (least privilege): du lieu tu client di vao mot cau lenh ghi ma khong qua danh sach truong
+          duoc phep. Client co the dat cot ngoai y muon, vi du tu nang quyen bang cach chen , role='admin'.   
+                                                                                                              
+           22┆ exec_write("UPDATE users SET email = '$email' WHERE id = $userId");
+   
+   ❯❯❱ ci.policy-p2-client-supplied-identity
+          ❰❰ Blocking ❱❱
+          POLICY-P2 (RBAC): dinh danh doi tuong duoc lay tu dau vao client roi dung de tra cuu hoac sua ban  
+          ghi. Phai lay tu phien da xac thuc va kiem quyen so huu. Semgrep chi bat duoc duong di cua du lieu;
+          viec thieu phep kiem quyen so huu phai do test hanh vi chung minh.                                 
+                                                                                                             
+           22┆ exec_write("UPDATE users SET email = '$email' WHERE id = $userId");
+   
+   ❯❯❱ ci.policy-p3-hardcoded-credential-fallback
+          ❰❰ Blocking ❱❱
+          POLICY-P3 (quan ly bi mat): thong tin xac thuc co gia tri du phong la chuoi hang khi bien moi truong
+          vang mat, nen bi mat nam trong ma nguon.                                                            
+                                                                                                              
+           25┆ $apiKey = getenv('ILF_API_KEY') ?: 'ILF-ADM-9f3c1a77e2b04d55';
+   
+   ❯❯❱ ci.policy-p3-privileged-db-account-default
+          ❰❰ Blocking ❱❱
+          POLICY-P3 (least privilege o tang ket noi): ung dung ket noi co so du lieu bang tai khoan dac quyen
+          theo mac dinh.                                                                                     
+                                                                                                             
+           28┆ $dbUser = getenv('DB_USER') ?: 'root';
+   
+   ❯❯❱ ci.policy-p5-request-data-in-log
+          ❰❰ Blocking ❱❱
+          POLICY-P5 (nhat ky): du lieu tu client di truc tiep vao mot loi goi ghi nhat ky ma khong qua buoc
+          che.                                                                                             
+                                                                                                           
+           31┆ error_log('profile update for ' . $_POST['email']);
+   
+   ❯❯❱ ci.policy-p4-error-detail-to-response
+          ❰❰ Blocking ❱❱
+          POLICY-P4 (ve sinh loi): noi dung loi cua tang co so du lieu di ra phan hoi HTTP. Client chi duoc
+          nhan thong diep chung kem mot ma su kien.                                                        
+                                                                                                           
+           34┆ echo mysqli_error(db());
+
+exit=1

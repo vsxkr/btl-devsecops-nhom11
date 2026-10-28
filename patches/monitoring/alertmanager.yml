@@ -1,0 +1,31 @@
+# Alertmanager: dich den cua canh bao tu Loki ruler.
+# Ban goc cua nhom tro ruler toi http://alertmanager:9093 nhung khong co dich vu
+# nao mang ten do, nen canh bao khong tới được đâu cả.
+global:
+  resolve_timeout: 1m
+
+route:
+  receiver: lab-sink
+  group_by: ['alertname', 'client_ip']
+  group_wait: 10s
+  group_interval: 30s
+  repeat_interval: 30m
+  routes:
+    - matchers:
+        - severity = "info"
+      receiver: lab-sink
+      repeat_interval: 6h
+
+receivers:
+  - name: lab-sink
+    webhook_configs:
+      - url: http://alert-sink:9099/alert
+        send_resolved: true
+
+inhibit_rules:
+  # Khi da co canh bao loat tu mot nguon thi khong can canh bao le cua cung nguon
+  - source_matchers:
+      - severity = "critical"
+    target_matchers:
+      - severity = "info"
+    equal: ['client_ip', 'vuln_type']

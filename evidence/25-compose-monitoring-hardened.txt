@@ -1,0 +1,7 @@
+$ conftest test patches/monitoring/docker-compose.monitoring.hardened.yml -p policy/ --namespace compose
+WARN - patches/monitoring/docker-compose.monitoring.hardened.yml - compose - ISOLATION: service 'autoheal' mounts the Docker socket read-only; confirm this is required.
+WARN - patches/monitoring/docker-compose.monitoring.hardened.yml - compose - ISOLATION: service 'promtail' mounts the Docker socket read-only; confirm this is required.
+WARN - patches/monitoring/docker-compose.monitoring.hardened.yml - compose - OBSERVABILITY: service 'autoheal' has no healthcheck.
+
+13 tests, 10 passed, 3 warnings, 0 failures, 0 exceptions
+exit=0

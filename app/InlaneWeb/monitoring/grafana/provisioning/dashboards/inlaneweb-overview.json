@@ -1,0 +1,230 @@
+{
+  "annotations": {
+    "list": []
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [],
+  "liveNow": true,
+  "panels": [
+    {
+      "collapsed": false,
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 0 },
+      "id": 1,
+      "title": "Application Cause Exceptions & Runtime Stacktraces (Web Application Log)",
+      "type": "logs",
+      "datasource": { "type": "loki", "uid": "Loki" },
+      "targets": [
+        {
+          "datasource": { "type": "loki", "uid": "Loki" },
+          "editorMode": "code",
+          "expr": "{container=\"ilfreight_web\"} |~ \"(?i)(APP-EXCEPTION|cause_chain|database_query_failure|Fatal error|Uncaught Exception|mysqli_sql_exception)\"",
+          "queryType": "range",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "showLabels": true,
+        "wrapLogMessage": true,
+        "enableLogDetails": true,
+        "sortOrder": "Descending"
+      }
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+      "id": 2,
+      "title": "SQL Injection (SQLi) Attacks in HTTP Traffic",
+      "type": "logs",
+      "datasource": { "type": "loki", "uid": "Loki" },
+      "targets": [
+        {
+          "datasource": { "type": "loki", "uid": "Loki" },
+          "editorMode": "code",
+          "expr": "{container=\"ilfreight_web\"} |~ \"(?i)(union(\\\\s+|%20|\\\\+)select|sleep\\\\(|benchmark\\\\(|or(\\\\s+|%20|\\\\+)1=1|--|load_file\\\\(|into(\\\\s+|%20|\\\\+)outfile|into(\\\\s+|%20|\\\\+)dumpfile|information_schema|database\\\\(|schema\\\\(|sqlmap|havij)\"",
+          "queryType": "range",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "showLabels": true,
+        "wrapLogMessage": true,
+        "enableLogDetails": true,
+        "sortOrder": "Descending"
+      }
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+      "id": 3,
+      "title": "Path Traversal & Local File Inclusion (LFI/RFI) in HTTP Traffic",
+      "type": "logs",
+      "datasource": { "type": "loki", "uid": "Loki" },
+      "targets": [
+        {
+          "datasource": { "type": "loki", "uid": "Loki" },
+          "editorMode": "code",
+          "expr": "{container=\"ilfreight_web\"} |~ \"(?i)(\\\\.\\\\./|\\\\.\\\\.\\\\\\\\|%2e%2e%2f|%2e%2e/|\\\\.\\\\.%2f|%2e%2e%5c|/etc/passwd|/etc/shadow|/proc/self|win\\\\.ini|boot\\\\.ini|system32|php://filter|php://input|data://)\"",
+          "queryType": "range",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "showLabels": true,
+        "wrapLogMessage": true,
+        "enableLogDetails": true,
+        "sortOrder": "Descending"
+      }
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 16 },
+      "id": 4,
+      "title": "Cross-Site Scripting (XSS) in HTTP Traffic",
+      "type": "logs",
+      "datasource": { "type": "loki", "uid": "Loki" },
+      "targets": [
+        {
+          "datasource": { "type": "loki", "uid": "Loki" },
+          "editorMode": "code",
+          "expr": "{container=\"ilfreight_web\"} |~ \"(?i)(<script|%3cscript|</script|%3c/script|<svg|%3csvg|<iframe|%3ciframe|<img|%3cimg|javascript:|vbscript:|onload=|onerror=|onclick=|onmouseover=|alert\\\\(|prompt\\\\(|confirm\\\\(|document\\\\.cookie)\"",
+          "queryType": "range",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "showLabels": true,
+        "wrapLogMessage": true,
+        "enableLogDetails": true,
+        "sortOrder": "Descending"
+      }
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 16 },
+      "id": 5,
+      "title": "Remote Code Execution & Command Injection (CMDi) in HTTP Traffic",
+      "type": "logs",
+      "datasource": { "type": "loki", "uid": "Loki" },
+      "targets": [
+        {
+          "datasource": { "type": "loki", "uid": "Loki" },
+          "editorMode": "code",
+          "expr": "{container=\"ilfreight_web\"} |~ \"(?i)(;\\\\s*(cat|ls|id|whoami|pwd|uname|nc|sh|bash)|\\\\|\\\\s*(cat|ls|id|whoami|sh|bash)|&&\\\\s*(cat|ls|id|whoami)|/bin/sh|/bin/bash|powershell|cmd\\\\.exe|wget(\\\\s+|%20|\\\\+)|curl(\\\\s+|%20|\\\\+))\"",
+          "queryType": "range",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "showLabels": true,
+        "wrapLogMessage": true,
+        "enableLogDetails": true,
+        "sortOrder": "Descending"
+      }
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 24 },
+      "id": 6,
+      "title": "HTTP Error-Based Response Leaks & 4xx/5xx Server Faults",
+      "type": "logs",
+      "datasource": { "type": "loki", "uid": "Loki" },
+      "targets": [
+        {
+          "datasource": { "type": "loki", "uid": "Loki" },
+          "editorMode": "code",
+          "expr": "{container=\"ilfreight_web\"} |~ \"(?i)(syntax\\\\s+error|database_query_failure|mysqli_error|SQL\\\\s+Error|\\\\\"status\\\\\":50[0-9]|\\\\\"status\\\\\":40[0-9]| 500 | 404 )\"",
+          "queryType": "range",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "showLabels": true,
+        "wrapLogMessage": true,
+        "enableLogDetails": true,
+        "sortOrder": "Descending"
+      }
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 24 },
+      "id": 7,
+      "title": "Multi-Vector Security Incident Rate (Events/sec)",
+      "type": "timeseries",
+      "datasource": { "type": "loki", "uid": "Loki" },
+      "targets": [
+        {
+          "datasource": { "type": "loki", "uid": "Loki" },
+          "editorMode": "code",
+          "expr": "sum(rate({container=\"ilfreight_web\"} |~ \"(?i)(union(\\\\s+|%20|\\\\+)select|sleep\\\\(|benchmark\\\\(|or(\\\\s+|%20|\\\\+)1=1|load_file|into(\\\\s+|%20|\\\\+)outfile|information_schema|database\\\\()\"[1m]))",
+          "legendFormat": "SQLi Vectors",
+          "queryType": "range",
+          "refId": "A"
+        },
+        {
+          "datasource": { "type": "loki", "uid": "Loki" },
+          "editorMode": "code",
+          "expr": "sum(rate({container=\"ilfreight_web\"} |~ \"(?i)(\\\\.\\\\./|\\\\.\\\\.\\\\\\\\|%2e%2e%2f|/etc/passwd|proc/self|php://)\"[1m]))",
+          "legendFormat": "Traversal/LFI Vectors",
+          "queryType": "range",
+          "refId": "B"
+        },
+        {
+          "datasource": { "type": "loki", "uid": "Loki" },
+          "editorMode": "code",
+          "expr": "sum(rate({container=\"ilfreight_web\"} |~ \"(?i)(<script|%3cscript|<svg|javascript:|onload=|onerror=)\"[1m]))",
+          "legendFormat": "XSS Vectors",
+          "queryType": "range",
+          "refId": "C"
+        },
+        {
+          "datasource": { "type": "loki", "uid": "Loki" },
+          "editorMode": "code",
+          "expr": "sum(rate({container=\"ilfreight_web\"} |~ \"(?i)(\\\\\"status\\\\\":50[0-9]| 500 |syntax\\\\s+error)\"[1m]))",
+          "legendFormat": "5xx & Error Leaks",
+          "queryType": "range",
+          "refId": "D"
+        }
+      ]
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 32 },
+      "id": 8,
+      "title": "MariaDB Database Diagnostics (Queries & Connections)",
+      "type": "logs",
+      "datasource": { "type": "loki", "uid": "Loki" },
+      "targets": [
+        {
+          "datasource": { "type": "loki", "uid": "Loki" },
+          "editorMode": "code",
+          "expr": "{container=\"ilfreight_db\"}",
+          "queryType": "range",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "showLabels": true,
+        "wrapLogMessage": true,
+        "sortOrder": "Descending"
+      }
+    }
+  ],
+  "refresh": "5s",
+  "schemaVersion": 38,
+  "style": "dark",
+  "tags": ["inlaneweb", "devops", "monitoring", "security"],
+  "time": {
+    "from": "now-15m",
+    "to": "now"
+  },
+  "timepicker": {
+    "refresh_intervals": ["5s", "10s", "30s", "1m"]
+  },
+  "timezone": "browser",
+  "title": "InlaneWeb Logistics — Centralized Observability & Anomaly Dashboard",
+  "uid": "inlaneweb-observability",
+  "version": 3
+}

@@ -1,0 +1,151 @@
+# =============================================================================
+# loki-alert-rules.hardened.yml — ban da sua cua
+# app/InlaneWeb/monitoring/loki/rules/fake/alert-rules.yml
+#
+# Ba thay doi so voi ban goc:
+#
+# 1. KIEN TRUC HAI CHUOI THEO LAB TELEMETRY
+#    Ban goc moi luat deu la `rate(...) > 0` voi `for: 5s`, nen mot lan tham do
+#    sinh ra mot canh bao, va khong phat hien duoc do quet hay bot. Lab dung
+#    luat muc thap danh dau tung request roi luat muc cao DEM THEO TUNG NGUON
+#    trong mot cua so thoi gian, kem khoang `ignore` de chong lap.
+#    Voi Loki, viec dem theo nguon lam bang `sum by (client_ip)` tren truong
+#    duoc boc tach luc truy van qua `| json`, nen khong tao nhan co luc tinh cao.
+#
+# 2. GAN MA KY THUAT MITRE
+#    Bang luat trong lab co cot MITRE. Ban goc khong co.
+#
+# 3. TACH NGUONG THEO MUC DO
+#    Mot lan tham do la tin hieu dang ghi nhan, mot loat tham do tu cung mot
+#    nguon la su co. Hai viec do khong nen sinh ra cung mot muc canh bao.
+# =============================================================================
+groups:
+  - name: inlaneweb-correlation
+    interval: 15s
+    rules:
+      # ---- Chuoi 1: do quet thong tin dang nhap -----------------------------
+      # Can ung dung phat su kien auth_event, xem patches/app/logger-auth-event.php
+      - alert: CredentialStuffingFromSingleSource
+        expr: |
+          sum by (client_ip) (
+            count_over_time({container="ilfreight_web", log_category="auth", auth_outcome="failure"} | json [1m])
+          ) > 5
+        for: 0s
+        labels:
+          severity: critical
+          service: web
+          category: auth
+          mitre: T1110.004
+        annotations:
+          summary: "Do quet thong tin dang nhap tu mot dia chi"
+          description: "Hon 5 lan dang nhap that bai trong 60 giay tu cung mot dia chi nguon."
+
+      # ---- Chuoi 2: loat tham do SQL injection tu mot nguon -----------------
+      - alert: SqliProbeBurstFromSingleSource
+        expr: |
+          sum by (client_ip) (
+            count_over_time({container="ilfreight_web", vuln_category="sqli"} | json [1m])
+          ) > 5
+        for: 0s
+        labels:
+          severity: critical
+          service: web
+          category: http_traffic
+          vuln_type: sqli
+          mitre: T1190
+        annotations:
+          summary: "Loat tham do SQL injection tu mot dia chi"
+          description: "Hon 5 request mang dac trung SQL injection trong 60 giay tu cung mot dia chi nguon. Mot lan le duoc ghi nhan o muc thap, mot loat la su co."
+
+      # ---- Chuoi 2b: mot lan tham do le, chi ghi nhan -----------------------
+      - alert: SqliProbeObserved
+        expr: |
+          sum(count_over_time({container="ilfreight_web", vuln_category="sqli"}[1m])) > 0
+        for: 30s
+        labels:
+          severity: info
+          service: web
+          category: http_traffic
+          vuln_type: sqli
+          mitre: T1190
+        annotations:
+          summary: "Ghi nhan dac trung SQL injection trong luu luong"
+          description: "Tin hieu muc thap, dung de doi chieu khi dieu tra chu khong de goi nguoi truc."
+
+      # ---- Chuoi 3: doc tep he thong va bao gom tep cuc bo ------------------
+      - alert: PathTraversalBurstFromSingleSource
+        expr: |
+          sum by (client_ip) (
+            count_over_time({container="ilfreight_web", vuln_category="traversal_lfi"} | json [1m])
+          ) > 3
+        for: 0s
+        labels:
+          severity: high
+          service: web
+          category: http_traffic
+          vuln_type: traversal_lfi
+          mitre: T1083
+        annotations:
+          summary: "Loat tham do doc tep he thong tu mot dia chi"
+          description: "Hon 3 request mang dac trung path traversal hoac LFI trong 60 giay tu cung mot nguon."
+
+      # ---- Chuoi 4: thuc thi lenh he thong ---------------------------------
+      - alert: CommandInjectionAttempt
+        expr: |
+          sum by (client_ip) (
+            count_over_time({container="ilfreight_web", vuln_category="command_injection"} | json [1m])
+          ) > 0
+        for: 0s
+        labels:
+          severity: critical
+          service: web
+          category: http_traffic
+          vuln_type: command_injection
+          mitre: T1059
+        annotations:
+          summary: "Dau hieu chen lenh he thong"
+          description: "Nguong dat o 1 vi mot lan thanh cong da du gay hau qua, khac voi tham do SQL injection."
+
+      # ---- Chuoi 5: ro ri qua phan hoi loi ---------------------------------
+      - alert: ErrorBasedLeakSustained
+        expr: |
+          sum by (client_ip) (
+            count_over_time({container="ilfreight_web", vuln_category="error_based_leak"} | json [2m])
+          ) > 10
+        for: 0s
+        labels:
+          severity: high
+          service: web
+          category: http_traffic
+          vuln_type: error_based_leak
+          mitre: T1190
+        annotations:
+          summary: "Khai thac dua tren thong diep loi"
+          description: "Hon 10 phan hoi loi trong 2 phut tu cung mot nguon, dac trung cua khai thac error-based."
+
+  - name: inlaneweb-availability
+    interval: 15s
+    rules:
+      - alert: DatabaseConnectionLost
+        expr: |
+          sum(count_over_time({container="ilfreight_web"} |~ "(?i)(Access denied|Connection refused|Can't connect to MySQL server)"[1m])) > 0
+        for: 10s
+        labels:
+          severity: critical
+          service: db
+          category: availability
+        annotations:
+          summary: "Ung dung mat ket noi co so du lieu"
+          description: "Container ilfreight_web bao loi ket noi MariaDB."
+
+      - alert: HighHttp5xxRate
+        expr: |
+          sum(count_over_time({container="ilfreight_web"} | json | status =~ "5.."[1m])) > 5
+        for: 10s
+        labels:
+          severity: critical
+          service: web
+          category: availability
+        annotations:
+          summary: "Ty le loi HTTP 5xx tang cao"
+          description: "Hon 5 phan hoi 5xx trong 60 giay."

@@ -1,0 +1,24 @@
+$ conftest test app/InlaneWeb/docker-compose.monitoring.yml -p policy/ --namespace compose
+WARN - app/InlaneWeb/docker-compose.monitoring.yml - compose - ISOLATION: service 'promtail' mounts the Docker socket read-only; confirm this is required.
+WARN - app/InlaneWeb/docker-compose.monitoring.yml - compose - LEAST-PRIVILEGE: service 'autoheal' should set read_only: true and mount tmpfs for writable paths.
+WARN - app/InlaneWeb/docker-compose.monitoring.yml - compose - LEAST-PRIVILEGE: service 'grafana' should set read_only: true and mount tmpfs for writable paths.
+WARN - app/InlaneWeb/docker-compose.monitoring.yml - compose - LEAST-PRIVILEGE: service 'loki' should set read_only: true and mount tmpfs for writable paths.
+WARN - app/InlaneWeb/docker-compose.monitoring.yml - compose - LEAST-PRIVILEGE: service 'promtail' should set read_only: true and mount tmpfs for writable paths.
+WARN - app/InlaneWeb/docker-compose.monitoring.yml - compose - OBSERVABILITY: service 'autoheal' has no healthcheck.
+WARN - app/InlaneWeb/docker-compose.monitoring.yml - compose - OBSERVABILITY: service 'promtail' has no healthcheck.
+FAIL - app/InlaneWeb/docker-compose.monitoring.yml - compose - ATTACK-SURFACE: service 'grafana' publishes '0.0.0.0:3000:3000' on 0.0.0.0 instead of 127.0.0.1.
+FAIL - app/InlaneWeb/docker-compose.monitoring.yml - compose - CREDENTIALS: service 'grafana' hard-codes secret 'GF_SECURITY_ADMIN_PASSWORD' in environment; inject it at deploy time.
+FAIL - app/InlaneWeb/docker-compose.monitoring.yml - compose - ISOLATION: service 'autoheal' mounts the Docker socket writable; that is equivalent to host root.
+FAIL - app/InlaneWeb/docker-compose.monitoring.yml - compose - LEAST-PRIVILEGE: service 'autoheal' must drop ALL capabilities (cap_drop: [ALL]).
+FAIL - app/InlaneWeb/docker-compose.monitoring.yml - compose - LEAST-PRIVILEGE: service 'autoheal' must set security_opt: ["no-new-privileges:true"].
+FAIL - app/InlaneWeb/docker-compose.monitoring.yml - compose - LEAST-PRIVILEGE: service 'grafana' must drop ALL capabilities (cap_drop: [ALL]).
+FAIL - app/InlaneWeb/docker-compose.monitoring.yml - compose - LEAST-PRIVILEGE: service 'grafana' must set security_opt: ["no-new-privileges:true"].
+FAIL - app/InlaneWeb/docker-compose.monitoring.yml - compose - LEAST-PRIVILEGE: service 'loki' must drop ALL capabilities (cap_drop: [ALL]).
+FAIL - app/InlaneWeb/docker-compose.monitoring.yml - compose - LEAST-PRIVILEGE: service 'loki' must set security_opt: ["no-new-privileges:true"].
+FAIL - app/InlaneWeb/docker-compose.monitoring.yml - compose - LEAST-PRIVILEGE: service 'promtail' must drop ALL capabilities (cap_drop: [ALL]).
+FAIL - app/InlaneWeb/docker-compose.monitoring.yml - compose - LEAST-PRIVILEGE: service 'promtail' must set security_opt: ["no-new-privileges:true"].
+FAIL - app/InlaneWeb/docker-compose.monitoring.yml - compose - LEAST-PRIVILEGE: service 'promtail' runs as root (user: root).
+FAIL - app/InlaneWeb/docker-compose.monitoring.yml - compose - SUPPLY-CHAIN: service 'autoheal' uses image 'willfarrell/autoheal:latest' pinned to :latest.
+
+20 tests, 0 passed, 7 warnings, 13 failures, 0 exceptions
+exit=1

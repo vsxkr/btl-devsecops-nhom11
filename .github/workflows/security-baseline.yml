@@ -1,0 +1,85 @@
+# =============================================================================
+# security-baseline.yml — GHI NHAN trang thai, KHONG chan.
+#
+# Ly do ton tai: viec do trang thai an toan hien tai va viec chan mot thay doi
+# khong dat la hai cong viec khac nhau. Ban goc cua nhom gop chung vao mot job
+# ten "Enforce pipeline result" nhung lai luon chay o che do bao cao, nen nguoi
+# doc tuong co cong trong khi khong co.
+#
+# Workflow nay chay thu cong hoac theo lich, chay moi cong cu o che do bao cao,
+# va tao ra bo bang chung dung cho bao cao. No KHONG bao gio lam that bai mot
+# pull request. Viec chan nam o devsecops-gate.yml.
+# =============================================================================
+name: security-baseline (bao cao, khong chan)
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 2 * * 1'
+
+permissions:
+  contents: read
+
+env:
+  CONFTEST_VERSION: 0.71.1
+  SEMGREP_VERSION: 1.182.1
+  TRIVY_VERSION: 0.70.0
+  PYTHONIOENCODING: utf-8
+
+jobs:
+  baseline:
+    name: Do trang thai an toan hien tai
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Cai cong cu ban ghim
+        run: |
+          curl -sSL "https://github.com/open-policy-agent/conftest/releases/download/v${CONFTEST_VERSION}/conftest_${CONFTEST_VERSION}_Linux_x86_64.tar.gz" | tar xz conftest
+          curl -sSL "https://github.com/aquasecurity/trivy/releases/download/v${TRIVY_VERSION}/trivy_${TRIVY_VERSION}_Linux-64bit.tar.gz" | tar xz trivy
+          python3 -m pip install --quiet "semgrep==${SEMGREP_VERSION}"
+          mkdir -p evidence
+
+      - name: Policy as Code, ba lop
+        continue-on-error: true
+        run: |
+          ./conftest verify -p policy/ --no-color | tee evidence/base-00-verify.txt
+          for f in app/InlaneWeb/web/Dockerfile app/InlaneWeb/db/Dockerfile; do
+            ./conftest test "$f" -p policy/ --namespace dockerfile --no-color | tee -a evidence/base-01-dockerfile.txt
+          done
+          for f in app/InlaneWeb/docker-compose.yml app/InlaneWeb/docker-compose.prod.yml app/InlaneWeb/docker-compose.monitoring.yml; do
+            ./conftest test "$f" -p policy/ --namespace compose --no-color | tee -a evidence/base-02-compose.txt
+          done
+
+      - name: Security as Code
+        continue-on-error: true
+        run: |
+          semgrep --metrics off --config ci/semgrep-policy-php.yml app/InlaneWeb \
+            | tee evidence/base-03-semgrep-policy.txt
+
+      - name: Chuoi cung ung
+        continue-on-error: true
+        run: |
+          ./trivy image --quiet --severity HIGH,CRITICAL php:8.2-apache | tee evidence/base-04-cve-web.txt
+          ./trivy image --quiet --severity HIGH,CRITICAL mariadb:10.11 | tee evidence/base-05-cve-db.txt
+          ./trivy fs --scanners secret --no-progress app/ | tee evidence/base-06-secret.txt
+
+      - name: Tong hop so dem
+        run: |
+          {
+            echo "## Trang thai an toan hien tai, do $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            echo
+            echo '```'
+            grep -hE "tests, " evidence/base-0[12]*.txt || true
+            grep -hE "Findings: " evidence/base-03*.txt || true
+            grep -hE "Total: " evidence/base-0[45]*.txt || true
+            echo '```'
+            echo
+            echo "Workflow nay khong chan. Viec chan nam o devsecops-gate.yml."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: evidence-baseline
+          path: evidence/

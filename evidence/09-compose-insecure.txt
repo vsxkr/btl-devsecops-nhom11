@@ -1,0 +1,22 @@
+$ conftest test fixtures/docker-compose.insecure.yml -p policy/ --namespace compose
+WARN - fixtures/docker-compose.insecure.yml - compose - LEAST-PRIVILEGE: service 'db' should set read_only: true and mount tmpfs for writable paths.
+WARN - fixtures/docker-compose.insecure.yml - compose - LEAST-PRIVILEGE: service 'grafana' should set read_only: true and mount tmpfs for writable paths.
+WARN - fixtures/docker-compose.insecure.yml - compose - OBSERVABILITY: service 'db' has no healthcheck.
+WARN - fixtures/docker-compose.insecure.yml - compose - OBSERVABILITY: service 'grafana' has no healthcheck.
+FAIL - fixtures/docker-compose.insecure.yml - compose - ATTACK-SURFACE: service 'db' publishes '0.0.0.0:3306:3306' on 0.0.0.0 instead of 127.0.0.1.
+FAIL - fixtures/docker-compose.insecure.yml - compose - ATTACK-SURFACE: service 'db' publishes administrative/database port 3306.
+FAIL - fixtures/docker-compose.insecure.yml - compose - ATTACK-SURFACE: service 'grafana' publishes '3000:3000' on 0.0.0.0 instead of 127.0.0.1.
+FAIL - fixtures/docker-compose.insecure.yml - compose - CREDENTIALS: service 'db' hard-codes secret 'MYSQL_ROOT_PASSWORD' in environment; inject it at deploy time.
+FAIL - fixtures/docker-compose.insecure.yml - compose - CREDENTIALS: service 'grafana' hard-codes secret 'GF_SECURITY_ADMIN_PASSWORD' in environment; inject it at deploy time.
+FAIL - fixtures/docker-compose.insecure.yml - compose - ISOLATION: service 'grafana' mounts the Docker socket writable; that is equivalent to host root.
+FAIL - fixtures/docker-compose.insecure.yml - compose - LEAST-PRIVILEGE: service 'db' connects to the database as privileged account 'root'; use a least-privilege account.
+FAIL - fixtures/docker-compose.insecure.yml - compose - LEAST-PRIVILEGE: service 'db' must drop ALL capabilities (cap_drop: [ALL]).
+FAIL - fixtures/docker-compose.insecure.yml - compose - LEAST-PRIVILEGE: service 'db' must set security_opt: ["no-new-privileges:true"].
+FAIL - fixtures/docker-compose.insecure.yml - compose - LEAST-PRIVILEGE: service 'db' runs as root (user: root).
+FAIL - fixtures/docker-compose.insecure.yml - compose - LEAST-PRIVILEGE: service 'db' runs privileged.
+FAIL - fixtures/docker-compose.insecure.yml - compose - LEAST-PRIVILEGE: service 'grafana' must drop ALL capabilities (cap_drop: [ALL]).
+FAIL - fixtures/docker-compose.insecure.yml - compose - LEAST-PRIVILEGE: service 'grafana' must set security_opt: ["no-new-privileges:true"].
+FAIL - fixtures/docker-compose.insecure.yml - compose - SUPPLY-CHAIN: service 'db' uses image 'inlaneweb-db:latest' pinned to :latest.
+
+18 tests, 0 passed, 4 warnings, 14 failures, 0 exceptions
+exit=1

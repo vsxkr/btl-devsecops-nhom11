@@ -1,0 +1,48 @@
+$ dac ta gioi han cua Semgrep 1.182.1 tren Windows, do ngay 2026-10-28
+
+Van de: `metavariable-regex` khong loc duoc khi metavariable gan vao DOI SO cua
+mot loi goi ham, trong khi no hoat dong binh thuong voi chi so mang.
+
+Cac phep do:
+
+1. Pattern co khop khong?
+   getenv($K) ?: $LIT                            -> 2 khop
+   getenv($K) ?: "..."                            -> 2 khop
+   $_GET[$K]                                      -> 1 khop
+   query_one($SQL) / query($SQL)                  -> nhieu khop
+   Ket luan: pattern AST hoat dong.
+
+2. metavariable-regex tren $K cua $_GET[$K]
+   regex (?i)^.?([a-z0-9]+_)?(id|uid).?$          -> 1 khop   HOAT DONG
+   Luu y: $K mang CA DAU NHAY cua chuoi hang, nen regex neo bang `$` bo sot
+   $_GET['user_id'].
+
+3. metavariable-regex tren $K cua getenv($K)
+   regex ".*"                                     -> 2 khop
+   regex "^['\"]"                                 -> 2 khop
+   regex "^.{5,}$"                                -> 2 khop
+   regex "_"                                      -> 0 khop
+   regex "ILF"                                    -> 0 khop
+   regex "(?i)key"                                -> 0 khop
+   Van ban that cua doi so la 'ILF_API_KEY', co dau gach duoi va co chu KEY,
+   nen cac ket qua tren khong nhat quan voi noi dung doi so.
+
+4. metavariable-regex tren $SQL cua query($SQL)
+   regex (?is)select.*(password|api_key|...)       -> 0 khop
+   du trong ma co query_one("SELECT id, username, password, ... ")
+
+5. pattern-regex o cap luat
+   pattern-regex: "getenv"                        -> 0 khop
+   pattern-regex: "getenv\('ILF_API_KEY'\)"     -> 0 khop
+   pattern-regex: "\?:"                          -> 0 khop
+   Cung regex do kiem bang Python re tren dung dong ma -> khop True.
+   Ket luan: pattern-regex khong hoat dong trong ban nay.
+
+Cach xu ly da chon:
+  - P2 dung metavariable-regex co cho phep dau nhay bao quanh.
+  - Hai luat P3 liet ke tuong minh cac khoa cau hinh duoc coi la bi mat.
+  - Khiem khuyet "ban xuat tra ve cot password va api_key" KHONG co luat tinh
+    nao bat duoc, nen chuyen sang test hanh vi o Phase 4.
+
+Y nghia: mot chinh sach khop rong trong giong het mot chinh sach dat. Day la ly do
+`conftest verify` va cap fixture hai chieu la bat buoc, chu khong phai tuy chon.

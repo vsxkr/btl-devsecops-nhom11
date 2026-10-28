@@ -1,0 +1,34 @@
+rules:
+  - id: php-hardcoded-db-password-fallback
+    languages: [php]
+    severity: ERROR
+    message: A database password has a hardcoded fallback. Require a secret from the environment instead.
+    patterns:
+      - pattern: "getenv('DB_PASS') ?: $FALLBACK"
+      - metavariable-regex:
+          metavariable: $FALLBACK
+          regex: ^['"].+['"]$
+    metadata:
+      cwe: "CWE-798: Use of Hard-coded Credentials"
+      owasp: "A07:2021 Identification and Authentication Failures"
+      presentation: configuration
+
+  - id: compose-hardcoded-mysql-root-password
+    languages: [yaml]
+    severity: ERROR
+    message: MYSQL_ROOT_PASSWORD is hardcoded in Compose. Supply it from a secret instead.
+    patterns:
+      - pattern: |
+          MYSQL_ROOT_PASSWORD: $PASSWORD
+      - metavariable-regex:
+          metavariable: $PASSWORD
+          regex: '^(?!["'']?\$\{)[A-Za-z0-9_!@#.$-]+$'
+    paths:
+      include:
+        - "**/docker-compose.yml"
+        - "**/compose.yml"
+        - "**/compose.yaml"
+    metadata:
+      cwe: "CWE-798: Use of Hard-coded Credentials"
+      owasp: "A07:2021 Identification and Authentication Failures"
+      presentation: configuration

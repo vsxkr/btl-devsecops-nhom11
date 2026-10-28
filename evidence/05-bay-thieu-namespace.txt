@@ -1,0 +1,4 @@
+$ conftest test fixtures/Dockerfile.insecure -p policy/
+
+0 tests, 0 passed, 0 warnings, 0 failures, 0 exceptions
+exit=0

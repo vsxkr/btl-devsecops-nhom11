@@ -1,0 +1,5 @@
+$ conftest test evidence/api/branch-main-slim.json -p policy/ --namespace repo
+FAIL - evidence/api/branch-main-slim.json - repo - GOVERNANCE: branch 'main' has no protection rule; direct pushes and force pushes are possible regardless of what the in-repo policy script checks.
+
+3 tests, 2 passed, 0 warnings, 1 failure, 0 exceptions
+exit=1

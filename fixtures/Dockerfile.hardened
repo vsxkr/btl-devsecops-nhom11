@@ -1,0 +1,20 @@
+# Ban da sua, dung de chung minh bo luat im lang khi cau hinh dat.
+# Theo Step 4 cua Policy_as_code_Lab ConfTest.docx: nhan provenance, UID khong
+# dac quyen, COPY --chown, HEALTHCHECK, va chi mo cong ung dung.
+FROM php:8.2-apache
+ARG VCS_REF=unknown
+LABEL org.opencontainers.image.source="https://github.com/wtfwhoyouare/PTIT-DevOps-SonarQube" \
+      org.opencontainers.image.revision="${VCS_REF}"
+RUN docker-php-ext-install mysqli && docker-php-ext-enable mysqli
+RUN a2enmod rewrite
+COPY php.ini /usr/local/etc/php/conf.d/zz-lab.ini
+COPY apache/000-default.conf /etc/apache2/sites-available/000-default.conf
+# Apache lang nghe cong khong dac quyen de tien trinh chay duoc bang www-data
+RUN sed -ri 's/^Listen 80$/Listen 8080/' /etc/apache2/ports.conf \
+ && sed -ri 's/:80>/:8080>/' /etc/apache2/sites-available/000-default.conf
+WORKDIR /var/www/html
+COPY --chown=www-data:www-data src/ /var/www/html/
+USER www-data
+EXPOSE 8080
+HEALTHCHECK --interval=30s --timeout=5s --retries=3 \
+  CMD curl -f -s http://127.0.0.1:8080/health || exit 1

@@ -1,0 +1,15 @@
+$ conftest test app/InlaneWeb/docker-compose.yml -p policy/ --namespace compose
+WARN - app/InlaneWeb/docker-compose.yml - compose - LEAST-PRIVILEGE: service 'db' should set read_only: true and mount tmpfs for writable paths.
+WARN - app/InlaneWeb/docker-compose.yml - compose - LEAST-PRIVILEGE: service 'web' should set read_only: true and mount tmpfs for writable paths.
+FAIL - app/InlaneWeb/docker-compose.yml - compose - CREDENTIALS: service 'db' hard-codes secret 'MYSQL_ROOT_PASSWORD' in environment; inject it at deploy time.
+FAIL - app/InlaneWeb/docker-compose.yml - compose - CREDENTIALS: service 'web' hard-codes secret 'DB_PASS' in environment; inject it at deploy time.
+FAIL - app/InlaneWeb/docker-compose.yml - compose - LEAST-PRIVILEGE: service 'db' must drop ALL capabilities (cap_drop: [ALL]).
+FAIL - app/InlaneWeb/docker-compose.yml - compose - LEAST-PRIVILEGE: service 'db' must set security_opt: ["no-new-privileges:true"].
+FAIL - app/InlaneWeb/docker-compose.yml - compose - LEAST-PRIVILEGE: service 'web' connects to the database as privileged account 'root'; use a least-privilege account.
+FAIL - app/InlaneWeb/docker-compose.yml - compose - LEAST-PRIVILEGE: service 'web' must drop ALL capabilities (cap_drop: [ALL]).
+FAIL - app/InlaneWeb/docker-compose.yml - compose - LEAST-PRIVILEGE: service 'web' must set security_opt: ["no-new-privileges:true"].
+FAIL - app/InlaneWeb/docker-compose.yml - compose - SUPPLY-CHAIN: service 'db' uses image 'inlaneweb-db:latest' pinned to :latest.
+FAIL - app/InlaneWeb/docker-compose.yml - compose - SUPPLY-CHAIN: service 'web' uses image 'inlaneweb-web:latest' pinned to :latest.
+
+13 tests, 2 passed, 2 warnings, 9 failures, 0 exceptions
+exit=1

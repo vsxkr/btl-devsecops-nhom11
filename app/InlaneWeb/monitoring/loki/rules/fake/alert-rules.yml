@@ -1,0 +1,117 @@
+groups:
+  - name: inlaneweb-alerts
+    rules:
+      # KHỐI 1: CẢNH BÁO MÃ NGUỒN ỨNG DỤNG WEB (APPLICATION-LEVEL CAUSE EXCEPTIONS)
+      - alert: ApplicationCauseExceptionDetected
+        expr: |
+          sum(rate({container="ilfreight_web"} |~ "(?i)(APP-EXCEPTION|cause_chain|database_query_failure)"[1m])) > 0
+        for: 5s
+        labels:
+          severity: critical
+          service: web
+          category: app_exception
+        annotations:
+          summary: "Phát hiện Cause Exception nghiêm trọng trong mã nguồn ứng dụng web"
+          description: "Container ilfreight_web ghi nhận ngoại lệ kèm chuỗi nguyên nhân (Root Cause Chain) và stack trace."
+
+      - alert: DatabaseConnectionLost
+        expr: |
+          sum(rate({container="ilfreight_web"} |~ "(?i)(Access denied|Connection refused|Can't connect to MySQL server)"[1m])) > 0
+        for: 10s
+        labels:
+          severity: critical
+          service: db
+          category: app_exception
+        annotations:
+          summary: "Ứng dụng mất kết nối cơ sở dữ liệu MariaDB"
+          description: "Container ilfreight_web báo lỗi kết nối MariaDB trong log."
+
+      - alert: PhpFatalCrash
+        expr: |
+          sum(rate({container="ilfreight_web"} |~ "(?i)(Fatal error|Uncaught Error)"[1m])) > 0
+        for: 10s
+        labels:
+          severity: warning
+          service: web
+          category: app_exception
+        annotations:
+          summary: "Phát hiện PHP Fatal Crash trong mã nguồn"
+          description: "Có exception hoặc fatal error chưa được bắt trong ứng dụng PHP."
+
+      # KHỐI 2: CẢNH BÁO LƯU LƯỢNG HTTP THEO TỪNG LOẠI LỖ HỔNG (ATTACK VECTORS & LEAKS)
+      - alert: HttpSqlInjectionDetected
+        expr: |
+          sum(rate({container="ilfreight_web"} |~ "(?i)(union(\\s+|%20|\\+)select|sleep\\(|benchmark\\(|or(\\s+|%20|\\+)1=1|--|load_file\\(|into(\\s+|%20|\\+)outfile|into(\\s+|%20|\\+)dumpfile|information_schema|database\\(|schema\\(|sqlmap|havij)"[1m])) > 0
+        for: 5s
+        labels:
+          severity: critical
+          service: web
+          category: http_traffic
+          vuln_type: sqli
+        annotations:
+          summary: "Phát hiện Vector tấn công SQL Injection trong lưu lượng HTTP"
+          description: "Phát hiện payload SQL Injection (UNION SELECT, Time-based, Boolean tautology, OOB file dump, hoặc SQL scanner) trong request HTTP."
+
+      - alert: HttpPathTraversalDetected
+        expr: |
+          sum(rate({container="ilfreight_web"} |~ "(?i)(\\.\\./|\\.\\.\\\\|%2e%2e%2f|%2e%2e/|\\.\\.%2f|%2e%2e%5c|/etc/passwd|/etc/shadow|/proc/self|win\\.ini|boot\\.ini|system32|php://filter|php://input|data://)"[1m])) > 0
+        for: 5s
+        labels:
+          severity: high
+          service: web
+          category: http_traffic
+          vuln_type: traversal_lfi
+        annotations:
+          summary: "Phát hiện Vector tấn công Path Traversal / LFI trong lưu lượng HTTP"
+          description: "Phát hiện payload Path Traversal / Local File Inclusion truy xuất file hệ thống hoặc dùng PHP wrappers trong URI/Query."
+
+      - alert: HttpXssDetected
+        expr: |
+          sum(rate({container="ilfreight_web"} |~ "(?i)(<script|%3cscript|</script|%3c/script|<svg|%3csvg|<iframe|%3ciframe|<img|%3cimg|javascript:|vbscript:|onload=|onerror=|onclick=|onmouseover=|alert\\(|prompt\\(|confirm\\(|document\\.cookie)"[1m])) > 0
+        for: 5s
+        labels:
+          severity: warning
+          service: web
+          category: http_traffic
+          vuln_type: xss
+        annotations:
+          summary: "Phát hiện Vector tấn công Cross-Site Scripting (XSS) trong lưu lượng HTTP"
+          description: "Phát hiện thẻ script, SVG, iframe, event handlers hoặc mã javascript độc hại trong request HTTP."
+
+      - alert: HttpCommandInjectionDetected
+        expr: |
+          sum(rate({container="ilfreight_web"} |~ "(?i)(;\\s*(cat|ls|id|whoami|pwd|uname|nc|sh|bash)|\\|\\s*(cat|ls|id|whoami|sh|bash)|&&\\s*(cat|ls|id|whoami)|/bin/sh|/bin/bash|powershell|cmd\\.exe|wget(\\s+|%20|\\+)|curl(\\s+|%20|\\+))"[1m])) > 0
+        for: 5s
+        labels:
+          severity: critical
+          service: web
+          category: http_traffic
+          vuln_type: command_injection
+        annotations:
+          summary: "Phát hiện Vector tấn công Remote Code Execution & Command Injection trong lưu lượng HTTP"
+          description: "Phát hiện ký tự nối lệnh (; | &&) kèm lệnh shell hệ thống (whoami, cat, powershell, curl) trong request."
+
+      - alert: HttpErrorBasedResponseLeak
+        expr: |
+          sum(rate({container="ilfreight_web"} |~ "(?i)(syntax\\s+error|database_query_failure|mysqli_error|SQL\\s+Error|\"status\":50[0-9])"[1m])) > 0
+        for: 5s
+        labels:
+          severity: high
+          service: web
+          category: http_traffic
+          vuln_type: error_based_leak
+        annotations:
+          summary: "Phát hiện rò rỉ phản hồi lỗi Error-Based ra ngoài HTTP Response"
+          description: "Phản hồi HTTP trả về cho client chứa nội dung lỗi SQL cú pháp hoặc lỗi ứng dụng (Error-Based Leak)."
+
+      - alert: HighHttp5xxRate
+        expr: |
+          sum(rate({container="ilfreight_web"} |~ "(?i)(\"status\":50[0-9]| 500 )"[1m])) > 0
+        for: 10s
+        labels:
+          severity: critical
+          service: web
+          category: http_traffic
+        annotations:
+          summary: "Tần suất lỗi HTTP 5xx tăng cao trên Web Portal"
+          description: "Phát hiện mã phản hồi 500 xuất hiện trong log container ilfreight_web."

@@ -1,0 +1,209 @@
+# =============================================================================
+# Security as Code: nam chinh sach P1 den P5 cua mon hoc, viet lai cho PHP.
+#
+# Can cu: "SonarQube and juice shop Lab.docx" muc 2 (bang policy-to-code),
+# muc 3 (dong khoang trong bang luat tu viet) va Appendix A.6
+# (semgrep-policy-taint.yml). Lab viet cho TypeScript va Sequelize; InlaneWeb
+# la PHP va mysqli nen source va sink duoc chuyen tuong ung:
+#   req.body / req.query     ->  $_POST[...] / $_GET[...] / $_REQUEST[...]
+#   Model.update / findByPk  ->  exec_write / exec_multi / query / query_one
+#   console.log / logger.*   ->  InlaneLogger::* / error_log
+#
+# Chay: semgrep --metrics off --config ci/semgrep-policy-php.yml <duong-dan>
+# =============================================================================
+rules:
+  # ---- P1 Least privilege ---------------------------------------------------
+  - id: policy-p1-unrestricted-write
+    mode: taint
+    languages: [php]
+    severity: ERROR
+    message: "POLICY-P1 (least privilege): du lieu tu client di vao mot cau lenh ghi ma khong qua danh sach truong duoc phep. Client co the dat cot ngoai y muon, vi du tu nang quyen bang cach chen , role='admin'."
+    metadata:
+      policy: P1
+      gdpr: "Art. 25, Art. 32"
+      pci-dss: "7.2, 6.2.4 (v4.0.1)"
+      owasp: "A01:2021, API3:2023"
+    pattern-sources:
+      - pattern-either:
+          - pattern: $_POST[...]
+          - pattern: $_REQUEST[...]
+          - pattern: $_GET[...]
+          - pattern: $_COOKIE[...]
+    pattern-sinks:
+      - patterns:
+          - pattern-either:
+              - pattern: exec_write($SINK, ...)
+              - pattern: exec_multi($SINK, ...)
+          - focus-metavariable: $SINK
+    pattern-sanitizers:
+      - pattern: mysqli_real_escape_string(...)
+      - pattern: intval(...)
+
+  # ---- P2 RBAC -------------------------------------------------------------
+  - id: policy-p2-client-supplied-identity
+    mode: taint
+    languages: [php]
+    severity: ERROR
+    message: "POLICY-P2 (RBAC): dinh danh doi tuong duoc lay tu dau vao client roi dung de tra cuu hoac sua ban ghi. Phai lay tu phien da xac thuc va kiem quyen so huu. Semgrep chi bat duoc duong di cua du lieu; viec thieu phep kiem quyen so huu phai do test hanh vi chung minh."
+    metadata:
+      policy: P2
+      gdpr: "Art. 5(1)(f), Art. 32"
+      pci-dss: "7.2, 6.2.4 (v4.0.1)"
+      owasp: "A01:2021, API1:2023"
+    pattern-sources:
+      - patterns:
+          - pattern-either:
+              - pattern: $_GET[$K]
+              - pattern: $_POST[$K]
+              - pattern: $_REQUEST[$K]
+          # Luu y: $K nhan ca dau nhay cua chuoi hang, nen regex phai cho phep
+          # mot ky tu bao quanh. Phien ban dau neo bang `$` da bo sot
+          # $_GET['user_id'] vi chuoi ket thuc bang dau nhay.
+          - metavariable-regex:
+              metavariable: $K
+              regex: (?i)^.?([a-z0-9]+_)?(id|uid).?$
+    pattern-sinks:
+      - patterns:
+          - pattern-either:
+              - pattern: query($SINK, ...)
+              - pattern: query_one($SINK, ...)
+              - pattern: exec_write($SINK, ...)
+              - pattern: exec_multi($SINK, ...)
+              - pattern: mysqli_query($CONN, $SINK, ...)
+          - focus-metavariable: $SINK
+
+  # ---- P3 Bi mat va an toan phien (khong phai luong du lieu) ---------------
+  - id: policy-p3-hardcoded-credential-fallback
+    languages: [php]
+    severity: ERROR
+    message: "POLICY-P3 (quan ly bi mat): thong tin xac thuc co gia tri du phong la chuoi hang khi bien moi truong vang mat, nen bi mat nam trong ma nguon."
+    metadata:
+      policy: P3
+      gdpr: "Art. 32"
+      pci-dss: "8.6.2 (v4.0.1)"
+      owasp: "A07:2021, A02:2021"
+    # Luu y ve cong cu: trong Semgrep 1.182.1 tren may nay, `metavariable-regex`
+    # dat tren $K ben trong `getenv($K)` khong khop duoc van ban doi so, va
+    # `pattern-regex` khong tra ve ket qua nao ke ca voi mau don gian nhat.
+    # Vi vay luat liet ke tuong minh cac khoa cau hinh duoc coi la bi mat. Cach
+    # nay con de doi soat hon, va dung tinh than luat cu phap cua eslint.policy.mjs
+    # trong lab, vi P3 khong phai mot luong du lieu.
+    patterns:
+      - pattern-either:
+          - pattern: "getenv('DB_PASS') ?: $LIT"
+          - pattern: "getenv('DB_PASSWORD') ?: $LIT"
+          - pattern: "getenv('MYSQL_PASSWORD') ?: $LIT"
+          - pattern: "getenv('MYSQL_ROOT_PASSWORD') ?: $LIT"
+          - pattern: "getenv('ILF_API_KEY') ?: $LIT"
+          - pattern: "getenv('API_KEY') ?: $LIT"
+          - pattern: "getenv('SECRET_KEY') ?: $LIT"
+          - pattern: "getenv('APP_SECRET') ?: $LIT"
+          - pattern: "getenv('SONAR_TOKEN') ?: $LIT"
+          - pattern: "getenv('GF_SECURITY_ADMIN_PASSWORD') ?: $LIT"
+      - metavariable-pattern:
+          metavariable: $LIT
+          pattern: '"..."'
+
+  - id: policy-p3-privileged-db-account-default
+    languages: [php]
+    severity: ERROR
+    message: "POLICY-P3 (least privilege o tang ket noi): ung dung ket noi co so du lieu bang tai khoan dac quyen theo mac dinh."
+    metadata:
+      policy: P3
+      gdpr: "Art. 32"
+      pci-dss: "7.2 (v4.0.1)"
+    pattern-either:
+      - pattern: "getenv('DB_USER') ?: 'root'"
+      - pattern: "getenv('DB_USER') ?: 'admin'"
+      - pattern: "getenv('DB_USERNAME') ?: 'root'"
+      - pattern: "getenv('MYSQL_USER') ?: 'root'"
+      - pattern: "getenv('DATABASE_USER') ?: 'root'"
+      - pattern: "getenv('POSTGRES_USER') ?: 'postgres'"
+
+  # ---- P4 Kiem tra dau vao va ve sinh loi ----------------------------------
+  - id: policy-p4-sql-injection
+    mode: taint
+    languages: [php]
+    severity: ERROR
+    message: "POLICY-P4 (kiem tra dau vao): du lieu tu client di vao chuoi truy van tho. Dung cau lenh chuan bi truoc voi tham so rang buoc."
+    metadata:
+      policy: P4
+      gdpr: "Art. 32"
+      pci-dss: "6.2.4, 6.4.2 (v4.0.1)"
+      owasp: "A03:2021"
+    pattern-sources:
+      - pattern-either:
+          - pattern: $_GET[...]
+          - pattern: $_POST[...]
+          - pattern: $_REQUEST[...]
+          - pattern: $_COOKIE[...]
+    pattern-sinks:
+      - patterns:
+          - pattern-either:
+              - pattern: query($SINK, ...)
+              - pattern: query_one($SINK, ...)
+              - pattern: mysqli_query($CONN, $SINK, ...)
+              - pattern: mysqli_multi_query($CONN, $SINK, ...)
+          - focus-metavariable: $SINK
+    pattern-sanitizers:
+      - pattern: mysqli_real_escape_string(...)
+      - pattern: intval(...)
+
+  - id: policy-p4-error-detail-to-response
+    mode: taint
+    languages: [php]
+    severity: ERROR
+    message: "POLICY-P4 (ve sinh loi): noi dung loi cua tang co so du lieu di ra phan hoi HTTP. Client chi duoc nhan thong diep chung kem mot ma su kien."
+    metadata:
+      policy: P4
+      gdpr: "Art. 32"
+      pci-dss: "6.2.4 (v4.0.1)"
+      owasp: "A05:2021"
+    pattern-sources:
+      - pattern-either:
+          - pattern: mysqli_error(...)
+          - pattern: mysqli_connect_error(...)
+    pattern-sinks:
+      - patterns:
+          - pattern-either:
+              - pattern: "echo $SINK;"
+              - pattern: "print $SINK;"
+          - focus-metavariable: $SINK
+
+  # ---- P5 Nhat ky va telemetry ---------------------------------------------
+  - id: policy-p5-statement-logged-verbatim
+    languages: [php]
+    severity: ERROR
+    message: "POLICY-P5 (nhat ky): nguyen van cau lenh truy van duoc ghi vao luong nhat ky. Cau lenh chua du lieu nguoi dung vua nhap, nen day la ghi du lieu ca nhan vuot muc can thiet. Chi ghi actor, event, target, outcome. Gioi han cong cu: duong di tu bien superglobal den loi goi nay di qua ranh gioi ham, Semgrep CE khong theo duoc taint lien ham, nen day la luat cu phap chu khong phai luat taint."
+    metadata:
+      policy: P5
+      gdpr: "Art. 5(1)(c), Art. 5(1)(e), Art. 32"
+      pci-dss: "10.2, 3.5.1 (v4.0.1)"
+      owasp: "A09:2021, CWE-532"
+    pattern: InlaneLogger::logSqlError($SQL, ...)
+
+  - id: policy-p5-request-data-in-log
+    mode: taint
+    languages: [php]
+    severity: ERROR
+    message: "POLICY-P5 (nhat ky): du lieu tu client di truc tiep vao mot loi goi ghi nhat ky ma khong qua buoc che."
+    metadata:
+      policy: P5
+      gdpr: "Art. 5(1)(c), Art. 32"
+      pci-dss: "10.2 (v4.0.1)"
+      owasp: "A09:2021, CWE-532"
+    pattern-sources:
+      - pattern-either:
+          - pattern: $_GET[...]
+          - pattern: $_POST[...]
+          - pattern: $_REQUEST[...]
+          - pattern: $_COOKIE[...]
+    pattern-sinks:
+      - patterns:
+          - pattern-either:
+              - pattern: error_log($SINK, ...)
+              - pattern: InlaneLogger::$M($SINK, ...)
+          - focus-metavariable: $SINK
+    pattern-sanitizers:
+      - pattern: mask(...)
+      - pattern: redact(...)

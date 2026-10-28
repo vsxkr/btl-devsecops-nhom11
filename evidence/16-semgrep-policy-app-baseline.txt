@@ -1,0 +1,256 @@
+$ semgrep --metrics off --error --config ci/semgrep-policy-php.yml app/InlaneWeb/web/src
+               
+               
+┌─────────────┐
+│ Scan Status │
+└─────────────┘
+  Scanning 24 files tracked by git with 8 Code rules:
+  Scanning 21 files with 8 php rules.
+                    
+                    
+┌──────────────────┐
+│ 29 Code Findings │
+└──────────────────┘
+                                    
+    app\InlaneWeb\web\src\lib\db.php
+   ❯❯❱ ci.policy-p3-privileged-db-account-default
+          ❰❰ Blocking ❱❱
+          POLICY-P3 (least privilege o tang ket noi): ung dung ket noi co so du lieu bang tai khoan dac quyen
+          theo mac dinh.                                                                                     
+                                                                                                             
+           18┆ $user = getenv('DB_USER') ?: 'root';
+   
+   ❯❯❱ ci.policy-p3-hardcoded-credential-fallback
+          ❰❰ Blocking ❱❱
+          POLICY-P3 (quan ly bi mat): thong tin xac thuc co gia tri du phong la chuoi hang khi bien moi truong
+          vang mat, nen bi mat nam trong ma nguon.                                                            
+                                                                                                              
+           19┆ $pass = getenv('DB_PASS') ?: 'password';
+   
+   ❯❯❱ ci.policy-p5-statement-logged-verbatim
+          ❰❰ Blocking ❱❱
+          POLICY-P5 (nhat ky): nguyen van cau lenh truy van duoc ghi vao luong nhat ky. Cau lenh chua du lieu
+          nguoi dung vua nhap, nen day la ghi du lieu ca nhan vuot muc can thiet. Chi ghi actor, event,      
+          target, outcome. Gioi han cong cu: duong di tu bien superglobal den loi goi nay di qua ranh gioi   
+          ham, Semgrep CE khong theo duoc taint lien ham, nen day la luat cu phap chu khong phai luat taint. 
+                                                                                                             
+           29┆ InlaneLogger::logSqlError("CONNECT {$host}:{$name}", $err, mysqli_connect_errno());
+            ⋮┆----------------------------------------
+           46┆ InlaneLogger::logSqlError($sql, $err, mysqli_errno($conn));
+   
+   ❯❯❱ ci.policy-p4-error-detail-to-response
+          ❰❰ Blocking ❱❱
+          POLICY-P4 (ve sinh loi): noi dung loi cua tang co so du lieu di ra phan hoi HTTP. Client chi duoc
+          nhan thong diep chung kem mot ma su kien.                                                        
+                                                                                                           
+           48┆ echo '<div class="sql-error"><strong>SQL Error:</strong> '
+           49┆     . $err . '</div>';
+   
+   ❯❯❱ ci.policy-p5-statement-logged-verbatim
+          ❰❰ Blocking ❱❱
+          POLICY-P5 (nhat ky): nguyen van cau lenh truy van duoc ghi vao luong nhat ky. Cau lenh chua du lieu
+          nguoi dung vua nhap, nen day la ghi du lieu ca nhan vuot muc can thiet. Chi ghi actor, event,      
+          target, outcome. Gioi han cong cu: duong di tu bien superglobal den loi goi nay di qua ranh gioi   
+          ham, Semgrep CE khong theo duoc taint lien ham, nen day la luat cu phap chu khong phai luat taint. 
+                                                                                                             
+           61┆ InlaneLogger::logSqlError($sql, $err, mysqli_errno($conn));
+   
+   ❯❯❱ ci.policy-p4-error-detail-to-response
+          ❰❰ Blocking ❱❱
+          POLICY-P4 (ve sinh loi): noi dung loi cua tang co so du lieu di ra phan hoi HTTP. Client chi duoc
+          nhan thong diep chung kem mot ma su kien.                                                        
+                                                                                                           
+           62┆ echo '<div class="sql-error"><strong>SQL Error:</strong> '
+           63┆     . $err . '</div>';
+   
+   ❯❯❱ ci.policy-p5-statement-logged-verbatim
+          ❰❰ Blocking ❱❱
+          POLICY-P5 (nhat ky): nguyen van cau lenh truy van duoc ghi vao luong nhat ky. Cau lenh chua du lieu
+          nguoi dung vua nhap, nen day la ghi du lieu ca nhan vuot muc can thiet. Chi ghi actor, event,      
+          target, outcome. Gioi han cong cu: duong di tu bien superglobal den loi goi nay di qua ranh gioi   
+          ham, Semgrep CE khong theo duoc taint lien ham, nen day la luat cu phap chu khong phai luat taint. 
+                                                                                                             
+           90┆ InlaneLogger::logSqlError($sql, $err, mysqli_errno($conn));
+   
+   ❯❯❱ ci.policy-p4-error-detail-to-response
+          ❰❰ Blocking ❱❱
+          POLICY-P4 (ve sinh loi): noi dung loi cua tang co so du lieu di ra phan hoi HTTP. Client chi duoc
+          nhan thong diep chung kem mot ma su kien.                                                        
+                                                                                                           
+           91┆ echo '<div class="sql-error"><strong>SQL Error:</strong> ' . $err . '</div>';
+                                           
+    app\InlaneWeb\web\src\pages\account.php
+   ❯❯❱ ci.policy-p4-sql-injection
+          ❰❰ Blocking ❱❱
+          POLICY-P4 (kiem tra dau vao): du lieu tu client di vao chuoi truy van tho. Dung cau lenh chuan bi
+          truoc voi tham so rang buoc.                                                                     
+                                                                                                           
+           45┆ $res = query($sql);
+                                                  
+    app\InlaneWeb\web\src\pages\account_update.php
+   ❯❯❱ ci.policy-p1-unrestricted-write
+          ❰❰ Blocking ❱❱
+          POLICY-P1 (least privilege): du lieu tu client di vao mot cau lenh ghi ma khong qua danh sach truong
+          duoc phep. Client co the dat cot ngoai y muon, vi du tu nang quyen bang cach chen , role='admin'.   
+                                                                                                              
+           26┆ if (exec_write($sql)) {
+                                                 
+    app\InlaneWeb\web\src\pages\admin_console.php
+   ❯❯❱ ci.policy-p1-unrestricted-write
+          ❰❰ Blocking ❱❱
+          POLICY-P1 (least privilege): du lieu tu client di vao mot cau lenh ghi ma khong qua danh sach truong
+          duoc phep. Client co the dat cot ngoai y muon, vi du tu nang quyen bang cach chen , role='admin'.   
+                                                                                                              
+           36┆ $rows = exec_multi($sql);
+                                                   
+    app\InlaneWeb\web\src\pages\admin_dashboard.php
+   ❯❯❱ ci.policy-p4-sql-injection
+          ❰❰ Blocking ❱❱
+          POLICY-P4 (kiem tra dau vao): du lieu tu client di vao chuoi truy van tho. Dung cau lenh chuan bi
+          truoc voi tham so rang buoc.                                                                     
+                                                                                                           
+           35┆ $res = query($sql);
+                                                       
+    app\InlaneWeb\web\src\pages\admin_report_export.php
+   ❯❯❱ ci.policy-p1-unrestricted-write
+          ❰❰ Blocking ❱❱
+          POLICY-P1 (least privilege): du lieu tu client di vao mot cau lenh ghi ma khong qua danh sach truong
+          duoc phep. Client co the dat cot ngoai y muon, vi du tu nang quyen bang cach chen , role='admin'.   
+                                                                                                              
+           29┆ if (exec_write($sql)) {
+                                               
+    app\InlaneWeb\web\src\pages\comment_add.php
+   ❯❯❱ ci.policy-p1-unrestricted-write
+          ❰❰ Blocking ❱❱
+          POLICY-P1 (least privilege): du lieu tu client di vao mot cau lenh ghi ma khong qua danh sach truong
+          duoc phep. Client co the dat cot ngoai y muon, vi du tu nang quyen bang cach chen , role='admin'.   
+                                                                                                              
+           26┆ if (exec_write($sql)) {
+   
+   ❯❯❱ ci.policy-p2-client-supplied-identity
+          ❰❰ Blocking ❱❱
+          POLICY-P2 (RBAC): dinh danh doi tuong duoc lay tu dau vao client roi dung de tra cuu hoac sua ban  
+          ghi. Phai lay tu phien da xac thuc va kiem quyen so huu. Semgrep chi bat duoc duong di cua du lieu;
+          viec thieu phep kiem quyen so huu phai do test hanh vi chung minh.                                 
+                                                                                                             
+           26┆ if (exec_write($sql)) {
+                                                  
+    app\InlaneWeb\web\src\pages\comment_delete.php
+   ❯❯❱ ci.policy-p1-unrestricted-write
+          ❰❰ Blocking ❱❱
+          POLICY-P1 (least privilege): du lieu tu client di vao mot cau lenh ghi ma khong qua danh sach truong
+          duoc phep. Client co the dat cot ngoai y muon, vi du tu nang quyen bang cach chen , role='admin'.   
+                                                                                                              
+           24┆ if (exec_write($sql)) {
+   
+   ❯❯❱ ci.policy-p2-client-supplied-identity
+          ❰❰ Blocking ❱❱
+          POLICY-P2 (RBAC): dinh danh doi tuong duoc lay tu dau vao client roi dung de tra cuu hoac sua ban  
+          ghi. Phai lay tu phien da xac thuc va kiem quyen so huu. Semgrep chi bat duoc duong di cua du lieu;
+          viec thieu phep kiem quyen so huu phai do test hanh vi chung minh.                                 
+                                                                                                             
+           24┆ if (exec_write($sql)) {
+                                         
+    app\InlaneWeb\web\src\pages\login.php
+   ❯❯❱ ci.policy-p4-sql-injection
+          ❰❰ Blocking ❱❱
+          POLICY-P4 (kiem tra dau vao): du lieu tu client di vao chuoi truy van tho. Dung cau lenh chuan bi
+          truoc voi tham so rang buoc.                                                                     
+                                                                                                           
+           20┆ $row = query_one($sql);
+                                        
+    app\InlaneWeb\web\src\pages\news.php
+   ❯❯❱ ci.policy-p2-client-supplied-identity
+          ❰❰ Blocking ❱❱
+          POLICY-P2 (RBAC): dinh danh doi tuong duoc lay tu dau vao client roi dung de tra cuu hoac sua ban  
+          ghi. Phai lay tu phien da xac thuc va kiem quyen so huu. Semgrep chi bat duoc duong di cua du lieu;
+          viec thieu phep kiem quyen so huu phai do test hanh vi chung minh.                                 
+                                                                                                             
+           19┆ $res = query($sql);
+   
+   ❯❯❱ ci.policy-p4-sql-injection
+          ❰❰ Blocking ❱❱
+          POLICY-P4 (kiem tra dau vao): du lieu tu client di vao chuoi truy van tho. Dung cau lenh chuan bi
+          truoc voi tham so rang buoc.                                                                     
+                                                                                                           
+           19┆ $res = query($sql);
+                                               
+    app\InlaneWeb\web\src\pages\port_detail.php
+   ❯❯❱ ci.policy-p4-sql-injection
+          ❰❰ Blocking ❱❱
+          POLICY-P4 (kiem tra dau vao): du lieu tu client di vao chuoi truy van tho. Dung cau lenh chuan bi
+          truoc voi tham so rang buoc.                                                                     
+                                                                                                           
+           22┆ $row = query_one($sql);
+                                         
+    app\InlaneWeb\web\src\pages\ports.php
+   ❯❯❱ ci.policy-p4-sql-injection
+          ❰❰ Blocking ❱❱
+          POLICY-P4 (kiem tra dau vao): du lieu tu client di vao chuoi truy van tho. Dung cau lenh chuan bi
+          truoc voi tham so rang buoc.                                                                     
+                                                                                                           
+           27┆ $res = query($sql);
+                                                   
+    app\InlaneWeb\web\src\pages\report_download.php
+   ❯❯❱ ci.policy-p4-sql-injection
+          ❰❰ Blocking ❱❱
+          POLICY-P4 (kiem tra dau vao): du lieu tu client di vao chuoi truy van tho. Dung cau lenh chuan bi
+          truoc voi tham so rang buoc.                                                                     
+                                                                                                           
+           40┆ $res = mysqli_query($conn, $sql);
+   
+   ❯❯❱ ci.policy-p4-error-detail-to-response
+          ❰❰ Blocking ❱❱
+          POLICY-P4 (ve sinh loi): noi dung loi cua tang co so du lieu di ra phan hoi HTTP. Client chi duoc
+          nhan thong diep chung kem mot ma su kien.                                                        
+                                                                                                           
+           42┆ echo '<div class="sql-error"><strong>SQL Error:</strong> ' . mysqli_error($conn) .
+               '</div>';                                                                         
+                                                   
+    app\InlaneWeb\web\src\pages\shipment_detail.php
+   ❯❯❱ ci.policy-p2-client-supplied-identity
+          ❰❰ Blocking ❱❱
+          POLICY-P2 (RBAC): dinh danh doi tuong duoc lay tu dau vao client roi dung de tra cuu hoac sua ban  
+          ghi. Phai lay tu phien da xac thuc va kiem quyen so huu. Semgrep chi bat duoc duong di cua du lieu;
+          viec thieu phep kiem quyen so huu phai do test hanh vi chung minh.                                 
+                                                                                                             
+           18┆ $sh = query_one($sql);
+   
+   ❯❯❱ ci.policy-p4-sql-injection
+          ❰❰ Blocking ❱❱
+          POLICY-P4 (kiem tra dau vao): du lieu tu client di vao chuoi truy van tho. Dung cau lenh chuan bi
+          truoc voi tham so rang buoc.                                                                     
+                                                                                                           
+           18┆ $sh = query_one($sql);
+   
+   ❯❯❱ ci.policy-p2-client-supplied-identity
+          ❰❰ Blocking ❱❱
+          POLICY-P2 (RBAC): dinh danh doi tuong duoc lay tu dau vao client roi dung de tra cuu hoac sua ban  
+          ghi. Phai lay tu phien da xac thuc va kiem quyen so huu. Semgrep chi bat duoc duong di cua du lieu;
+          viec thieu phep kiem quyen so huu phai do test hanh vi chung minh.                                 
+                                                                                                             
+           30┆ $cres = query("SELECT c.id, c.content, c.created_at, u.username
+           31┆                FROM comments c JOIN users u ON u.id = c.user_id
+           32┆                WHERE c.shipment_id = " . intval($id) . " ORDER BY c.created_at");
+                                             
+    app\InlaneWeb\web\src\pages\track_api.php
+   ❯❯❱ ci.policy-p4-sql-injection
+          ❰❰ Blocking ❱❱
+          POLICY-P4 (kiem tra dau vao): du lieu tu client di vao chuoi truy van tho. Dung cau lenh chuan bi
+          truoc voi tham so rang buoc.                                                                     
+                                                                                                           
+           21┆ $res = mysqli_query($conn, $sql);
+                
+                
+┌──────────────┐
+│ Scan Summary │
+└──────────────┘
+✅ Scan completed successfully.
+ • Findings: 29 (29 blocking)
+ • Rules run: 8
+ • Targets scanned: 21
+ • Parsed lines: ~100.0%
+ • No ignore information available
+Ran 8 rules on 21 files: 29 findings.
+
+exit=1

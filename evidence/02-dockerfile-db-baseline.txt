@@ -1,0 +1,9 @@
+$ conftest test app/InlaneWeb/db/Dockerfile -p policy/ --namespace dockerfile
+WARN - app/InlaneWeb/db/Dockerfile - dockerfile - SUPPLY-CHAIN: base image 'mariadb:10.11' is not pinned by digest.
+FAIL - app/InlaneWeb/db/Dockerfile - dockerfile - LEAST-PRIVILEGE: final stage has no USER instruction (image runs as root unless the base image sets a user).
+FAIL - app/InlaneWeb/db/Dockerfile - dockerfile - OBSERVABILITY: no HEALTHCHECK in final stage.
+FAIL - app/InlaneWeb/db/Dockerfile - dockerfile - PROVENANCE: required OCI label 'org.opencontainers.image.revision' is missing.
+FAIL - app/InlaneWeb/db/Dockerfile - dockerfile - PROVENANCE: required OCI label 'org.opencontainers.image.source' is missing.
+
+11 tests, 6 passed, 1 warning, 4 failures, 0 exceptions
+exit=1

@@ -1,0 +1,15 @@
+# Cong cu tai ve, khong commit binary
+conftest
+conftest.exe
+trivy
+trivy.exe
+*.zip
+*.tar.gz
+
+# Moi truong ao
+.venv*/
+
+# Ket qua chay cuc bo, bang chung da luu thi commit, con cache thi khong
+.trivy/
+__pycache__/
+*.pyc

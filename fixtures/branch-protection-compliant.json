@@ -1,0 +1,16 @@
+{
+  "name": "main",
+  "protected": true,
+  "protection": {
+    "enabled": true,
+    "required_status_checks": {
+      "enforcement_level": "everyone",
+      "contexts": [
+        "[STAGE 1] Policy Guard",
+        "[STAGE 2: Dev Gate] SonarQube SAST & Quality Gate",
+        "[STAGE 2: Dev Gate] Semgrep Security SAST"
+      ],
+      "checks": []
+    }
+  }
+}

@@ -1,0 +1,13 @@
+# Ban CO Y sai, dung de chung minh bo luat thuc su bat duoc vi pham.
+# Theo Step 3 cua Policy_as_code_Lab ConfTest.docx, moi dong vi pham mot luat.
+FROM php:latest
+# VI PHAM: ADD co the tai URL tu xa va tu dong giai nen
+ADD https://example.com/app.tar.gz /tmp/app.tar.gz
+# VI PHAM: mo cong SSH 22, MySQL 3306, va mot dai cong phu 5432/tcp
+EXPOSE 80 22 3306 5432/tcp
+# VI PHAM: chay bang root
+USER root
+# VI PHAM: tat bao cao suc khoe
+HEALTHCHECK NONE
+# VI PHAM: thieu ca hai nhan OCI provenance
+CMD ["apache2-foreground"]

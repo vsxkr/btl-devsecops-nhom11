@@ -1,0 +1,9 @@
+$ conftest test app/InlaneWeb/web/Dockerfile -p policy/ --namespace dockerfile
+WARN - app/InlaneWeb/web/Dockerfile - dockerfile - SUPPLY-CHAIN: base image 'php:8.2-apache' is not pinned by digest.
+FAIL - app/InlaneWeb/web/Dockerfile - dockerfile - LEAST-PRIVILEGE: final stage has no USER instruction (image runs as root unless the base image sets a user).
+FAIL - app/InlaneWeb/web/Dockerfile - dockerfile - OBSERVABILITY: no HEALTHCHECK in final stage.
+FAIL - app/InlaneWeb/web/Dockerfile - dockerfile - PROVENANCE: required OCI label 'org.opencontainers.image.revision' is missing.
+FAIL - app/InlaneWeb/web/Dockerfile - dockerfile - PROVENANCE: required OCI label 'org.opencontainers.image.source' is missing.
+
+11 tests, 6 passed, 1 warning, 4 failures, 0 exceptions
+exit=1

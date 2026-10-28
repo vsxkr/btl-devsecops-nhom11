@@ -1,0 +1,106 @@
+server:
+  http_listen_port: 9080
+  grpc_listen_port: 0
+
+positions:
+  filename: /tmp/positions.yaml
+
+clients:
+  - url: http://loki:3100/loki/api/v1/push
+
+scrape_configs:
+  # Thu thập và phân tích trực tiếp từ Docker Socket Scraper
+  - job_name: docker_containers
+    docker_sd_configs:
+      - host: unix:///var/run/docker.sock
+        refresh_interval: 5s
+    relabel_configs:
+      - source_labels: ['__meta_docker_container_name']
+        regex: '/(.*)'
+        target_label: 'container'
+      - source_labels: ['container']
+        regex: '(ilfreight_web|ilfreight_db)'
+        action: keep
+
+    pipeline_stages:
+      # 1. Trích xuất tự động các trường JSON từ InlaneWeb App và Apache Access Log
+      - json:
+          expressions:
+            source: source
+            channel: channel
+            level: level
+            type: type
+            class: class
+            message: message
+            failed_query: failed_query
+            method: method
+            uri: uri
+            query: query
+            status: status
+
+      # 2. Phân loại KHỐI 1: Log lỗi ứng dụng web (InlaneWeb Cause Exceptions, Database & Runtime Errors)
+      - match:
+          selector: '{container="ilfreight_web"} |~ "(?i)(inlaneweb_app|APP-EXCEPTION|cause_chain|database_query_failure|Fatal error|Uncaught Exception|mysqli_error)"'
+          stages:
+            - labels:
+                log_category: app_exception
+                has_cause_exception: "true"
+                level: error
+
+      # 3. Phân loại KHỐI 2: Log lưu lượng HTTP từ Web Server Apache
+      - match:
+          selector: '{container="ilfreight_web"} |~ "(?i)(apache_http_traffic|\"source\":\"apache_http_traffic\"|\"status\":)"'
+          stages:
+            - labels:
+                log_category: http_traffic
+                traffic_type: access_flow
+
+      # 4A. Nhận diện Vector tấn công SQL Injection (SQLi)
+      - match:
+          selector: '{container="ilfreight_web"} |~ "(?i)(union(\\s+|%20|\\+)select|sleep\\(|benchmark\\(|or(\\s+|%20|\\+)1=1|--|concat\\(|char\\(|load_file\\(|into(\\s+|%20|\\+)outfile|into(\\s+|%20|\\+)dumpfile|information_schema|database\\(|schema\\(|sqlmap|havij)"'
+          stages:
+            - labels:
+                log_category: http_traffic
+                traffic_type: attack_vector
+                vuln_category: sqli
+                level: critical
+
+      # 4B. Nhận diện Vector tấn công Path Traversal & Local File Inclusion (LFI/RFI)
+      - match:
+          selector: '{container="ilfreight_web"} |~ "(?i)(\\.\\./|\\.\\.\\\\|%2e%2e%2f|%2e%2e/|\\.\\.%2f|%2e%2e%5c|/etc/passwd|/etc/shadow|/proc/self|win\\.ini|boot\\.ini|system32|php://filter|php://input|data://)"'
+          stages:
+            - labels:
+                log_category: http_traffic
+                traffic_type: attack_vector
+                vuln_category: traversal_lfi
+                level: high
+
+      # 4C. Nhận diện Vector tấn công Cross-Site Scripting (XSS)
+      - match:
+          selector: '{container="ilfreight_web"} |~ "(?i)(<script|%3cscript|</script|%3c/script|<svg|%3csvg|<iframe|%3ciframe|<img|%3cimg|javascript:|vbscript:|onload=|onerror=|onclick=|onmouseover=|alert\\(|prompt\\(|confirm\\(|document\\.cookie)"'
+          stages:
+            - labels:
+                log_category: http_traffic
+                traffic_type: attack_vector
+                vuln_category: xss
+                level: warning
+
+      # 4D. Nhận diện Vector tấn công Remote Code Execution & Command Injection (CMDi)
+      - match:
+          selector: '{container="ilfreight_web"} |~ "(?i)(;\\s*(cat|ls|id|whoami|pwd|uname|nc|sh|bash)|\\|\\s*(cat|ls|id|whoami|sh|bash)|&&\\s*(cat|ls|id|whoami)|/bin/sh|/bin/bash|powershell|cmd\\.exe|wget(\\s+|%20|\\+)|curl(\\s+|%20|\\+))"'
+          stages:
+            - labels:
+                log_category: http_traffic
+                traffic_type: attack_vector
+                vuln_category: command_injection
+                level: critical
+
+      # 5. Nhận diện phản hồi rò rỉ lỗi Error-Based và mã lỗi HTTP 4xx/5xx
+      - match:
+          selector: '{container="ilfreight_web"} |~ "(?i)(SQL Error|syntax error|mysqli_sql_exception|database_query_failure|Fatal error| 500 |\"status\":50[0-9]|\"status\":40[0-9])"'
+          stages:
+            - labels:
+                log_category: http_traffic
+                traffic_type: error_based_leak
+                vuln_category: error_based_leak
+                level: high

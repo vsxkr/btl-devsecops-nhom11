@@ -1,0 +1,40 @@
+# Ban da sua o lop trien khai, dung de chung minh bo luat im lang khi dat.
+# Bi mat duoc tiem luc trien khai qua bien moi truong, khong nam trong tep.
+name: inlaneweb-hardened
+services:
+  db:
+    image: ghcr.io/wtfwhoyouare/inlaneweb-db:1.0.7
+    user: "999:999"
+    read_only: true
+    cap_drop: ["ALL"]
+    security_opt: ["no-new-privileges:true"]
+    tmpfs:
+      - /tmp
+      - /run/mysqld
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      DB_USER: ilf_app
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      retries: 20
+  web:
+    image: ghcr.io/wtfwhoyouare/inlaneweb:1.0.7
+    user: "33:33"
+    read_only: true
+    cap_drop: ["ALL"]
+    security_opt: ["no-new-privileges:true"]
+    tmpfs:
+      - /tmp
+      - /var/run/apache2
+    ports:
+      - "127.0.0.1:8088:8080"
+    environment:
+      DB_HOST: db
+      DB_USER: ilf_app
+      DB_PASS: ${APP_DB_PASSWORD}
+      DB_NAME: ilfreight
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f -s http://127.0.0.1:8080/health || exit 1"]
+      interval: 10s
+      retries: 3

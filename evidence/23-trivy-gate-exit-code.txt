@@ -1,0 +1,31 @@
+$ so sanh ma thoat cua Trivy, trivy 0.70.0, do ngay 2026-10-28
+
+Quet CVE anh nen (khong can Docker daemon, Trivy keo anh tu registry):
+  php:8.2-apache    Total: 119 (HIGH: 116, CRITICAL: 3)
+  mariadb:10.11     Total:  26 (HIGH:  25, CRITICAL: 1)
+
+Hanh vi cong:
+  trivy image --severity HIGH,CRITICAL php:8.2-apache                 exit=0
+  trivy image --severity HIGH,CRITICAL --exit-code 1 php:8.2-apache   exit=1
+
+Ket luan: giong Semgrep, mac dinh Trivy chi bao cao. Muon chan phai truyen
+--exit-code 1. Slide 2 va slide 3 cua mon hoc deu ghi "builds fail on High CVEs",
+nen day la cau hinh bat buoc neu muon dung Trivy lam cong.
+
+Quet bi mat:
+  trivy fs --scanners secret app/        -> "No issues detected"
+  tren 4 tep thuc su chua mat khau:
+    docker-compose.prod.yml        0 bi mat   (co MYSQL_ROOT_PASSWORD: password)
+    docker-compose.monitoring.yml  0 bi mat   (co GF_SECURITY_ADMIN_PASSWORD entropy cao)
+    web/src/lib/db.php             0 bi mat   (co getenv('DB_PASS') ?: 'password')
+    db/init.sql                    0 bi mat   (co IDENTIFIED BY 'password')
+  Ly do: bo luat bi mat cua Trivy nham vao dinh dang cua nha cung cap cu the
+  nhu khoa AWS hay token GitHub, khong nham vao bi mat dang chung.
+  Chinh sach rieng cua nhom bat duoc ca 4 noi.
+
+Quet cau hinh sai:
+  trivy fs --scanners misconfig app/InlaneWeb  -> Detected config files num=2
+    db/Dockerfile   27 tests, 25 passed, 2 failures  (DS-0002 HIGH thieu USER, DS-0026 LOW thieu HEALTHCHECK)
+    web/Dockerfile  27 tests, 25 passed, 2 failures  (nhu tren)
+  Trivy KHONG co bo quet cho docker-compose: danh sach misconfig-scanners gom
+  azure-arm, cloudformation, dockerfile, helm, kubernetes, terraform, ansible.
