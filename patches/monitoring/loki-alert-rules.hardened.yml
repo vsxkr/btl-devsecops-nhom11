@@ -1,34 +1,129 @@
 # =============================================================================
-# loki-alert-rules.hardened.yml — ban da sua cua
-# app/InlaneWeb/monitoring/loki/rules/fake/alert-rules.yml
+# alert-rules.yml (rules-hardened) — luat canh bao Loki, DA VA.
 #
-# Ba thay doi so voi ban goc:
+# Khac ban cu (patches/README.md #19):
+#  1. KIEN TRUC HAI CHUOI (lab Telemetry): mot luat muc THAP danh dau tung
+#     request (info, chi de doi chieu), mot luat muc CAO dem theo TUNG NGUON
+#     trong cua so thoi gian (critical). Ban cu moi luat la rate(...)>0, nen mot
+#     lan tham do le cung keu nhu mot dot quet.
+#  2. TUONG QUAN THEO NGUON lam bang `| json client_ip=...` LUC TRUY VAN roi
+#     `sum by (client_ip)`. Khong bien client_ip thanh nhan luc thu thap, nen
+#     khong gay bung no so luong chuoi trong Loki.
+#  3. GAN MA MITRE ATT&CK (ban cu khong co).
 #
-# 1. KIEN TRUC HAI CHUOI THEO LAB TELEMETRY
-#    Ban goc moi luat deu la `rate(...) > 0` voi `for: 5s`, nen mot lan tham do
-#    sinh ra mot canh bao, va khong phat hien duoc do quet hay bot. Lab dung
-#    luat muc thap danh dau tung request roi luat muc cao DEM THEO TUNG NGUON
-#    trong mot cua so thoi gian, kem khoang `ignore` de chong lap.
-#    Voi Loki, viec dem theo nguon lam bang `sum by (client_ip)` tren truong
-#    duoc boc tach luc truy van qua `| json`, nen khong tao nhan co luc tinh cao.
-#
-# 2. GAN MA KY THUAT MITRE
-#    Bang luat trong lab co cot MITRE. Ban goc khong co.
-#
-# 3. TACH NGUONG THEO MUC DO
-#    Mot lan tham do la tin hieu dang ghi nhan, mot loat tham do tu cung mot
-#    nguon la su co. Hai viec do khong nen sinh ra cung mot muc canh bao.
+# Chu thich ky thuat: chu ky tan cong nam o truong `query`/`uri` cua dong log
+# JSON do Apache phat (source=apache_http_traffic). Phan trong URI da duoc ma
+# hoa phan tram, nen chu ky viet theo dang da ma hoa (%27 = dau nhay don,
+# %20 = dau cach). Khong can regex metachar, tranh loi escape cua LogQL.
 # =============================================================================
 groups:
-  - name: inlaneweb-correlation
+  - name: inlaneweb-http-attacks
     interval: 15s
     rules:
-      # ---- Chuoi 1: do quet thong tin dang nhap -----------------------------
-      # Can ung dung phat su kien auth_event, xem patches/app/logger-auth-event.php
-      - alert: CredentialStuffingFromSingleSource
+      # ---- Chuoi SQLi, muc CAO: loat tham do tu MOT nguon -------------------
+      - alert: SqliProbeBurstFromSingleSource
         expr: |
           sum by (client_ip) (
-            count_over_time({container="ilfreight_web", log_category="auth", auth_outcome="failure"} | json [1m])
+            count_over_time(
+              {container="ilfreight_web"}
+              | json client_ip="client_ip", q="query", src="source"
+              | src="apache_http_traffic"
+              | q=~"(?i).*(%27|union.+select|%20or%20|%20and%20|information_schema|sleep|benchmark|concat|load_file|outfile|sqlmap|havij).*"
+              [1m]
+            )
+          ) > 5
+        for: 0s
+        labels:
+          severity: critical
+          service: web
+          vuln_type: sqli
+          mitre: T1190
+        annotations:
+          summary: "Loat tham do SQL injection tu mot dia chi"
+          description: "Hon 5 request mang dac trung SQL injection trong 60 giay tu cung mot nguon. Mot lan le duoc ghi o muc thap; mot loat la su co."
+
+      # ---- Chuoi SQLi, muc THAP: mot lan le, chi de doi chieu ----------------
+      - alert: SqliProbeObserved
+        expr: |
+          sum (
+            count_over_time(
+              {container="ilfreight_web"}
+              | json q="query", src="source"
+              | src="apache_http_traffic"
+              | q=~"(?i).*(%27|union.+select|%20or%20|information_schema|sleep|sqlmap).*"
+              [1m]
+            )
+          ) > 0
+        for: 30s
+        labels:
+          severity: info
+          service: web
+          vuln_type: sqli
+          mitre: T1190
+        annotations:
+          summary: "Ghi nhan dac trung SQL injection trong luu luong"
+          description: "Tin hieu muc thap, dung de doi chieu khi dieu tra, khong de goi nguoi truc."
+
+      # ---- Doc tep he thong / LFI, muc CAO -----------------------------------
+      - alert: PathTraversalBurstFromSingleSource
+        expr: |
+          sum by (client_ip) (
+            count_over_time(
+              {container="ilfreight_web"}
+              | json client_ip="client_ip", q="query", u="uri", src="source"
+              | src="apache_http_traffic"
+              | q=~"(?i).*(%2e%2e|%2f|etc/passwd|php://|data://).*" or u=~"(?i).*(%2e%2e|etc/passwd|php://).*"
+              [1m]
+            )
+          ) > 3
+        for: 0s
+        labels:
+          severity: high
+          service: web
+          vuln_type: traversal_lfi
+          mitre: T1083
+        annotations:
+          summary: "Loat tham do doc tep he thong tu mot nguon"
+          description: "Hon 3 request mang dac trung path traversal hoac LFI trong 60 giay tu cung mot nguon."
+
+      # ---- Ro ri qua phan hoi loi, keo dai -----------------------------------
+      - alert: ErrorBasedLeakSustained
+        expr: |
+          sum by (client_ip) (
+            count_over_time(
+              {container="ilfreight_web"}
+              | json client_ip="client_ip", st="status", src="source"
+              | src="apache_http_traffic"
+              | st=~"5.."
+              [2m]
+            )
+          ) > 10
+        for: 0s
+        labels:
+          severity: high
+          service: web
+          vuln_type: error_based_leak
+          mitre: T1190
+        annotations:
+          summary: "Nhieu phan hoi loi may chu tu mot nguon"
+          description: "Hon 10 phan hoi 5xx trong 2 phut tu cung mot nguon, dac trung khai thac dua tren thong diep loi."
+
+  - name: inlaneweb-auth
+    interval: 15s
+    rules:
+      # ---- Do quet thong tin dang nhap --------------------------------------
+      # AUTH-EVENT khong mang client_ip (Apache ghi dia chi o dong rieng), nen o
+      # lab mot nguon nay dem TONG so lan that bai. Trong trien khai that, bo
+      # sung client_ip vao su kien de tuong quan theo nguon.
+      - alert: CredentialStuffingObserved
+        expr: |
+          sum (
+            count_over_time(
+              {container="ilfreight_web"}
+              | json ae="auth_event", ao="auth_outcome"
+              | ae="login" | ao="failure"
+              [1m]
+            )
           ) > 5
         for: 0s
         labels:
@@ -37,98 +132,20 @@ groups:
           category: auth
           mitre: T1110.004
         annotations:
-          summary: "Do quet thong tin dang nhap tu mot dia chi"
-          description: "Hon 5 lan dang nhap that bai trong 60 giay tu cung mot dia chi nguon."
-
-      # ---- Chuoi 2: loat tham do SQL injection tu mot nguon -----------------
-      - alert: SqliProbeBurstFromSingleSource
-        expr: |
-          sum by (client_ip) (
-            count_over_time({container="ilfreight_web", vuln_category="sqli"} | json [1m])
-          ) > 5
-        for: 0s
-        labels:
-          severity: critical
-          service: web
-          category: http_traffic
-          vuln_type: sqli
-          mitre: T1190
-        annotations:
-          summary: "Loat tham do SQL injection tu mot dia chi"
-          description: "Hon 5 request mang dac trung SQL injection trong 60 giay tu cung mot dia chi nguon. Mot lan le duoc ghi nhan o muc thap, mot loat la su co."
-
-      # ---- Chuoi 2b: mot lan tham do le, chi ghi nhan -----------------------
-      - alert: SqliProbeObserved
-        expr: |
-          sum(count_over_time({container="ilfreight_web", vuln_category="sqli"}[1m])) > 0
-        for: 30s
-        labels:
-          severity: info
-          service: web
-          category: http_traffic
-          vuln_type: sqli
-          mitre: T1190
-        annotations:
-          summary: "Ghi nhan dac trung SQL injection trong luu luong"
-          description: "Tin hieu muc thap, dung de doi chieu khi dieu tra chu khong de goi nguoi truc."
-
-      # ---- Chuoi 3: doc tep he thong va bao gom tep cuc bo ------------------
-      - alert: PathTraversalBurstFromSingleSource
-        expr: |
-          sum by (client_ip) (
-            count_over_time({container="ilfreight_web", vuln_category="traversal_lfi"} | json [1m])
-          ) > 3
-        for: 0s
-        labels:
-          severity: high
-          service: web
-          category: http_traffic
-          vuln_type: traversal_lfi
-          mitre: T1083
-        annotations:
-          summary: "Loat tham do doc tep he thong tu mot dia chi"
-          description: "Hon 3 request mang dac trung path traversal hoac LFI trong 60 giay tu cung mot nguon."
-
-      # ---- Chuoi 4: thuc thi lenh he thong ---------------------------------
-      - alert: CommandInjectionAttempt
-        expr: |
-          sum by (client_ip) (
-            count_over_time({container="ilfreight_web", vuln_category="command_injection"} | json [1m])
-          ) > 0
-        for: 0s
-        labels:
-          severity: critical
-          service: web
-          category: http_traffic
-          vuln_type: command_injection
-          mitre: T1059
-        annotations:
-          summary: "Dau hieu chen lenh he thong"
-          description: "Nguong dat o 1 vi mot lan thanh cong da du gay hau qua, khac voi tham do SQL injection."
-
-      # ---- Chuoi 5: ro ri qua phan hoi loi ---------------------------------
-      - alert: ErrorBasedLeakSustained
-        expr: |
-          sum by (client_ip) (
-            count_over_time({container="ilfreight_web", vuln_category="error_based_leak"} | json [2m])
-          ) > 10
-        for: 0s
-        labels:
-          severity: high
-          service: web
-          category: http_traffic
-          vuln_type: error_based_leak
-          mitre: T1190
-        annotations:
-          summary: "Khai thac dua tren thong diep loi"
-          description: "Hon 10 phan hoi loi trong 2 phut tu cung mot nguon, dac trung cua khai thac error-based."
+          summary: "Nhieu lan dang nhap that bai trong thoi gian ngan"
+          description: "Hon 5 su kien dang nhap that bai trong 60 giay — dac trung do quet thong tin dang nhap."
 
   - name: inlaneweb-availability
     interval: 15s
     rules:
       - alert: DatabaseConnectionLost
         expr: |
-          sum(count_over_time({container="ilfreight_web"} |~ "(?i)(Access denied|Connection refused|Can't connect to MySQL server)"[1m])) > 0
+          sum (
+            count_over_time(
+              {container="ilfreight_web"} |~ "(?i)(Access denied|Connection refused|Can't connect to MySQL server)"
+              [1m]
+            )
+          ) > 0
         for: 10s
         labels:
           severity: critical
@@ -137,15 +154,3 @@ groups:
         annotations:
           summary: "Ung dung mat ket noi co so du lieu"
           description: "Container ilfreight_web bao loi ket noi MariaDB."
-
-      - alert: HighHttp5xxRate
-        expr: |
-          sum(count_over_time({container="ilfreight_web"} | json | status =~ "5.."[1m])) > 5
-        for: 10s
-        labels:
-          severity: critical
-          service: web
-          category: availability
-        annotations:
-          summary: "Ty le loi HTTP 5xx tang cao"
-          description: "Hon 5 phan hoi 5xx trong 60 giay."

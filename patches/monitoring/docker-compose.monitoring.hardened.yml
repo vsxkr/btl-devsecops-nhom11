@@ -1,16 +1,15 @@
 # =============================================================================
-# docker-compose.monitoring.hardened.yml — ban da sua cua
-# app/InlaneWeb/docker-compose.monitoring.yml
+# docker-compose.monitoring.hardened.yml — cum giam sat DA VA, mot goc thu muc.
 #
-# Khac biet so voi ban goc, moi dong tuong ung mot vi pham da do duoc:
-#   - grafana chuyen tu 0.0.0.0:3000 ve 127.0.0.1:3000      ATTACK-SURFACE
-#   - mat khau grafana lay tu bien moi truong                CREDENTIALS
-#   - autoheal mount docker.sock o che do chi doc            ISOLATION
-#   - promtail khong con chay bang root                      LEAST-PRIVILEGE
-#   - moi dich vu co cap_drop: [ALL] va no-new-privileges     LEAST-PRIVILEGE
-#   - moi dich vu co read_only kem tmpfs cho duong can ghi    LEAST-PRIVILEGE
-#   - autoheal ghim phien ban thay cho :latest                SUPPLY-CHAIN
-#   - them alertmanager va alert-sink                         chuoi phat hien
+# Khac ban dan trong patches/monitoring/: moi duong dan volume deu tinh tu
+# app/InlaneWeb/ (mot goc duy nhat), va promtail/loki tro toi BAN VA chu khong
+# phai ban cu:
+#   promtail      -> monitoring/promtail/promtail-config.hardened.yml
+#   loki rules    -> monitoring/loki/rules-hardened
+#   alertmanager  -> monitoring/alertmanager/alertmanager.yml
+#   alert-sink    -> monitoring/alert-sink/alert-sink.py
+#
+# Moi khac biet an toan so voi ban cu da ghi trong patches/monitoring/.
 # =============================================================================
 name: inlaneweb-monitoring
 
@@ -28,13 +27,16 @@ services:
     read_only: true
     tmpfs:
       - /tmp
-      - /loki/rules-temp
     ports:
       - "127.0.0.1:3100:3100"
     volumes:
       - ./monitoring/loki/loki-config.yml:/etc/loki/local-config.yaml:ro
-      - ./monitoring/loki/rules:/etc/loki/rules:ro
+      - ./monitoring/loki/rules-hardened:/etc/loki/rules:ro
       - loki_data:/loki
+      - type: tmpfs
+        target: /loki/rules-temp
+        tmpfs:
+          mode: 0777
     command: -config.file=/etc/loki/local-config.yaml
     networks: [labnet]
     healthcheck:
@@ -47,27 +49,20 @@ services:
     <<: *hardening
     image: grafana/promtail:3.0.0
     container_name: ilfreight_promtail
-    # Ban goc dat user: root. Nhom docker tren host cho phep doc socket ma
-    # khong can root trong container.
     user: "10001:10001"
     group_add:
-      - "${DOCKER_GID:-999}"
+      - "${DOCKER_GID:-0}"
     read_only: true
     tmpfs:
       - /tmp
     volumes:
-      - ./monitoring/promtail/promtail-config.yml:/etc/promtail/config.yml:ro
+      - ./monitoring/promtail/promtail-config.hardened.yml:/etc/promtail/config.yml:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
     command: -config.file=/etc/promtail/config.yml
     depends_on:
       loki:
         condition: service_healthy
     networks: [labnet]
-    healthcheck:
-      test: ["CMD-SHELL", "wget -q --spider http://127.0.0.1:9080/ready || exit 1"]
-      interval: 10s
-      timeout: 5s
-      retries: 10
 
   grafana:
     <<: *hardening
@@ -81,8 +76,8 @@ services:
     ports:
       - "127.0.0.1:3000:3000"
     environment:
-      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER}
-      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD}
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-admin}
       GF_USERS_ALLOW_SIGN_UP: "false"
       GF_AUTH_ANONYMOUS_ENABLED: "false"
     volumes:
@@ -92,11 +87,6 @@ services:
       loki:
         condition: service_healthy
     networks: [labnet]
-    healthcheck:
-      test: ["CMD-SHELL", "wget -q --spider http://127.0.0.1:3000/api/health || exit 1"]
-      interval: 10s
-      timeout: 5s
-      retries: 10
 
   alertmanager:
     <<: *hardening
@@ -109,7 +99,7 @@ services:
     ports:
       - "127.0.0.1:9093:9093"
     volumes:
-      - ./patches/monitoring/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
+      - ./monitoring/alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
       - alertmanager_data:/alertmanager
     command:
       - --config.file=/etc/alertmanager/alertmanager.yml
@@ -133,28 +123,8 @@ services:
       ALERT_LOG: /tmp/lab-alerts.log
       ALERT_PORT: "9099"
     volumes:
-      - ./patches/monitoring/alert-sink.py:/opt/alert-sink.py:ro
+      - ./monitoring/alert-sink/alert-sink.py:/opt/alert-sink.py:ro
     command: ["python", "-I", "/opt/alert-sink.py"]
-    networks: [labnet]
-    healthcheck:
-      test: ["CMD-SHELL", "python -c \"import urllib.request;urllib.request.urlopen('http://127.0.0.1:9099/')\" || exit 1"]
-      interval: 10s
-      timeout: 5s
-      retries: 3
-
-  autoheal:
-    <<: *hardening
-    image: willfarrell/autoheal:1.2.0
-    container_name: ilfreight_autoheal
-    read_only: true
-    environment:
-      AUTOHEAL_CONTAINER_LABEL: autoheal
-      AUTOHEAL_INTERVAL: "10"
-      AUTOHEAL_START_PERIOD: "20"
-      AUTOHEAL_DEFAULT_STOP_TIMEOUT: "10"
-    volumes:
-      # Ban goc mount ghi duoc, tuong duong quyen root tren host.
-      - /var/run/docker.sock:/var/run/docker.sock:ro
     networks: [labnet]
 
 volumes:

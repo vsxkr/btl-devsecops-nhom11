@@ -1,0 +1,62 @@
+# =============================================================================
+# promtail-config.hardened.yml — ban da sua cua app/InlaneWeb/monitoring/promtail/
+#
+# Viec an toan cua Promtail trong kien truc nay la MOT viec duy nhat, lam that
+# tot: CHE DU LIEU TRUOC KHI LUU (patches/README.md #18, deck "OpSec Telemetry
+# Hygiene": "Log Scrubbing Pipelines ... scrub PII, PCI data, and tokens /
+# Regex Masking Rules"). Doi chieu GDPR Dieu 5(1)(c) va CWE-532.
+#
+# Ban cu day nguyen van `failed_query` (chua ten dang nhap va mat khau nguoi
+# dung vua go) va thong diep loi cua MariaDB sang Loki. Ban nay thay chung bang
+# [REDACTED_BY_PIPELINE] NGAY TAI PROMTAIL, truoc khi bat ky byte nao duoc luu.
+#
+# Viec TUONG QUAN (dem theo nguon, phan loai vector tan cong) KHONG dat o day ma
+# dat trong luat cua Loki bang `| json` luc truy van — xem
+# monitoring/loki/rules-hardened/fake/alert-rules.yml. Ly do: tach bach viec che
+# du lieu (promtail) voi viec phat hien (luat), va `| json` luc truy van khong
+# lam bung no so luong chuoi trong Loki nhu khi bien client_ip thanh nhan.
+# =============================================================================
+server:
+  http_listen_port: 9080
+  grpc_listen_port: 0
+
+positions:
+  filename: /tmp/positions.yaml
+
+clients:
+  - url: http://loki:3100/loki/api/v1/push
+
+scrape_configs:
+  - job_name: inlaneweb_containers
+    docker_sd_configs:
+      - host: unix:///var/run/docker.sock
+        refresh_interval: 5s
+        # Loc NGAY TAI DOCKER API: promtail chi kham pha container ung dung.
+        # Dung relabel `keep` o day KHONG du — promtail van mo luong doc log cua
+        # moi container (ke ca cua chinh no va cua Loki, gay vong lap tu nuoi),
+        # roi moi bo. Loc tai API chan tu goc.
+        filters:
+          - name: name
+            values: ['ilfreight_web']
+    relabel_configs:
+      - source_labels: ['__meta_docker_container_name']
+        regex: '/(.*)'
+        target_label: 'container' 
+    pipeline_stages:
+      # LUU Y CO CHE: stage `replace` cua Promtail chi hoat dong khi bieu thuc
+      # co IT NHAT MOT NHOM BAT; khong co nhom thi stage la no-op. Moi bieu thuc
+      # duoi deu co nhom bat, va chuoi thay the la HANG (khong tham chieu nhom),
+      # nen toan bo phan khop bi thay bang chuoi an toan.
+      #
+      # 1. Che gia tri failed_query, giu JSON hop le.
+      - replace:
+          expression: '("failed_query"\s*:\s*")([^"]*)(")'
+          replace: '"failed_query":"[REDACTED_BY_PIPELINE]"'
+      # 2. Che cap mat khau / token / khoa API trong than log hoac URL.
+      - replace:
+          expression: '(?i)(?:password|passwd|pwd|pass|api_key|secret|token)\s*[=:]\s*([^&"\s,}]+)'
+          replace: '[REDACTED_CREDENTIAL]'
+      # 3. Che dia chi email de khong luu dinh danh truc tiep.
+      - replace:
+          expression: '([A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,})'
+          replace: '[REDACTED_EMAIL]'

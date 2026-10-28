@@ -1,27 +1,20 @@
 # =============================================================================
 # promtail-config.hardened.yml — ban da sua cua app/InlaneWeb/monitoring/promtail/
 #
-# Ba thay doi so voi ban goc:
+# Viec an toan cua Promtail trong kien truc nay la MOT viec duy nhat, lam that
+# tot: CHE DU LIEU TRUOC KHI LUU (patches/README.md #18, deck "OpSec Telemetry
+# Hygiene": "Log Scrubbing Pipelines ... scrub PII, PCI data, and tokens /
+# Regex Masking Rules"). Doi chieu GDPR Dieu 5(1)(c) va CWE-532.
 #
-# 1. CHE DU LIEU TRUOC KHI LUU
-#    Ban goc trich `failed_query` thanh nhan roi luu nguyen van. Cau lenh do
-#    chua chuoi nguoi dung vua nhap, nen voi /login no chua ca ten dang nhap va
-#    mat khau. Deck "OpSec Telemetry Hygiene" cua mon hoc ghi ro yeu cau
-#    "Log Scrubbing Pipelines: filters log streams automatically before storage
-#    to scrub PII, PCI data, and tokens / Regex Masking Rules".
-#    Doi chieu GDPR Dieu 5(1)(c) ve toi gian du lieu va CWE-532.
+# Ban cu day nguyen van `failed_query` (chua ten dang nhap va mat khau nguoi
+# dung vua go) va thong diep loi cua MariaDB sang Loki. Ban nay thay chung bang
+# [REDACTED_BY_PIPELINE] NGAY TAI PROMTAIL, truoc khi bat ky byte nao duoc luu.
 #
-# 2. GIU client_ip DE TUONG QUAN DUOC THEO NGUON
-#    Ban goc khong trich client_ip, nen khong luat nao dem duoc so lan tu cung
-#    mot dia chi. Lab Telemetry dung kien truc hai chuoi: luat muc thap danh dau
-#    tung request, luat muc cao dem theo tung IP trong mot cua so thoi gian.
-#    client_ip duoc trich thanh FIELD chu khong thanh nhan, de tranh bung no so
-#    luong chuoi trong Loki; LogQL van tong hop duoc bang `| json`.
-#
-# 3. THEM NHAN auth_event
-#    Ung dung se phat su kien xac thuc rieng, nho do dem duoc so lan dang nhap
-#    that bai. Ban goc khong co su kien nao nhu vay, nen do quet thong tin dang
-#    nhap khong the phat hien duoc.
+# Viec TUONG QUAN (dem theo nguon, phan loai vector tan cong) KHONG dat o day ma
+# dat trong luat cua Loki bang `| json` luc truy van — xem
+# monitoring/loki/rules-hardened/fake/alert-rules.yml. Ly do: tach bach viec che
+# du lieu (promtail) voi viec phat hien (luat), va `| json` luc truy van khong
+# lam bung no so luong chuoi trong Loki nhu khi bien client_ip thanh nhan.
 # =============================================================================
 server:
   http_listen_port: 9080
@@ -38,103 +31,32 @@ scrape_configs:
     docker_sd_configs:
       - host: unix:///var/run/docker.sock
         refresh_interval: 5s
+        # Loc NGAY TAI DOCKER API: promtail chi kham pha container ung dung.
+        # Dung relabel `keep` o day KHONG du — promtail van mo luong doc log cua
+        # moi container (ke ca cua chinh no va cua Loki, gay vong lap tu nuoi),
+        # roi moi bo. Loc tai API chan tu goc.
+        filters:
+          - name: name
+            values: ['ilfreight_web']
     relabel_configs:
       - source_labels: ['__meta_docker_container_name']
         regex: '/(.*)'
-        target_label: 'container'
-      - source_labels: ['container']
-        regex: '(ilfreight_web|ilfreight_db)'
-        action: keep
-
+        target_label: 'container' 
     pipeline_stages:
-      # --- 1. Boc tach truong tu JSON cua ung dung va cua Apache --------------
-      - json:
-          expressions:
-            source: source
-            channel: channel
-            level: level
-            type: type
-            class: class
-            message: message
-            failed_query: failed_query
-            method: method
-            uri: uri
-            query: query
-            status: status
-            client_ip: client_ip
-            auth_event: auth_event
-            auth_outcome: auth_outcome
-
-      # --- 2. CHE DU LIEU. Phai dat TRUOC moi stage gan nhan, de khong co ban
-      #        sao nao cua payload bi giu lai. Stage `replace` cua Promtail thay
-      #        the DUNG nhom bat duoc, nen chi phan trong dau nhay bi thay.
+      # LUU Y CO CHE: stage `replace` cua Promtail chi hoat dong khi bieu thuc
+      # co IT NHAT MOT NHOM BAT; khong co nhom thi stage la no-op. Moi bieu thuc
+      # duoi deu co nhom bat, va chuoi thay the la HANG (khong tham chieu nhom),
+      # nen toan bo phan khop bi thay bang chuoi an toan.
+      #
+      # 1. Che gia tri failed_query, giu JSON hop le.
       - replace:
-          expression: '"failed_query":"([^"]*)"'
-          replace: '[REDACTED_BY_PIPELINE]'
+          expression: '("failed_query"\s*:\s*")([^"]*)(")'
+          replace: '"failed_query":"[REDACTED_BY_PIPELINE]"'
+      # 2. Che cap mat khau / token / khoa API trong than log hoac URL.
       - replace:
-          expression: '(?i)(?:pass|password|passwd|pwd|token|api_key|secret)=([^&"\s]+)'
-          replace: '[REDACTED_BY_PIPELINE]'
-      # Che email trong than log de khong luu dinh danh truc tiep
+          expression: '(?i)(?:password|passwd|pwd|pass|api_key|secret|token)\s*[=:]\s*([^&"\s,}]+)'
+          replace: '[REDACTED_CREDENTIAL]'
+      # 3. Che dia chi email de khong luu dinh danh truc tiep.
       - replace:
-          expression: '([A-Za-z0-9._%+-]+)@[A-Za-z0-9.-]+\.[A-Za-z]{2,}'
+          expression: '([A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,})'
           replace: '[REDACTED_EMAIL]'
-
-      # --- 3. Phan loai log loi ung dung -------------------------------------
-      - match:
-          selector: '{container="ilfreight_web"} |~ "(?i)(inlaneweb_app|APP-EXCEPTION|cause_chain|database_query_failure|Fatal error|Uncaught Exception|mysqli_error)"'
-          stages:
-            - labels:
-                log_category: app_exception
-                level: error
-
-      # --- 4. Phan loai luu luong HTTP ---------------------------------------
-      - match:
-          selector: '{container="ilfreight_web"} |~ "(?i)apache_http_traffic"'
-          stages:
-            - labels:
-                log_category: http_traffic
-
-      # --- 5. Su kien xac thuc, de dem duoc so lan that bai -------------------
-      - match:
-          selector: '{container="ilfreight_web"} |~ "\"auth_event\""'
-          stages:
-            - labels:
-                log_category: auth
-                auth_outcome:
-
-      # --- 6. Nhan dien vector tan cong. Chi GAN NHAN, khong giu payload ------
-      - match:
-          selector: '{container="ilfreight_web"} |~ "(?i)(union(\\s+|%20|\\+)select|sleep\\(|benchmark\\(|or(\\s+|%20|\\+)1=1|concat\\(|load_file\\(|into(\\s+|%20|\\+)outfile|information_schema|database\\(|sqlmap|havij)"'
-          stages:
-            - labels:
-                traffic_type: attack_vector
-                vuln_category: sqli
-                mitre: T1190
-      - match:
-          selector: '{container="ilfreight_web"} |~ "(?i)(\\.\\./|%2e%2e%2f|/etc/passwd|/etc/shadow|/proc/self|php://filter|php://input|data://)"'
-          stages:
-            - labels:
-                traffic_type: attack_vector
-                vuln_category: traversal_lfi
-                mitre: T1083
-      - match:
-          selector: '{container="ilfreight_web"} |~ "(?i)(<script|%3cscript|<svg|<iframe|javascript:|onerror=|onload=|document\\.cookie)"'
-          stages:
-            - labels:
-                traffic_type: attack_vector
-                vuln_category: xss
-                mitre: T1059.007
-      - match:
-          selector: '{container="ilfreight_web"} |~ "(?i)(;\\s*(cat|ls|id|whoami|uname|nc|sh|bash)|/bin/sh|/bin/bash|powershell|cmd\\.exe)"'
-          stages:
-            - labels:
-                traffic_type: attack_vector
-                vuln_category: command_injection
-                mitre: T1059
-      - match:
-          selector: '{container="ilfreight_web"} |~ "(?i)(syntax\\s+error|database_query_failure|mysqli_error|\"status\":50[0-9])"'
-          stages:
-            - labels:
-                traffic_type: error_based_leak
-                vuln_category: error_based_leak
-                mitre: T1190
