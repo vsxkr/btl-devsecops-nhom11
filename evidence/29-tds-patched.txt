@@ -3,7 +3,7 @@
    dung /c/Users/Admin/Documents/Lab/PTIT/btl-devsecops/btl-devsecops-nhom11/app/InlaneWeb/.env co san
 
 ==> 1. Dung stack InlaneWeb
- Container ilfreight_db Healthy 
+ Container ilfreight_web Started 
  Container ilfreight_web Waiting 
  Container ilfreight_db Waiting 
  Container ilfreight_db Healthy 
@@ -13,13 +13,13 @@
    trang thai healthcheck: healthy
 
 ==> 3. Danh moc thoi gian de khang dinh ve nhat ky chi tinh tren lan chay nay
-   moc: 2026-10-28T13:48:47Z
+   moc: 2026-10-28T13:51:47Z
 
 ==> 4. Chay compliance_test.php trong container
    mang: inlaneweb_net | anh: inlaneweb-web:1.0.0
 Test-Driven Security, InlaneWeb
 ------------------------------------------------------------------------------
-chu the du lieu test: id=6 username=tds_subject
+chu the du lieu test: id=5 username=tds_subject
 ------------------------------------------------------------------------------
   [DAT ] TDS-4   GDPR Art. 32               mat khau khong duoc luu dang ro
   [DAT ] TDS-5   GDPR Art. 32               phan hoi loi khong duoc lo noi bo
@@ -37,4 +37,6 @@ chu the du lieu test: id=6 username=tds_subject
   compliance_test.php : ma thoat 0
   TDS-6 nhat ky       : ma thoat 0
   ket qua chung       : TAT CA DAT
+
+==> Ha stack
 exit=0
