@@ -1,0 +1,55 @@
+$ docker inspect ilfreight_web > .inspect/ilfreight_web.json
+$ docker run --rm -v "$PWD/compliance://profile" -v "$PWD/.inspect://inspect" \
+    chef/inspec exec //profile --input container=ilfreight_web \
+    inspect_json=//inspect/ilfreight_web.json --chef-license=accept-silent
+
+
+Profile:   InlaneWeb container runtime baseline (inlaneweb-runtime)
+Version:   1.0.0
+Target:    local://
+Target ID: c6455692-b81a-5638-ae7b-ff7469a6d24d
+
+  ×  ilf-run-01-non-root: Container khong chay bang root (1 failed)
+     ✔  Config.User cua ilfreight_web is expected not to be nil
+     ×  Config.User cua ilfreight_web is expected not to eq ""
+     
+     expected: value != ""
+          got: ""
+     
+     (compared using ==)
+
+     ✔  Config.User cua ilfreight_web is expected not to match /^(root|0)(:|$)/
+  ×  ilf-run-02-least-privilege: Khong dac quyen, khong leo thang dac quyen, bo het capability (2 failed)
+     ✔  HostConfig.Privileged is expected to eq false
+     ×  HostConfig.SecurityOpt is expected to include "no-new-privileges:true"
+     expected [] to include "no-new-privileges:true"
+     ×  HostConfig.CapDrop is expected to include "ALL"
+     expected [] to include "ALL"
+  ✔  ilf-run-03-network-exposure: Moi cong da cong bo chi buoc vao loopback
+     ✔  cong 80/tcp rang buoc thu 1 is expected to eq "127.0.0.1"
+  ×  ilf-run-04-no-secrets-in-env: Khong co thong tin xac thuc trong bien moi truong cua container
+     ×  bien moi truong co ten giong thong tin xac thuc is expected to be empty
+     expected `["DB_PASS=password"].empty?` to be truthy, got false
+  ✔  ilf-run-05-no-docker-socket: Khong mount socket cua Docker vao container
+     ✔  mount tro toi docker.sock is expected to be empty
+  ×  ilf-run-06-readonly-rootfs: He tep goc nen o che do chi doc
+     ×  HostConfig.ReadonlyRootfs is expected to eq true
+     
+     expected: true
+          got: false
+     
+     (compared using ==)
+     
+     Diff:
+     @@ -1 +1 @@
+     -true
+     +false
+
+
+
+Profile Summary: 2 successful controls, 4 control failures, 0 controls skipped
+Test Summary: 5 successful, 5 failures, 0 skipped
+
+LUU Y: anh chef/inspec:5.24.24 KHONG co docker CLI, do duoc bang
+  docker run --rm --entrypoint sh chef/inspec -c "command -v docker"  -> rong
+nen profile phai nhan JSON qua tep thay vi tu goi docker inspect.

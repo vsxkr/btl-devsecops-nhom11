@@ -186,12 +186,20 @@ tds_assert(
 // ---------------------------------------------------------------------------
 //  TDS-5  Ve sinh loi        GDPR Dieu 32, PCI DSS 6.2.4
 // ---------------------------------------------------------------------------
-$bad = http_request('GET', "/shipments/1'");
+// Dung endpoint CONG KHAI /ports, la trang di qua helper query() cua ung dung.
+// Hai lan thu truoc deu cho ket qua DAT GIA:
+//   /shipments/1'   co chan dang nhap  -> chuyen huong, khong truy van nao chay
+//   /api/track      goi mysqli_query truc tiep va CO Y nuot loi -> khong in gi
+// Mot phep kiem khong cham duoc vao duong can kiem thi khong ket luan duoc gi.
+$bad = http_request('GET', '/ports?q=1%27');
 $leaks = [];
 foreach (['SQL Error', 'mysqli', 'syntax', 'SQL syntax', 'MariaDB server version'] as $needle) {
     if (stripos($bad['body'], $needle) !== false) {
         $leaks[] = $needle;
     }
+}
+if ($bad['status'] === 302 || stripos($bad['head'], 'Location: /login') !== false) {
+    $leaks[] = sprintf('phep kiem khong cham duoc vao ma, bi chuyen huong, status=%d', $bad['status']);
 }
 tds_assert(
     'TDS-5',

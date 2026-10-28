@@ -1,0 +1,317 @@
+[
+    {
+        "Id": "94557c0f3ff0c13a77fea986b556c6cdb79cdc3f04e382392c6a4de7da05fa8f",
+        "Created": "2026-10-28T13:30:31.779586184Z",
+        "Path": "docker-php-entrypoint",
+        "Args": [
+            "apache2-foreground"
+        ],
+        "State": {
+            "Status": "running",
+            "Running": true,
+            "Paused": false,
+            "Restarting": false,
+            "OOMKilled": false,
+            "Dead": false,
+            "Pid": 5365,
+            "ExitCode": 0,
+            "Error": "",
+            "StartedAt": "2026-10-28T13:30:37.775109981Z",
+            "FinishedAt": "0001-01-01T00:00:00Z",
+            "Health": {
+                "Status": "healthy",
+                "FailingStreak": 0,
+                "Log": [
+                    {
+                        "Start": "2026-10-28T13:35:55.276670642Z",
+                        "End": "2026-10-28T13:35:55.368899422Z",
+                        "ExitCode": 0,
+                        "Output": "{\n    \"status\": \"UP\",\n    \"application\": \"InlaneWeb Logistics Portal\",\n    \"database\": \"CONNECTED\",\n    \"timestamp\": \"2026-10-28T13:35:55Z\"\n}"
+                    },
+                    {
+                        "Start": "2026-10-28T13:36:05.360789135Z",
+                        "End": "2026-10-28T13:36:05.431248173Z",
+                        "ExitCode": 0,
+                        "Output": "{\n    \"status\": \"UP\",\n    \"application\": \"InlaneWeb Logistics Portal\",\n    \"database\": \"CONNECTED\",\n    \"timestamp\": \"2026-10-28T13:36:05Z\"\n}"
+                    },
+                    {
+                        "Start": "2026-10-28T13:36:15.431772567Z",
+                        "End": "2026-10-28T13:36:15.493004939Z",
+                        "ExitCode": 0,
+                        "Output": "{\n    \"status\": \"UP\",\n    \"application\": \"InlaneWeb Logistics Portal\",\n    \"database\": \"CONNECTED\",\n    \"timestamp\": \"2026-10-28T13:36:15Z\"\n}"
+                    },
+                    {
+                        "Start": "2026-10-28T13:36:25.494057895Z",
+                        "End": "2026-10-28T13:36:25.556978367Z",
+                        "ExitCode": 0,
+                        "Output": "{\n    \"status\": \"UP\",\n    \"application\": \"InlaneWeb Logistics Portal\",\n    \"database\": \"CONNECTED\",\n    \"timestamp\": \"2026-10-28T13:36:25Z\"\n}"
+                    },
+                    {
+                        "Start": "2026-10-28T13:36:35.568454551Z",
+                        "End": "2026-10-28T13:36:35.623940369Z",
+                        "ExitCode": 0,
+                        "Output": "{\n    \"status\": \"UP\",\n    \"application\": \"InlaneWeb Logistics Portal\",\n    \"database\": \"CONNECTED\",\n    \"timestamp\": \"2026-10-28T13:36:35Z\"\n}"
+                    }
+                ]
+            }
+        },
+        "Image": "sha256:ab7009036ff84b214abbddd97a5cc5f9790b2ad7181da3045ec7c1b76eebeefa",
+        "ResolvConfPath": "/var/lib/docker/containers/94557c0f3ff0c13a77fea986b556c6cdb79cdc3f04e382392c6a4de7da05fa8f/resolv.conf",
+        "HostnamePath": "/var/lib/docker/containers/94557c0f3ff0c13a77fea986b556c6cdb79cdc3f04e382392c6a4de7da05fa8f/hostname",
+        "HostsPath": "/var/lib/docker/containers/94557c0f3ff0c13a77fea986b556c6cdb79cdc3f04e382392c6a4de7da05fa8f/hosts",
+        "LogPath": "/var/lib/docker/containers/94557c0f3ff0c13a77fea986b556c6cdb79cdc3f04e382392c6a4de7da05fa8f/94557c0f3ff0c13a77fea986b556c6cdb79cdc3f04e382392c6a4de7da05fa8f-json.log",
+        "Name": "/ilfreight_web",
+        "RestartCount": 0,
+        "Driver": "overlayfs",
+        "Platform": "linux",
+        "MountLabel": "",
+        "ProcessLabel": "",
+        "AppArmorProfile": "",
+        "ExecIDs": null,
+        "HostConfig": {
+            "Binds": [
+                "C:\\Users\\Admin\\Documents\\Lab\\PTIT\\btl-devsecops\\btl-devsecops-nhom11\\app\\InlaneWeb\\web\\src:/var/www/html:ro",
+                "inlaneweb_shared_files:/var/www/html/files:rw"
+            ],
+            "ContainerIDFile": "",
+            "LogConfig": {
+                "Type": "json-file",
+                "Config": {}
+            },
+            "NetworkMode": "inlaneweb_net",
+            "PortBindings": {
+                "80/tcp": [
+                    {
+                        "HostIp": "127.0.0.1",
+                        "HostPort": "8088"
+                    }
+                ]
+            },
+            "RestartPolicy": {
+                "Name": "always",
+                "MaximumRetryCount": 0
+            },
+            "AutoRemove": false,
+            "VolumeDriver": "",
+            "VolumesFrom": null,
+            "ConsoleSize": [
+                0,
+                0
+            ],
+            "CapAdd": null,
+            "CapDrop": null,
+            "CgroupnsMode": "private",
+            "Dns": null,
+            "DnsOptions": null,
+            "DnsSearch": null,
+            "ExtraHosts": [],
+            "GroupAdd": null,
+            "IpcMode": "private",
+            "Cgroup": "",
+            "Links": null,
+            "OomScoreAdj": 0,
+            "PidMode": "",
+            "Privileged": false,
+            "PublishAllPorts": false,
+            "ReadonlyRootfs": false,
+            "SecurityOpt": null,
+            "UTSMode": "",
+            "UsernsMode": "",
+            "ShmSize": 67108864,
+            "Runtime": "runc",
+            "Isolation": "",
+            "CpuShares": 0,
+            "Memory": 0,
+            "NanoCpus": 0,
+            "CgroupParent": "",
+            "BlkioWeight": 0,
+            "BlkioWeightDevice": null,
+            "BlkioDeviceReadBps": null,
+            "BlkioDeviceWriteBps": null,
+            "BlkioDeviceReadIOps": null,
+            "BlkioDeviceWriteIOps": null,
+            "CpuPeriod": 0,
+            "CpuQuota": 0,
+            "CpuRealtimePeriod": 0,
+            "CpuRealtimeRuntime": 0,
+            "CpusetCpus": "",
+            "CpusetMems": "",
+            "Devices": null,
+            "DeviceCgroupRules": null,
+            "DeviceRequests": null,
+            "MemoryReservation": 0,
+            "MemorySwap": 0,
+            "MemorySwappiness": null,
+            "OomKillDisable": null,
+            "PidsLimit": null,
+            "Ulimits": null,
+            "CpuCount": 0,
+            "CpuPercent": 0,
+            "IOMaximumIOps": 0,
+            "IOMaximumBandwidth": 0,
+            "MaskedPaths": [
+                "/proc/acpi",
+                "/proc/asound",
+                "/proc/interrupts",
+                "/proc/kcore",
+                "/proc/keys",
+                "/proc/latency_stats",
+                "/proc/sched_debug",
+                "/proc/scsi",
+                "/proc/timer_list",
+                "/proc/timer_stats",
+                "/sys/devices/virtual/powercap",
+                "/sys/firmware"
+            ],
+            "ReadonlyPaths": [
+                "/proc/bus",
+                "/proc/fs",
+                "/proc/irq",
+                "/proc/sys",
+                "/proc/sysrq-trigger"
+            ]
+        },
+        "Storage": {
+            "RootFS": {
+                "Snapshot": {
+                    "Name": "overlayfs"
+                }
+            }
+        },
+        "Mounts": [
+            {
+                "Type": "bind",
+                "Source": "C:\\Users\\Admin\\Documents\\Lab\\PTIT\\btl-devsecops\\btl-devsecops-nhom11\\app\\InlaneWeb\\web\\src",
+                "Destination": "/var/www/html",
+                "Mode": "ro",
+                "RW": false,
+                "Propagation": "rprivate"
+            },
+            {
+                "Type": "volume",
+                "Name": "inlaneweb_shared_files",
+                "Source": "/var/lib/docker/volumes/inlaneweb_shared_files/_data",
+                "Destination": "/var/www/html/files",
+                "Driver": "local",
+                "Mode": "rw",
+                "RW": true,
+                "Propagation": ""
+            }
+        ],
+        "Config": {
+            "Hostname": "94557c0f3ff0",
+            "Domainname": "",
+            "User": "",
+            "AttachStdin": false,
+            "AttachStdout": true,
+            "AttachStderr": true,
+            "ExposedPorts": {
+                "80/tcp": {}
+            },
+            "Tty": false,
+            "OpenStdin": false,
+            "StdinOnce": false,
+            "Env": [
+                "DB_NAME=ilfreight",
+                "OOB_HOST=",
+                "DB_HOST=db",
+                "DB_USER=root",
+                "DB_PASS=password",
+                "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+                "PHPIZE_DEPS=autoconf \t\tdpkg-dev \t\tfile \t\tg++ \t\tgcc \t\tlibc-dev \t\tmake \t\tpkg-config \t\tre2c",
+                "PHP_INI_DIR=/usr/local/etc/php",
+                "APACHE_CONFDIR=/etc/apache2",
+                "APACHE_ENVVARS=/etc/apache2/envvars",
+                "PHP_CFLAGS=-fstack-protector-strong -fpic -fpie -O2 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64",
+                "PHP_CPPFLAGS=-fstack-protector-strong -fpic -fpie -O2 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64",
+                "PHP_LDFLAGS=-Wl,-O1 -pie",
+                "GPG_KEYS=39B641343D8C104B2B146DC3F9C39DC0B9698544 E60913E4DF209907D8E30D96659A97C9CF2A795A 1198C0117593497A5EC5C199286AF1F9897469DC",
+                "PHP_VERSION=8.2.35",
+                "PHP_URL=https://www.php.net/distributions/php-8.2.35.tar.xz",
+                "PHP_ASC_URL=https://www.php.net/distributions/php-8.2.35.tar.xz.asc",
+                "PHP_SHA256=5737b98601fe5ab1b8c5db0c82ed3158acb9283ed3081ffe2faffb9ac81455e6"
+            ],
+            "Cmd": [
+                "apache2-foreground"
+            ],
+            "Healthcheck": {
+                "Test": [
+                    "CMD-SHELL",
+                    "curl -f -s http://127.0.0.1/health || exit 1"
+                ],
+                "Interval": 10000000000,
+                "Timeout": 5000000000,
+                "StartPeriod": 10000000000,
+                "Retries": 3
+            },
+            "Image": "inlaneweb-web:latest",
+            "Volumes": null,
+            "WorkingDir": "/var/www/html",
+            "Entrypoint": [
+                "docker-php-entrypoint"
+            ],
+            "Labels": {
+                "autoheal": "true",
+                "com.docker.compose.config-hash": "e7c9e2be8a0c141fa0078b453e14db235bc678013fc13e24eb7d84d5d896e4f0",
+                "com.docker.compose.container-number": "1",
+                "com.docker.compose.depends_on": "db:service_healthy:false",
+                "com.docker.compose.image": "sha256:ab7009036ff84b214abbddd97a5cc5f9790b2ad7181da3045ec7c1b76eebeefa",
+                "com.docker.compose.oneoff": "False",
+                "com.docker.compose.project": "inlaneweb",
+                "com.docker.compose.project.config_files": "C:\\Users\\Admin\\Documents\\Lab\\PTIT\\btl-devsecops\\btl-devsecops-nhom11\\app\\InlaneWeb\\docker-compose.yml",
+                "com.docker.compose.project.working_dir": "C:\\Users\\Admin\\Documents\\Lab\\PTIT\\btl-devsecops\\btl-devsecops-nhom11\\app\\InlaneWeb",
+                "com.docker.compose.replace": "ilfreight_web",
+                "com.docker.compose.service": "web",
+                "com.docker.compose.version": "5.3.1"
+            },
+            "StopSignal": "SIGWINCH"
+        },
+        "NetworkSettings": {
+            "SandboxID": "6846f846096efbad9d4fba1a12f3d6df5e44207a32f2619ae48141ff85cb4e24",
+            "SandboxKey": "/var/run/docker/netns/6846f846096e",
+            "Ports": {
+                "80/tcp": [
+                    {
+                        "HostIp": "127.0.0.1",
+                        "HostPort": "8088"
+                    }
+                ]
+            },
+            "Networks": {
+                "inlaneweb_net": {
+                    "IPAMConfig": null,
+                    "Links": null,
+                    "Aliases": [
+                        "ilfreight_web",
+                        "web"
+                    ],
+                    "DriverOpts": null,
+                    "GwPriority": 0,
+                    "NetworkID": "55b30fa3e8451a47d9e9dc0b09e96bb09088f2b2fdf7d12eb21dc19a36567169",
+                    "EndpointID": "2c6c1b61244d380ed42595f7a1737c912c4faa12c00352759af49b6f64b15005",
+                    "Gateway": "172.19.0.1",
+                    "IPAddress": "172.19.0.3",
+                    "MacAddress": "d2:5d:70:e7:e3:21",
+                    "IPPrefixLen": 16,
+                    "IPv6Gateway": "",
+                    "GlobalIPv6Address": "",
+                    "GlobalIPv6PrefixLen": 0,
+                    "DNSNames": [
+                        "ilfreight_web",
+                        "web",
+                        "94557c0f3ff0"
+                    ]
+                }
+            }
+        },
+        "ImageManifestDescriptor": {
+            "mediaType": "application/vnd.oci.image.manifest.v1+json",
+            "digest": "sha256:315764b097ab51b4f81b2f409a96d19a92f976132db4d2c320c349b603381135",
+            "size": 4266,
+            "platform": {
+                "architecture": "amd64",
+                "os": "linux"
+            }
+        }
+    }
+]

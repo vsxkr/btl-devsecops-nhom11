@@ -1,0 +1,58 @@
+$ phat hien: trien khai khong tai tao duoc tren may Windows, do 2026-10-28
+
+TRIEU CHUNG
+  docker compose -f app/InlaneWeb/docker-compose.yml up -d --wait
+  -> Container ilfreight_db  Restarting (255)
+  -> docker logs ilfreight_db:
+       exec /usr/local/bin/fix-perms-entrypoint.sh: no such file or directory
+
+NGUYEN NHAN
+  Thong diep loi noi khong thay SCRIPT, nhung thuc te la khong thay INTERPRETER.
+  Tep co ket thuc dong CRLF nen shebang duoc doc thanh "#!/bin/bash\r", va kernel
+  di tim "/bin/bash\r".
+
+  $ head -1 app/InlaneWeb/db/fix-perms-entrypoint.sh | cat -A
+  #!/bin/bash^M$
+
+  $ git -C ../PTIT-DevOps-SonarQube config --get core.autocrlf
+  true
+
+  Repo goc dat core.autocrlf=true, nen moi tep text duoc checkout ra voi CRLF tren
+  Windows. Dockerfile COPY tep do vao anh, va anh mang theo CRLF.
+
+VI SAO CI VAN XANH
+  GitHub Actions chay tren runner Linux, noi git checkout ra LF. Vi vay anh build
+  tren CI chay binh thuong, va loi chi xuat hien tren may lap trinh vien dung
+  Windows. Trong 150 lan chay pipeline khong co lan nao bat duoc dieu nay.
+
+HAU QUA
+  Khong thanh vien nao dung Windows co the chay stack cuc bo. Dieu do mau thuan
+  voi nguyen tac trong 1.Technical devSecOps Report.docx:
+    "Environment Management: Mass-produced objects; re-created from version control"
+    "Binary-Configuration Separation: The same binary used in testing must be the
+     one deployed to production. Rebuilding for production invalidates all
+     previous testing."
+  Mot anh build tren Windows va mot anh build tren Linux tu cung mot commit cho ra
+  hai hanh vi khac nhau, nen tinh tai tao bi pha vo o ngay buoc build.
+
+CACH SUA
+  Them .gitattributes chot ket thuc dong theo kieu tep, khong de phu thuoc cau hinh
+  cua tung may:
+    * text=auto eol=lf
+    *.sh text eol=lf
+    Dockerfile text eol=lf
+  Roi chuan hoa cac tep da co:
+    find . -name "*.sh" -print0 | xargs -0 sed -i 's/\r$//'
+
+KIEM CHUNG SAU KHI SUA
+  $ head -1 app/InlaneWeb/db/fix-perms-entrypoint.sh | cat -A
+  #!/bin/bash$
+  $ conftest verify -p policy/
+  36 tests, 36 passed, 0 failures      (chinh sach khong bi anh huong)
+
+GHI CHU VE PHAM VI
+  Day la khiem khuyet NGOAI Y MUON, khac voi cac lo hong co y cua ung dung lab.
+  No thuoc nhom loi trien khai, va dang chu y vi khong cong nao trong bon cong hien
+  tai bat duoc no: Conftest doc noi dung cau hinh chu khong doc byte ket thuc dong,
+  Semgrep doc cay cu phap, Trivy doc goi va CVE. Chi viec CHAY THAT moi phat hien
+  ra. Day la mot vi du cu the cho muc "nhung gi cong cu khong chung minh duoc".

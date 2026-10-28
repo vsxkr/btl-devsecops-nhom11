@@ -1,0 +1,23 @@
+# Chuan hoa ket thuc dong. Ly do: ban goc duoc checkout voi core.autocrlf=true
+# tren Windows, nen db/fix-perms-entrypoint.sh co CRLF va anh Docker build tu do
+# khong chay duoc: kernel doc shebang thanh "#!/bin/bash\r" roi tim interpreter
+# "/bin/bash\r". Tren runner Linux checkout la LF nen CI van xanh, va loi chi lo
+# ra tren may cua lap trinh vien. Day la vi pham nguyen tac "moi truong phai tai
+# tao duoc tu kiem soat phien ban" trong tai lieu ly thuyet cua mon hoc.
+* text=auto eol=lf
+
+# Cac tep BAT BUOC la LF vi duoc thuc thi trong container Linux
+*.sh      text eol=lf
+*.bash    text eol=lf
+Dockerfile text eol=lf
+*.cnf     text eol=lf
+*.sql     text eol=lf
+*.rego    text eol=lf
+*.yml     text eol=lf
+*.yaml    text eol=lf
+
+# Tep nhi phan
+*.png     binary
+*.jpg     binary
+*.docx    binary
+*.pdf     binary

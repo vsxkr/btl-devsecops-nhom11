@@ -19,6 +19,17 @@
 # =============================================================================
 set -u -o pipefail
 
+# LUU Y VE DUONG DAN TREN WINDOWS
+# Git Bash doi moi doi so trong giong duong dan POSIX thanh duong dan Windows, nen
+# "/tmp/compliance_test.php" bi bien thanh "C:/Users/.../Temp/compliance_test.php"
+# va php trong container khong mo duoc.
+# Khong duoc tat phep doi bang MSYS_NO_PATHCONV=1, vi khi do duong dan PHIA HOST
+# cung thoi bi doi va docker nhan "C:\c\Users\...".
+# Cach dung la chi chan doi cho duong dan PHIA CONTAINER, bang tien to hai dau
+# gach cheo. MSYS bo bot mot dau gach va giu nguyen phan con lai; tren Linux
+# "//tmp/x" tuong duong "/tmp/x" nen cung chay dung.
+CONTAINER_TEST_PATH='//tmp/compliance_test.php'
+
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 COMPOSE_FILE="$ROOT/app/InlaneWeb/docker-compose.yml"
 WEB_CONTAINER="ilfreight_web"
@@ -46,29 +57,53 @@ if [ "${state:-}" != "healthy" ]; then
   exit 2
 fi
 
-say "3. Xoa log cu de khang dinh ve nhat ky chi tinh tren lan chay nay"
-MARK="TDS-RUN-$(date +%s)"
-docker exec "$WEB_CONTAINER" sh -c "printf '%s\n' '$MARK' >&2"
+say "3. Danh moc thoi gian de khang dinh ve nhat ky chi tinh tren lan chay nay"
+# Ban dau buoc nay ghi mot moc bang `docker exec ... >&2`. Cach do KHONG dung:
+# stderr cua mot exec session khong di vao luong `docker logs` cua tien trinh
+# chinh, nen moc khong bao gio xuat hien va phep loc theo moc tra ve rong, lam
+# TDS-6 bao DAT mot cach gia. Dung dau thoi gian cho `docker logs --since`.
+LOG_SINCE=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+echo "   moc: $LOG_SINCE"
 
 say "4. Chay compliance_test.php trong container"
-docker cp "$ROOT/tests/security/compliance_test.php" "$WEB_CONTAINER:/tmp/compliance_test.php" >/dev/null
+# Dich la THU MUC, khong phai duong dan tep. Dua duong dan tep thi docker bao
+# "extraction point is not a directory".
+docker cp "$ROOT/tests/security/compliance_test.php" "${WEB_CONTAINER}://tmp/" >/dev/null
 set +e
-docker exec -e DB_HOST=db -e DB_USER=root -e DB_PASS=password -e DB_NAME=ilfreight \
-  "$WEB_CONTAINER" php /tmp/compliance_test.php
+docker exec -e DB_HOST=db -e DB_USER="${TEST_DB_USER:-root}" \
+  -e DB_PASS="${TEST_DB_PASS:-password}" -e DB_NAME=ilfreight \
+  "$WEB_CONTAINER" php "$CONTAINER_TEST_PATH"
 PHP_RC=$?
 set -e
 
 say "5. TDS-6  GDPR Art. 5(1)(c): nhat ky khong duoc chua nguyen van cau lenh"
-LOGS=$(docker logs "$WEB_CONTAINER" 2>&1 | sed -n "/$MARK/,\$p")
-HITS=$(printf '%s' "$LOGS" | grep -c '"failed_query"' || true)
-if [ "${HITS:-0}" -gt 0 ]; then
-  echo "  [LOI ] TDS-6   GDPR Art. 5(1)(c)   nhat ky chua nguyen van cau lenh"
-  echo "          -> tim thay $HITS dong co truong \"failed_query\" trong luong nhat ky"
-  printf '%s' "$LOGS" | grep -m1 '"failed_query"' | cut -c1-200 | sed 's/^/          mau: /'
-  LOG_RC=1
-else
-  echo "  [DAT ] TDS-6   GDPR Art. 5(1)(c)   nhat ky khong chua nguyen van cau lenh"
-  LOG_RC=0
+# Phep kiem nay phai TU kich mot loi truy van, khong duoc dua vao viec buoc 4 da
+# chay hay chua. Neu khong, khi buoc 4 that bai vi ly do ky thuat thi khong co loi
+# SQL nao duoc sinh ra, log sach, va TDS-6 bao DAT mot cach gia.
+# Dung endpoint CONG KHAI co di qua helper query() cua ung dung.
+# Khong dung /api/track vi trang do goi mysqli_query truc tiep va CO Y nuot loi,
+# nen no khong in va khong ghi log, tuc khong cham duoc vao duong can kiem.
+curl -s -o /dev/null "http://127.0.0.1:8088/ports?q=1%27" || true
+curl -s -o /dev/null "http://127.0.0.1:8088/news?id=1%27" || true
+sleep 2
+LOGS=$(docker logs --since "$LOG_SINCE" "$WEB_CONTAINER" 2>&1)
+PROBE_SEEN=$(printf '%s' "$LOGS" | grep -c 'APP-EXCEPTION' || true)
+echo "   da kich loi truy van, so dong APP-EXCEPTION sau moc: ${PROBE_SEEN:-0}"
+if [ "${PROBE_SEEN:-0}" -eq 0 ]; then
+  echo "  [BO QUA] TDS-6 khong ket luan duoc: khong kich duoc loi nao nen khong co gi de kiem"
+  LOG_RC=2
+fi
+if [ "${PROBE_SEEN:-0}" -gt 0 ]; then
+  HITS=$(printf '%s' "$LOGS" | grep -c '"failed_query"' || true)
+  if [ "${HITS:-0}" -gt 0 ]; then
+    echo "  [LOI ] TDS-6   GDPR Art. 5(1)(c)   nhat ky chua nguyen van cau lenh"
+    echo "          -> tim thay $HITS dong co truong failed_query trong luong nhat ky"
+    printf '%s' "$LOGS" | grep -m1 '"failed_query"' | cut -c1-220 | sed 's/^/          mau: /'
+    LOG_RC=1
+  else
+    echo "  [DAT ] TDS-6   GDPR Art. 5(1)(c)   nhat ky khong chua nguyen van cau lenh"
+    LOG_RC=0
+  fi
 fi
 
 say "Tong ket"

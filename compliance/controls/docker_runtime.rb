@@ -17,10 +17,24 @@
 # `docker inspect` luon cho cung mot ket qua tren moi anh.
 # =============================================================================
 
-container = input('container', value: 'ilfreight_web')
+container    = input('container', value: 'ilfreight_web')
+inspect_file = input('inspect_json', value: '')
 
-inspect_json = json(command: "docker inspect #{container}")
-cfg = inspect_json.params.first
+# Hai duong lay du lieu, cung mot nguon su that la container DANG CHAY:
+#
+#   1. `docker inspect` goi truc tiep. Day la cach handout mo ta, va no doi hoi
+#      InSpec duoc cai TREN HOST vi can docker CLI.
+#   2. Doc mot tep JSON do host sinh ra truoc bang `docker inspect > tep.json`.
+#      Can cach nay vi anh chef/inspec:5.24.24 KHONG co docker CLI, nen chay
+#      InSpec trong container ma dung duong 1 se khong lay duoc gi.
+#
+# Do duoc: `docker run --rm --entrypoint sh chef/inspec -c "command -v docker"`
+# tra ve rong.
+cfg = if inspect_file.to_s.empty?
+        json(command: "docker inspect #{container}").params.first
+      else
+        json(inspect_file).params.first
+      end
 
 control 'ilf-run-01-non-root' do
   impact 1.0
