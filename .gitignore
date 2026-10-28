@@ -13,3 +13,8 @@ trivy.exe
 .trivy/
 __pycache__/
 *.pyc
+
+# Bien moi truong co mat khau that
+.env
+app/InlaneWeb/.env
+.inspect/

@@ -1,0 +1,5 @@
+$ conftest test app/InlaneWeb/docker-compose.yml -p policy/ --namespace compose
+WARN - app/InlaneWeb/docker-compose.yml - compose - LEAST-PRIVILEGE: service 'db' should set read_only: true and mount tmpfs for writable paths.
+
+13 tests, 12 passed, 1 warning, 0 failures, 0 exceptions
+exit=0

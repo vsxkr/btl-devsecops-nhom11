@@ -1,0 +1,156 @@
+-- ============================================================================
+--  IlFreight Logistics — init.sql.template   (BAN VA)
+--
+--  Khuon mau nay duoc entrypoint ket xuat thanh /docker-entrypoint-initdb.d/10-init.sql
+--  sau khi chen mat khau tu bien moi truong. Nho vay khong mat khau nao nam
+--  trong kho ma hay trong anh container.
+--
+--  Bon thay doi so voi ban cu:
+--
+--  1. P3, GDPR Dieu 32: KHONG tao 'root'@'%' voi ALL PRIVILEGES va quyen FILE.
+--     Ung dung dung tai khoan ilf_app chi co bon quyen du de chay nghiep vu.
+--     Bo kiem thu dung tai khoan rieng ilf_test, co quyen tren dung mot CSDL.
+--
+--  2. GDPR Dieu 32 va Dieu 5(1)(f): mat khau nguoi dung luu bang bcrypt thay vi
+--     dang ro. Gia tri duoi day sinh bang password_hash(..., PASSWORD_DEFAULT).
+--
+--  3. Bo bang `flags` va cac co ILF{...}. Khong trang nao truy van bang do; no la
+--     dao cu cua bai tap khai thac, khong thuoc mot he thong duoc danh gia.
+--
+--  4. Bang `credentials` duoc giu nhung dien giai lai thanh bang tai khoan dich
+--     vu cu dung MD5. Day la mot khiem khuyet THAT theo GDPR Dieu 32: ham bam
+--     khong du manh cho muc dich luu thong tin xac thuc.
+-- ============================================================================
+
+-- ---------------------------------------------------------------------------
+--  Tai khoan: quyen toi thieu, khong cap FILE, khong cap GRANT OPTION
+-- ---------------------------------------------------------------------------
+CREATE DATABASE IF NOT EXISTS ilfreight CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+CREATE USER IF NOT EXISTS 'ilf_app'@'%'  IDENTIFIED BY '__APP_DB_PASSWORD__';
+GRANT SELECT, INSERT, UPDATE, DELETE ON ilfreight.* TO 'ilf_app'@'%';
+
+-- Tai khoan cho bo kiem thu: can tao va don chu the du lieu test, nen co quyen
+-- rong hon, nhung chi tren dung CSDL ilfreight.
+CREATE USER IF NOT EXISTS 'ilf_test'@'%' IDENTIFIED BY '__TEST_DB_PASSWORD__';
+GRANT ALL PRIVILEGES ON ilfreight.* TO 'ilf_test'@'%';
+
+FLUSH PRIVILEGES;
+
+USE ilfreight;
+
+-- ---- users ----------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS users (
+    id             INT NOT NULL AUTO_INCREMENT,
+    username       VARCHAR(100) UNIQUE NOT NULL,
+    password       VARCHAR(255) NOT NULL,   -- bcrypt, khong con dang ro
+    email          VARCHAR(150),
+    role           VARCHAR(20) DEFAULT 'customer',
+    api_key        VARCHAR(64),
+    remember_token VARCHAR(64),
+    PRIMARY KEY (id)
+);
+
+-- Mat khau goc chi de trong tai lieu huong dan, khong luu trong CSDL:
+--   admin / p@ssw0rd      jsmith / Spring2024!
+--   awong / Hongkong88    mgarcia / Barca#2010
+INSERT INTO users (username, password, email, role, api_key) VALUES
+('admin',   '$2y$10$g9K1l7h/4FpypGrGOUHl6.0UTN2P.szGUZZLbstBBniwbFqEu7J/u', 'admin@ilfreight.local',   'admin',    'ILF-ADM-9f3c1a77e2b04d55'),
+('jsmith',  '$2y$10$pqdaET52emhfxirrYboW/uiz5ZMIAvbCEkBA4RxRMjkjc8FObm8.S', 'jsmith@ilfreight.local',  'customer', 'ILF-CUS-1b2c3d4e5f60718'),
+('awong',   '$2y$10$NRjYSvwPuQgEer.X3Mp4COU2zZ7eFkG.4ppWNh79bwuxz/blblVpu', 'awong@ilfreight.local',   'customer', 'ILF-CUS-aa11bb22cc33dd44'),
+('mgarcia', '$2y$10$VoTgYQObwWOE73etFcKpAeqnaXHPWUV1ykbCQmtqqu8gtbgvHDIAi', 'mgarcia@ilfreight.local', 'staff',    'ILF-STF-99887766554433');
+
+-- ---- ports ----------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS ports (
+    id      INT NOT NULL AUTO_INCREMENT,
+    code    VARCHAR(10),
+    city    VARCHAR(100),
+    country VARCHAR(100),
+    volume  DECIMAL(6,2),
+    PRIMARY KEY (id)
+);
+
+INSERT INTO ports (code, city, country, volume) VALUES
+('CN SHA', 'Shanghai',   'China',       37.13),
+('SG SIN', 'Singapore',  'Singapore',   36.60),
+('CN SHE', 'Shenzhen',   'China',       23.97),
+('CN NGB', 'Ningbo',     'China',       27.53),
+('AE DXB', 'Dubai',      'UAE',         15.73),
+('BR SSZ', 'Santos',     'Brazil',       3.60),
+('NL RTM', 'Rotterdam',  'Netherlands', 14.35),
+('US LAX', 'Los Angeles','USA',          9.20);
+
+-- ---- shipments ------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS shipments (
+    id          INT NOT NULL AUTO_INCREMENT,
+    tracking_no VARCHAR(30) UNIQUE,
+    port_code   VARCHAR(10),
+    status      VARCHAR(40),
+    customer_id INT,
+    PRIMARY KEY (id)
+);
+
+INSERT INTO shipments (tracking_no, port_code, status, customer_id) VALUES
+('ILF1042CN', 'CN SHA', 'In Transit',       2),
+('ILF1043SG', 'SG SIN', 'At Port',          2),
+('ILF1044AE', 'AE DXB', 'Customs Hold',     3),
+('ILF1045NL', 'NL RTM', 'Delivered',        3),
+('ILF1046US', 'US LAX', 'Out for Delivery', 4);
+
+-- ---- comments -------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS comments (
+    id          INT NOT NULL AUTO_INCREMENT,
+    shipment_id INT,
+    user_id     INT,
+    content     TEXT,
+    created_at  DATETIME DEFAULT NOW(),
+    PRIMARY KEY (id)
+);
+
+INSERT INTO comments (shipment_id, user_id, content) VALUES
+(1, 2, 'Xin cho biet ngay du kien cap cang?'),
+(1, 4, 'Du kien cap cang Shanghai trong 3 ngay toi.'),
+(3, 3, 'Hang bi giu o hai quan, can ho tro gap.');
+
+-- ---- news -----------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS news (
+    id           INT NOT NULL AUTO_INCREMENT,
+    title        VARCHAR(200),
+    body         TEXT,
+    published_at DATETIME DEFAULT NOW(),
+    PRIMARY KEY (id)
+);
+
+INSERT INTO news (title, body) VALUES
+('Mo rong tuyen Shanghai - Rotterdam', 'IlFreight cong bo tuyen van tai moi...'),
+('Nang cap he thong tra cuu van don',  'Cong cu tra cuu tracking duoc cai tien...');
+
+-- ---- privacy_requests -----------------------------------------------------
+--  Yeu cau cua chu the du lieu. Sau ban va, pages/privacy_erase.php thuc hien
+--  xoa va an danh hoa that, va cap nhat trang thai ban ghi nay thanh completed,
+--  nen ban ghi tro thanh dau vet kiem toan.
+CREATE TABLE IF NOT EXISTS privacy_requests (
+    id         INT NOT NULL AUTO_INCREMENT,
+    user_id    INT,
+    kind       VARCHAR(20),
+    reason     TEXT,
+    status     VARCHAR(20) DEFAULT 'received',
+    created_at DATETIME DEFAULT NOW(),
+    PRIMARY KEY (id)
+);
+
+-- ---- credentials ----------------------------------------------------------
+--  Bang tai khoan dich vu cu, bam bang MD5. Day la mot khiem khuyet THAT con lai
+--  trong he thong, duoc giu de bao cao doi chieu voi GDPR Dieu 32: MD5 khong du
+--  manh cho muc dich luu thong tin xac thuc. Chu so huu: Dao Xuan Manh.
+CREATE TABLE IF NOT EXISTS legacy_service_accounts (
+    id            INT NOT NULL AUTO_INCREMENT,
+    username      VARCHAR(100),
+    password_hash VARCHAR(64),
+    api_key       VARCHAR(64),
+    PRIMARY KEY (id)
+);
+
+INSERT INTO legacy_service_accounts (username, password_hash, api_key) VALUES
+('dev_admin',  '392037dbba51f692776d6cefb6dd546d', 'DEV-KEY-rotate-me-0001'),
+('backup_svc', '9da2c9bcdf39d8610954e0e11ea8f45f', 'DEV-KEY-rotate-me-0002');

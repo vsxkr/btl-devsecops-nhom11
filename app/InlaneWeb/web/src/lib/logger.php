@@ -63,19 +63,75 @@ class InlaneLogger
     }
 
     /**
-     * 2. Thu thập lỗi truy vấn cơ sở dữ liệu
+     * Rút gọn câu truy vấn thành DẤU VÂN TAY: mọi hằng chuỗi và hằng số bị thay
+     * bằng dấu hỏi. Nhờ vậy vẫn nhóm được các lỗi cùng loại để điều tra, nhưng
+     * không còn lưu dữ liệu người dùng vừa nhập.
      */
-    public static function logSqlError(string $query, string $errorMessage, int $errorCode = 0): void
+    private static function fingerprint(string $query): string
     {
+        $q = preg_replace("/'(?:[^'\\\\]|\\\\.)*'/", '?', $query);
+        $q = preg_replace('/"(?:[^"\\\\]|\\\\.)*"/', '?', (string) $q);
+        $q = preg_replace('/\b\d+\b/', '?', (string) $q);
+        $q = preg_replace('/\s+/', ' ', (string) $q);
+        return trim(substr((string) $q, 0, 200));
+    }
+
+    /**
+     * 2. Thu thập lỗi truy vấn cơ sở dữ liệu.
+     *
+     * BẢN VÁ P5, GDPR Điều 5(1)(c) về tối giản dữ liệu và CWE-532.
+     *
+     * Bản cũ ghi `failed_query` là nguyên văn câu lệnh, cộng `error_message` của
+     * MariaDB. Cả hai đều mang dữ liệu người dùng vừa nhập: với trang đăng nhập
+     * thì đó là tên đăng nhập và mật khẩu, còn thông điệp lỗi của MariaDB nhúng
+     * luôn đoạn chuỗi gây lỗi. Promtail đẩy nguyên các trường đó sang Loki.
+     *
+     * Bản này ghi siêu dữ liệu sự kiện theo khuôn actor, event, target, outcome,
+     * kèm một mã sự kiện để đối chiếu khi người dùng báo lỗi, và một dấu vân tay
+     * câu lệnh đã bỏ hết hằng. Dấu hiệu tấn công vẫn còn vì vẫn biết ai gọi, gọi
+     * tới đâu, loại câu lệnh nào thất bại và mã lỗi là gì.
+     */
+    public static function logSqlError(string $query, string $errorMessage, int $errorCode = 0): string
+    {
+        $eventId = bin2hex(random_bytes(6));
         self::emit('APP-EXCEPTION', [
-            'level'         => 'error',
-            'type'          => 'database_query_failure',
-            'error_code'    => $errorCode,
-            'error_message' => $errorMessage,
-            'failed_query'  => $query,
-            'file'          => $_SERVER['SCRIPT_FILENAME'] ?? 'unknown',
-            'uri'           => $_SERVER['REQUEST_URI'] ?? '/',
+            'level'                 => 'error',
+            'type'                  => 'database_query_failure',
+            'event_id'              => $eventId,
+            'actor'                 => $_SESSION['uid'] ?? null,
+            'event'                 => 'db.query.failure',
+            'target'                => $_SERVER['SCRIPT_NAME'] ?? 'unknown',
+            'outcome'               => 'failure',
+            'error_code'            => $errorCode,
+            'statement_fingerprint' => self::fingerprint($query),
+            'uri'                   => parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH),
         ], true);
+        return $eventId;
+    }
+
+    /**
+     * Su kien xac thuc.
+     *
+     * BAN VA cho khoang trong "missing audit events" trong bang P5 cua tai lieu
+     * mon hoc. Ban cu khong phat su kien nao khi dang nhap that bai, nen khong
+     * dem duoc so lan that bai theo tung dia chi nguon, va vi vay khong luat canh
+     * bao nao phat hien duoc do quet thong tin dang nhap.
+     *
+     * Chi ghi ten dang nhap DUOC YEU CAU va ket qua. Khong ghi mat khau, khong
+     * ghi cau lenh. Dia chi nguon do Apache ghi o dong log rieng cua no.
+     */
+    public static function logAuthEvent(string $requestedUser, string $outcome): void
+    {
+        self::emit('AUTH-EVENT', [
+            'level'        => $outcome === 'success' ? 'info' : 'warning',
+            'type'         => 'authentication',
+            'auth_event'   => 'login',
+            'auth_outcome' => $outcome,
+            'event'        => 'auth.login.' . $outcome,
+            'target'       => substr($requestedUser, 0, 64),
+            'outcome'      => $outcome,
+            'uri'          => parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH),
+        ], $outcome !== 'success');
     }
 
     /**

@@ -1,10 +1,22 @@
 [mysqld]
 # ============================================================
-#  Cau hinh CO Y de lo cho lab SQLi
+#  BAN VA.  GDPR Dieu 32, CIS MySQL Benchmark.
+#
+#  Ban cu dat secure_file_priv = "" nen LOAD_FILE() va SELECT ... INTO OUTFILE
+#  doc va ghi duoc o bat ky vi tri nao, du de doc /etc/passwd va ghi web shell.
+#  Ban cu cung bat local_infile.
+#
+#  Luu y do duoc: MariaDB 10.11 KHONG nhan gia tri NULL trong tep cau hinh. Dat
+#  secure_file_priv = NULL lam may chu tu choi khoi dong voi thong diep
+#  "Failed to normalize the argument for --secure-file-priv". Cach dung cho
+#  MariaDB la gioi han vao MOT thu muc.
+#
+#  Kiem soat THAT nam o tang quyen: init.sql.template khong cap quyen FILE cho
+#  tai khoan nao, va quyen FILE la bat buoc de dung LOAD_FILE hay INTO OUTFILE.
+#  Day la vi du cho nguyen tac "moi chinh sach phai dat o dung diem thi hanh"
+#  trong lab Conftest: gioi han duong dan la giam be mat, cap quyen moi la kiem
+#  soat truy cap.
 # ============================================================
-# secure_file_priv rong -> LOAD_FILE() va SELECT ... INTO OUTFILE
-# doc/ghi duoc o BAT KY vi tri nao (phuc vu Reading/Writing files + OOB).
-secure_file_priv = ""
+secure_file_priv = /var/lib/mysql-files
 
-# Cho phep LOAD DATA LOCAL INFILE
-local_infile = 1
+local_infile = 0

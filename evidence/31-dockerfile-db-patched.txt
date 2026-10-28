@@ -1,0 +1,5 @@
+$ conftest test app/InlaneWeb/db/Dockerfile -p policy/ --namespace dockerfile
+WARN - app/InlaneWeb/db/Dockerfile - dockerfile - SUPPLY-CHAIN: base image 'mariadb:10.11' is not pinned by digest.
+
+11 tests, 10 passed, 1 warning, 0 failures, 0 exceptions
+exit=0

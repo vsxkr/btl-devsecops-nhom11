@@ -1,0 +1,52 @@
+$ doi chieu Policy as Code voi Compliance as Code tren CUNG mot bi mat
+  do ngay 2026-10-28, tren nhanh patched
+
+TINH HUONG
+  Ban cu dat mat khau truc tiep trong tep compose:
+      DB_PASS: password
+  Ban va chuyen sang tiem luc trien khai tu tep .env khong commit:
+      DB_PASS: ${APP_DB_PASSWORD}
+
+HAI CONG TRA LOI KHAC NHAU
+
+  Policy as Code, doc TEP CAU HINH:
+    $ conftest test app/InlaneWeb/docker-compose.yml -p policy/ --namespace compose
+    13 tests, 12 passed, 1 warning, 0 failures      exit=0
+    Luat CREDENTIALS DAT, vi gia tri bat dau bang "${" nen duoc coi la tiem tu
+    ngoai, khong phai bi mat gan cung.
+
+  Compliance as Code, doc CONTAINER DANG CHAY:
+    $ inspec exec compliance --input container=ilfreight_web
+    x  ilf-run-04-no-secrets-in-env
+       expected ["DB_PASS=1QjCXee3BWydAEaz32nG"].empty? to be truthy, got false
+    Control THAT BAI, vi gia tri that nam trong Config.Env va doc duoc bang
+    `docker inspect`.
+
+CA HAI DEU DUNG
+  Chung tra loi hai cau hoi khac nhau.
+    Cong thu nhat hoi: tep cau hinh co chua bi mat khong?   -> khong con
+    Cong thu hai hoi : container dang chay co lo bi mat khong? -> van lo
+
+  Viec chuyen mat khau tu tep compose sang tep .env giai quyet van de LOT VAO
+  KIEM SOAT PHIEN BAN. No khong giai quyet van de BI MAT NAM TRONG MOI TRUONG
+  TIEN TRINH. Bien moi truong cua container doc duoc boi bat ky ai co quyen goi
+  `docker inspect`, va chung hien trong nhieu ban ghi su kien va bao cao su co.
+
+Y NGHIA
+  Day la ly do Phase 6 cua handout ton tai, va la ly do tai lieu mon hoc tach
+  Policy as Code khoi Compliance as Code thay vi coi chung la mot. Mot cong doc
+  y dinh da khai bao, mot cong doc thuc te dang chay. Khi chung khong dong y voi
+  nhau thi cong doc thuc te la cong dung.
+
+  Lab Conftest cung noi dieu nay o muc 1 bang mot vi du khac: LABEL
+  mfa_authenticated_build="true" trong Dockerfile la mot loi tu khai, va cach
+  kiem dung la hoi he thong so huu danh tinh.
+
+CACH SUA THAT, CHUA LAM
+  Dua bi mat vao TEP thay vi bien moi truong, bang Docker secrets hoac mot ham
+  bi mat ben ngoai, roi cho ung dung doc tu duong dan tep. Deck
+  "OpSec Secrets Control & Dynamic Credential Leasing" cua mon hoc neu dung huong
+  nay: "Vault dynamically leases RAM-only secrets".
+
+  Buoc do nam ngoai pham vi dot va nay, va duoc ghi vao patches/README.md nhu mot
+  viec con lai co chu so huu, thay vi bo im lang.

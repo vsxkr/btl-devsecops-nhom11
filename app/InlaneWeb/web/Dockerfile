@@ -1,19 +1,29 @@
+# BAN VA. Bon thay doi: nhan OCI provenance, HEALTHCHECK, Apache lang nghe cong
+# khong dac quyen, va tien trinh chay bang www-data thay cho root.
 FROM php:8.2-apache
 
-# mysqli cho ket noi MySQL/MariaDB
-RUN docker-php-ext-install mysqli && docker-php-ext-enable mysqli
+ARG VCS_REF=unknown
+LABEL org.opencontainers.image.source="https://github.com/wtfwhoyouare/PTIT-DevOps-SonarQube" \
+      org.opencontainers.image.revision="${VCS_REF}" \
+      org.opencontainers.image.title="InlaneWeb portal"
 
-# Bat mod_rewrite -> URL sach (khong lo .php), route giong app that
+RUN docker-php-ext-install mysqli && docker-php-ext-enable mysqli
 RUN a2enmod rewrite
 
-# php.ini: display_errors=On de phuc vu Error-based SQLi
 COPY php.ini /usr/local/etc/php/conf.d/zz-lab.ini
-
-# Cho phep .htaccess ghi de (AllowOverride All)
 COPY apache/000-default.conf /etc/apache2/sites-available/000-default.conf
 
-# Dat thu muc lam viec
-WORKDIR /var/www/html
+# Cong 8080 de tien trinh khong can dac quyen bind cong duoi 1024.
+RUN sed -ri 's/^Listen 80$/Listen 8080/' /etc/apache2/ports.conf \
+ && sed -ri 's/:80>/:8080>/' /etc/apache2/sites-available/000-default.conf \
+ && mkdir -p /var/run/apache2 /var/lock/apache2 \
+ && chown -R www-data:www-data /var/run/apache2 /var/lock/apache2 /var/log/apache2
 
-# Dong goi toan bo ma nguon ung dung vao Docker image (Self-contained Image)
-COPY src/ /var/www/html/
+WORKDIR /var/www/html
+COPY --chown=www-data:www-data src/ /var/www/html/
+
+EXPOSE 8080
+HEALTHCHECK --interval=10s --timeout=5s --retries=3 --start-period=10s \
+  CMD curl -f -s http://127.0.0.1:8080/health || exit 1
+
+USER www-data

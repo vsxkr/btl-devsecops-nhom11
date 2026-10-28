@@ -1,0 +1,40 @@
+
+==> 0. Chuan bi bien moi truong
+   dung /c/Users/Admin/Documents/Lab/PTIT/btl-devsecops/btl-devsecops-nhom11/app/InlaneWeb/.env co san
+
+==> 1. Dung stack InlaneWeb
+ Container ilfreight_db Healthy 
+ Container ilfreight_web Waiting 
+ Container ilfreight_db Waiting 
+ Container ilfreight_db Healthy 
+ Container ilfreight_web Healthy 
+
+==> 2. Cho web bao khoe
+   trang thai healthcheck: healthy
+
+==> 3. Danh moc thoi gian de khang dinh ve nhat ky chi tinh tren lan chay nay
+   moc: 2026-10-28T13:48:47Z
+
+==> 4. Chay compliance_test.php trong container
+   mang: inlaneweb_net | anh: inlaneweb-web:1.0.0
+Test-Driven Security, InlaneWeb
+------------------------------------------------------------------------------
+chu the du lieu test: id=6 username=tds_subject
+------------------------------------------------------------------------------
+  [DAT ] TDS-4   GDPR Art. 32               mat khau khong duoc luu dang ro
+  [DAT ] TDS-5   GDPR Art. 32               phan hoi loi khong duoc lo noi bo
+  [DAT ] TDS-2   GDPR Art. 15, Art. 5(1)(c) ban xuat khong duoc chua thong tin xac thuc
+  [DAT ] TDS-3   GDPR Art. 5(1)(f)          khong doc duoc du lieu cua chu the khac
+  [DAT ] TDS-1   GDPR Art. 17               yeu cau xoa phai xoa hoac an danh hoa
+------------------------------------------------------------------------------
+5 test, 5 dat, 0 that bai
+
+==> 5. TDS-6  GDPR Art. 5(1)(c): nhat ky khong duoc chua nguyen van cau lenh
+   da kich loi truy van, so dong APP-EXCEPTION sau moc: 3
+  [DAT ] TDS-6   GDPR Art. 5(1)(c)   nhat ky khong chua nguyen van cau lenh
+
+==> Tong ket
+  compliance_test.php : ma thoat 0
+  TDS-6 nhat ky       : ma thoat 0
+  ket qua chung       : TAT CA DAT
+exit=0

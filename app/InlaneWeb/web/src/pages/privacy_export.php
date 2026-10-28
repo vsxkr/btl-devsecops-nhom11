@@ -2,59 +2,65 @@
 /**
  * privacy_export.php — Xuat du lieu ca nhan: GET /privacy/export
  *
- * HAI KHIEM KHUYET CO Y:
+ * BAN VA. Ba thay doi so voi ban cu:
  *
- * 1. GDPR Dieu 15 va Dieu 32, cung P5 ve toi gian du lieu:
- *    Ban xuat chua ca cot `password` dang ro, `api_key` va `remember_token`.
- *    Quyen truy cap cua chu the du lieu khong bao gom viec tra ve thong tin
- *    xac thuc, va viec luu mat khau dang ro la mot vi pham rieng.
+ * 1. P2, GDPR Dieu 5(1)(f): dinh danh chi lay tu PHIEN DA XAC THUC. Ban cu uu
+ *    tien `$_GET['user_id']` nen moi nguoi dung da dang nhap deu xuat duoc du
+ *    lieu cua nguoi khac bang /privacy/export?user_id=1
  *
- * 2. GDPR Dieu 5(1)(f), P2 RBAC:
- *    Dinh danh duoc lay tu query string truoc, chi dung phien khi khong co
- *    tham so. Moi nguoi dung da dang nhap vi the xuat duoc du lieu cua bat ky
- *    nguoi khac bang /privacy/export?user_id=1
+ * 2. GDPR Dieu 15 va Dieu 5(1)(c): quyen truy cap cua chu the du lieu KHONG bao
+ *    gom thong tin xac thuc. Ban xuat bo cac cot `password`, `api_key` va
+ *    `remember_token`, va chi liet ke dung nhung truong thuoc ve chu the.
  *
- * Khiem khuyet thu hai bi Semgrep bat duoc o dang luong du lieu, nhung viec
- * THIEU phep kiem quyen so huu thi khong mau cu phap nao the hien duoc; phai
- * do test hanh vi chung minh bang cach dang nhap bang mot tai khoan roi doc
- * du lieu cua tai khoan khac.
+ * 3. P4: moi truy van dung tham so rang buoc.
  */
 
 $u = current_user();
-if (!$u) {
+if ($u === null) {
     header('Location: /login');
     exit;
 }
 
-// Dinh danh lay tu client truoc, phien chi la gia tri du phong.
-$userId = $_GET['user_id'] ?? $u['id'];
+// Dinh danh den tu phien, khong nhan tu client.
+$userId = (int) $u['id'];
 
-$profile = query_one(
-    "SELECT id, username, password, email, role, api_key, remember_token
-     FROM users WHERE id = $userId"
+// Neu client co y truyen user_id khac thi tu choi han, de hanh vi ro rang thay
+// vi am tham bo qua tham so.
+if (isset($_GET['user_id']) && (int) $_GET['user_id'] !== $userId) {
+    http_response_code(403);
+    header('Content-Type: application/json; charset=utf-8');
+    echo json_encode([
+        'status'  => 'error',
+        'message' => 'Chi xuat duoc du lieu cua chinh tai khoan dang dang nhap.',
+    ], JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
+// Danh sach truong duoc phep xuat. Khong co cot xac thuc nao trong danh sach.
+$profile = query_one_p(
+    'SELECT id, username, email, role FROM users WHERE id = ?',
+    'i',
+    [$userId]
 );
 
-$comments = [];
-$res = query("SELECT id, shipment_id, content, created_at FROM comments WHERE user_id = $userId");
-if ($res) {
-    while ($row = mysqli_fetch_assoc($res)) {
-        $comments[] = $row;
-    }
-}
+$comments = query_p(
+    'SELECT id, shipment_id, content, created_at FROM comments WHERE user_id = ?',
+    'i',
+    [$userId]
+);
 
-$requests = [];
-$res2 = query("SELECT id, kind, reason, status, created_at FROM privacy_requests WHERE user_id = $userId");
-if ($res2) {
-    while ($row = mysqli_fetch_assoc($res2)) {
-        $requests[] = $row;
-    }
-}
+$requests = query_p(
+    'SELECT id, kind, reason, status, created_at FROM privacy_requests WHERE user_id = ?',
+    'i',
+    [$userId]
+);
 
 header('Content-Type: application/json; charset=utf-8');
 header('Content-Disposition: attachment; filename="inlaneweb-personal-data.json"');
 
 echo json_encode([
     'exported_at'      => gmdate('Y-m-d\TH:i:s\Z'),
+    'subject_id'       => $userId,
     'profile'          => $profile,
     'comments'         => $comments,
     'privacy_requests' => $requests,

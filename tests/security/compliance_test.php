@@ -22,8 +22,16 @@ declare(strict_types=1);
 //  Ha tang test toi gian: khong phu thuoc goi ngoai nao
 // ---------------------------------------------------------------------------
 
-const APP_HOST = '127.0.0.1';
-const APP_PORT = 80;
+// Bo test chay trong MOT CONTAINER RIENG tren cung mang Docker, khong chay ben
+// trong container ung dung. Ly do: sau ban va container ung dung co
+// read_only: true, nen `docker cp` bao "container rootfs is marked read-only".
+// Chay rieng cung dung hon ve nguyen tac: bo kiem thu khong can quyen ghi vao
+// he thong dang duoc kiem.
+//
+// Sau ban va, Apache lang nghe 8080 de tien trinh chay duoc bang www-data ma
+// khong can dac quyen bind cong duoi 1024.
+define('APP_HOST', getenv('APP_HOST') ?: 'web');
+define('APP_PORT', (int) (getenv('APP_PORT') ?: 8080));
 
 $GLOBALS['tds_results'] = [];
 
@@ -103,18 +111,48 @@ function http_request(string $method, string $path, array $form = [], ?string $c
     return ['status' => $status, 'head' => $head, 'body' => $payload, 'cookies' => $cookies];
 }
 
+/**
+ * Dang nhap va tra ve cookie phien DUNG.
+ *
+ * Phai lay cookie PHPSESSID CUOI CUNG, khong phai cai dau tien. Sau ban va,
+ * login.php goi session_regenerate_id(true) nen phan hoi co hai header
+ * Set-Cookie: mot cua session_start trong index.php va mot cua lan sinh lai.
+ * Lay cai dau tien se nhan ma phien da bi huy, va moi yeu cau sau do bi chuyen
+ * huong ve /login. Khi do cac phep kiem ve lo du lieu se BAO DAT mot cach gia,
+ * vi mot lan chuyen huong thi khong lo gi ca.
+ *
+ * Vi vay ham nay con kiem chung phien thuc su dung duoc truoc khi tra ve.
+ */
 function app_login(string $username, string $password): string
 {
     $r = http_request('POST', '/login', ['username' => $username, 'password' => $password]);
+    $cookie = null;
     foreach ($r['cookies'] as $c) {
         if (stripos($c, 'PHPSESSID=') === 0) {
-            return $c;
+            $cookie = $c;   // giu cai cuoi cung
         }
     }
-    // Phien da ton tai truoc khi dang nhap: lay cookie tu lan goi dau
-    throw new RuntimeException(sprintf(
-        'dang nhap that bai cho %s, status=%d', $username, $r['status']
-    ));
+    if ($cookie === null) {
+        throw new RuntimeException(sprintf(
+            'dang nhap that bai cho %s, khong nhan duoc cookie phien, status=%d',
+            $username,
+            $r['status']
+        ));
+    }
+
+    // Kiem chung phien dung duoc: /account phai tra ve 200 va co ten dang nhap.
+    $probe = http_request('GET', '/account', [], $cookie);
+    if ($probe['status'] !== 200 || stripos($probe['body'], $username) === false) {
+        throw new RuntimeException(sprintf(
+            'phien khong dung duoc sau khi dang nhap %s: /account tra ve status=%d. '
+            . 'Moi phep kiem phia sau se khong cham duoc vao ma, nen dung han o day '
+            . 'thay vi bao dat mot cach gia.',
+            $username,
+            $probe['status']
+        ));
+    }
+
+    return $cookie;
 }
 
 function db_conn(): mysqli
@@ -223,6 +261,11 @@ foreach (['password', 'api_key', 'remember_token'] as $field) {
 if (stripos($exp['body'], SUBJECT_PASS) !== false) {
     $forbidden[] = 'gia tri mat khau dang ro';
 }
+// Mot lan chuyen huong thi khong lo gi, nen phai coi do la KHONG KET LUAN DUOC
+// chu khong phai dat.
+if ($exp['status'] !== 200) {
+    $forbidden[] = sprintf('phep kiem khong cham duoc vao ma, status=%d', $exp['status']);
+}
 tds_assert(
     'TDS-2',
     'GDPR Art. 15, Art. 5(1)(c)',
@@ -240,12 +283,19 @@ $decoded = json_decode($other['body'], true);
 if (is_array($decoded) && isset($decoded['profile']['id'])) {
     $leakedOther = ((int) $decoded['profile']['id']) === $adminId;
 }
+// Dat khi: bi tu choi bang 4xx, HOAC tra ve 200 nhung chi chua du lieu cua
+// chinh chu the. KHONG dat khi bi chuyen huong, vi luc do phep kiem khong cham
+// duoc vao ma can kiem.
+$redirected = $other['status'] === 302 || stripos($other['head'], 'Location: /login') !== false;
+$ok3 = !$redirected && !$leakedOther;
 tds_assert(
     'TDS-3',
     'GDPR Art. 5(1)(f)',
     'khong doc duoc du lieu cua chu the khac',
-    !$leakedOther && ($other['status'] >= 400 || !$leakedOther),
-    sprintf('status=%d va ban xuat tra ve profile id=%s cua nguoi khac', $other['status'], $decoded['profile']['id'] ?? '?')
+    $ok3,
+    $redirected
+        ? sprintf('phep kiem khong cham duoc vao ma, bi chuyen huong, status=%d', $other['status'])
+        : sprintf('status=%d va ban xuat tra ve profile id=%s cua nguoi khac', $other['status'], $decoded['profile']['id'] ?? '?')
 );
 
 // ---------------------------------------------------------------------------
