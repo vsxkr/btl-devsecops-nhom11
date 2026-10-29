@@ -8,7 +8,7 @@ name: inlaneweb-prod
 
 services:
   db:
-    image: ${INLANEWEB_DB_IMAGE:-ghcr.io/wtfwhoyouare/inlaneweb-db:latest}
+    image: ${INLANEWEB_DB_IMAGE:-ghcr.io/vsxkr/inlaneweb-db:latest}
     container_name: ilfreight_db
     restart: always
     environment:
@@ -28,7 +28,7 @@ services:
       - shared_files:/var/lib/mysql-files
 
   web:
-    image: ${INLANEWEB_IMAGE:-ghcr.io/wtfwhoyouare/inlaneweb:latest}
+    image: ${INLANEWEB_IMAGE:-ghcr.io/vsxkr/inlaneweb:latest}
     container_name: ilfreight_web
     restart: always
     depends_on:

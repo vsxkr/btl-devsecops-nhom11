@@ -3,7 +3,7 @@
 name: inlaneweb-hardened
 services:
   db:
-    image: ghcr.io/wtfwhoyouare/inlaneweb-db:1.0.7
+    image: ghcr.io/vsxkr/inlaneweb-db:1.0.7
     user: "999:999"
     read_only: true
     cap_drop: ["ALL"]
@@ -19,7 +19,7 @@ services:
       interval: 5s
       retries: 20
   web:
-    image: ghcr.io/wtfwhoyouare/inlaneweb:1.0.7
+    image: ghcr.io/vsxkr/inlaneweb:1.0.7
     user: "33:33"
     read_only: true
     cap_drop: ["ALL"]

@@ -13,3 +13,6 @@ trivy.exe
 .trivy/
 __pycache__/
 *.pyc
+
+.env
+app/InlaneWeb/.env

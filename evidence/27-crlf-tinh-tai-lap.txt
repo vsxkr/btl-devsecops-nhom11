@@ -14,7 +14,7 @@ NGUYEN NHAN
   $ head -1 app/InlaneWeb/db/fix-perms-entrypoint.sh | cat -A
   #!/bin/bash^M$
 
-  $ git -C ../PTIT-DevOps-SonarQube config --get core.autocrlf
+  $ git -C ../btl-devsecops-nhom11 config --get core.autocrlf
   true
 
   Repo goc dat core.autocrlf=true, nen moi tep text duoc checkout ra voi CRLF tren
