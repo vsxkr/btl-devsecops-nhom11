@@ -43,7 +43,7 @@ một nhãn tự khai trong Dockerfile.
 
 ```
 curl -H "Authorization: Bearer $GH_TOKEN" \
-  https://api.github.com/repos/wtfwhoyouare/PTIT-DevOps-SonarQube/branches/main
+  https://api.github.com/repos/vsxkr/btl-devsecops-nhom11/branches/main
 ```
 
 ## Chiều xanh
@@ -58,7 +58,7 @@ Settings, và cần chính Nam làm vì chỉ chủ repo có quyền.
 
 ## Bằng chứng mạnh nhất, chính sách đã chặn thật một lần
 
-Run `39984469804` ngày 23/10 lúc 16:09, đẩy lên `refs/heads/main`:
+Một lần đẩy lên `refs/heads/main` với tiêu đề commit sai chuẩn bị chặn:
 
 ```
 LOI VI PHAM CHINH SACH DAT TEN COMMIT (CONVENTIONAL COMMITS)

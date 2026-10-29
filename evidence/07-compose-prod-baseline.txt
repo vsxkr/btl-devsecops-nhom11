@@ -8,8 +8,8 @@ FAIL - app/InlaneWeb/docker-compose.prod.yml - compose - LEAST-PRIVILEGE: servic
 FAIL - app/InlaneWeb/docker-compose.prod.yml - compose - LEAST-PRIVILEGE: service 'web' connects to the database as privileged account 'root'; use a least-privilege account.
 FAIL - app/InlaneWeb/docker-compose.prod.yml - compose - LEAST-PRIVILEGE: service 'web' must drop ALL capabilities (cap_drop: [ALL]).
 FAIL - app/InlaneWeb/docker-compose.prod.yml - compose - LEAST-PRIVILEGE: service 'web' must set security_opt: ["no-new-privileges:true"].
-FAIL - app/InlaneWeb/docker-compose.prod.yml - compose - SUPPLY-CHAIN: service 'db' uses image '${INLANEWEB_DB_IMAGE:-ghcr.io/wtfwhoyouare/inlaneweb-db:latest}' pinned to :latest.
-FAIL - app/InlaneWeb/docker-compose.prod.yml - compose - SUPPLY-CHAIN: service 'web' uses image '${INLANEWEB_IMAGE:-ghcr.io/wtfwhoyouare/inlaneweb:latest}' pinned to :latest.
+FAIL - app/InlaneWeb/docker-compose.prod.yml - compose - SUPPLY-CHAIN: service 'db' uses image '${INLANEWEB_DB_IMAGE:-ghcr.io/vsxkr/inlaneweb-db:latest}' pinned to :latest.
+FAIL - app/InlaneWeb/docker-compose.prod.yml - compose - SUPPLY-CHAIN: service 'web' uses image '${INLANEWEB_IMAGE:-ghcr.io/vsxkr/inlaneweb:latest}' pinned to :latest.
 
 13 tests, 2 passed, 2 warnings, 9 failures, 0 exceptions
 exit=1

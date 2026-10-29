@@ -3,7 +3,7 @@
 # dac quyen, COPY --chown, HEALTHCHECK, va chi mo cong ung dung.
 FROM php:8.2-apache
 ARG VCS_REF=unknown
-LABEL org.opencontainers.image.source="https://github.com/wtfwhoyouare/PTIT-DevOps-SonarQube" \
+LABEL org.opencontainers.image.source="https://github.com/vsxkr/btl-devsecops-nhom11" \
       org.opencontainers.image.revision="${VCS_REF}"
 RUN docker-php-ext-install mysqli && docker-php-ext-enable mysqli
 RUN a2enmod rewrite

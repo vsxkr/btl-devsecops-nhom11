@@ -12,13 +12,13 @@ Bảng dưới đây đo từ artifact thật, không suy luận. Ký hiệu: **
 
 | Nguồn | Kết quả |
 |---|---|
-| SonarQube Community, run `39756107853`, commit `660e75c` | 20 vấn đề: 10 `CODE_SMELL`, 10 `BUG`, **0 `VULNERABILITY`** |
-| Semgrep, cùng run, cùng commit | 19 phát hiện |
+| SonarQube Community, run `40748974196`, nhánh `main` tại `94004f3` | 25 vấn đề: 15 `CODE_SMELL`, 10 `BUG`, **0 `VULNERABILITY`** |
+| Semgrep, cùng run, cùng mốc | 64 phát hiện |
 | Giao của hai tập | **rỗng**, không một phát hiện nào trùng nhau |
 
-Luật mà SonarQube báo: `Web:InputWithoutLabelCheck` 7 lần, `php:S100` 6 lần,
-`Web:S6853` 3 lần, `php:S2003` 3 lần, `php:S121` 1 lần. Tức là ô nhập thiếu nhãn,
-quy ước đặt tên, và thiếu cặp ngoặc nhọn.
+Luật mà SonarQube báo: `Web:InputWithoutLabelCheck` 9 lần, `php:S100` 6 lần,
+`Web:S6853` 4 lần, `php:S113` 4 lần, `php:S2003` 1 lần, `php:S121` 1 lần. Tức là ô
+nhập thiếu nhãn, quy ước đặt tên, dòng trống cuối tệp, và thiếu cặp ngoặc nhọn.
 
 Lý do nằm trong chính tài liệu môn học:
 
@@ -34,8 +34,8 @@ lời trực tiếp yêu cầu số 3 của bài tập nhóm và phần phân t�
 
 | Lớp khiếm khuyết | SonarQube CE | Semgrep | Conftest | InSpec | TDS | Trivy |
 |---|---|---|---|---|---|---|
-| Chèn mã truy vấn, 12 điểm | ✗ | ✓ 11 | – | – | gián tiếp | – |
-| Lỗi CSDL ra phản hồi HTTP | ✗ | ✓ 8 | – | – | ✓ TDS-5 | – |
+| Chèn mã truy vấn, 12 điểm | ✗ | ✓ 12 | – | – | gián tiếp | – |
+| Lỗi CSDL ra phản hồi HTTP | ✗ | ✓ 4 | – | – | ✓ TDS-5 | – |
 | Bí mật gán cứng trong mã PHP | ✗ | ✓ 1 | – | – | – | ✗ |
 | Bí mật gán cứng trong compose | – | ✓ 1 trên 4 nơi | **✓ 4 trên 4** | ✓ | – | ✗ |
 | Tài khoản CSDL đặc quyền | ✗ | ✓ 1 | ✓ | – | – | – |

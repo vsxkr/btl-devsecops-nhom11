@@ -1,6 +1,6 @@
 So sanh ma thoat cua Semgrep, do ngay 2026-10-28, semgrep 1.182.1
 
-Pipeline hien tai cua nhom (devsecops-pipeline.yml:189-196) KHONG truyen --error:
+Ban dau cua day chuyen (devsecops-pipeline.yml:189-196) KHONG truyen --error:
   semgrep scan --config ... --json -o reports/semgrep/semgrep.json InlaneWeb
 
 Hau qua do duoc tren cung mot bo luat va cung mot ma nguon:

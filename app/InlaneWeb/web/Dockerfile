@@ -3,7 +3,7 @@
 FROM php:8.2-apache
 
 ARG VCS_REF=unknown
-LABEL org.opencontainers.image.source="https://github.com/wtfwhoyouare/PTIT-DevOps-SonarQube" \
+LABEL org.opencontainers.image.source="https://github.com/vsxkr/btl-devsecops-nhom11" \
       org.opencontainers.image.revision="${VCS_REF}" \
       org.opencontainers.image.title="InlaneWeb portal"
 

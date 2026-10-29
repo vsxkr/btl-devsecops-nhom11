@@ -71,9 +71,9 @@ Và quan trọng hơn: **việc thiếu phép kiểm quyền sở hữu không c
 hiện được.** Semgrep thấy định danh đến từ client, nhưng không thể biết lẽ ra phải
 có một phép kiểm mà không có. Chứng minh phần đó là `TDS-3` của Đức Anh.
 
-## Lưu ý về run riêng
+## Lưu ý về run
 
-Run `38591286519` của Hải **thất bại**: bước "Start ephemeral SonarQube" lỗi nên
-không có `issues.json`, và Semgrep ghi 0 phát hiện. Phải nói thẳng điều này trong
-báo cáo thay vì mượn số của run khác. Mã của Hải vẫn được phân tích trong các run
-sau, nên có thể dẫn run `39756107853` kèm ghi chú rõ đó không phải run của mình.
+Số liệu SQL injection lấy từ hai lần chạy thật của kho: run `40748974196` trên
+nhánh `main` và run `40748974200` trên nhánh `patched`. Cả hai sinh artifact
+`evidence-security-as-code` chứa `ci-05-semgrep.json`. Luật `policy-p4-sql-injection`
+của nhóm bắt 12 vị trí trên `main` và 8 trên `patched`.

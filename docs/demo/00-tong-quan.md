@@ -82,15 +82,14 @@ chỉ báo cáo và trả 0. Xem `evidence/17` và `evidence/23`.
 26 tệp, mỗi tệp ghi lệnh đã chạy, kết quả, và mã thoát. Dùng trực tiếp khi viết
 báo cáo, không cần chạy lại.
 
-## Run quét riêng của từng người trên GitHub Actions
+## Hai lần chạy quét trên GitHub Actions
 
-| Thành viên | Run ID | Commit | Trạng thái |
+| Nhánh | Run ID | Commit | Trạng thái |
 |---|---|---|---|
-| Đào Xuân Mạnh | `39756107853` | `660e75c` | thành công, 20 vấn đề Sonar, 19 phát hiện Semgrep |
-| Nguyễn Phương Mai | `39562909302` | `ed67851` | thành công, 13 vấn đề Sonar, 12 phát hiện Semgrep |
-| Lê Đức Anh | `39277863225` | `299801a` | thành công, 16 vấn đề Sonar, 8 phát hiện Semgrep |
-| Nguyễn Đình Hải | `38591286519` | `7f6c4c7` | **thất bại**, SonarQube không khởi tạo được nên không có phân tích |
-| Nguyễn Giang Nam | `39984469804` | `a3ff9cb` | **bị chặn bởi chính sách**, 5 job sau bị bỏ qua |
+| `main` (khiếm khuyết) | `40748974196` | `94004f3` | thất bại ở cổng chất lượng (ERROR), 25 vấn đề Sonar, 0 lỗ hổng, 64 phát hiện Semgrep |
+| `patched` (đã vá) | `40748974200` | `0c9cdfd` | thất bại ở cổng chất lượng (ERROR), 27 vấn đề Sonar, 0 lỗ hổng, 46 phát hiện Semgrep |
+
+Cả hai đều dừng tại cổng chất lượng SonarQube vì `reliability_rating` bằng 3, không phải vì an toàn. Số liệu lấy từ artifact `evidence-security-as-code` của mỗi lần chạy.
 
 Artifact của bốn run đầu còn tải được tới 18 đến 21 tháng 11. Đã tải sẵn vào
 `evidence/` của phiên làm việc.

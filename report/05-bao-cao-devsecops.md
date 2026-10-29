@@ -8,8 +8,8 @@
 | **Học phần** | Thực hành DevOps / DevSecOps |
 | **Giảng viên hướng dẫn** | TS. Phạm Hoàng Duy |
 | **Nhóm thực hiện** | Nhóm 11, lớp M26CQAT01-B |
-| **Kho mã nguồn** | `github.com/wtfwhoyouare/PTIT-DevOps-SonarQube` |
-| **Mốc mã nguồn khảo sát** | `660e75c` (quét công cụ) và `eb3f6c7` (hiện trạng) |
+| **Kho mã nguồn** | `github.com/vsxkr/btl-devsecops-nhom11` |
+| **Mốc mã nguồn khảo sát** | nhánh `main` tại `94004f3` (hệ thống khiếm khuyết) và nhánh `patched` tại `0c9cdfd` (bản vá) |
 | **Thời gian** | Tháng 10 năm 2026 |
 
 ---
@@ -54,7 +54,7 @@
 
 Mô hình DevSecOps giải quyết mâu thuẫn này bằng cách đưa việc kiểm tra an toàn vào chính dây chuyền tự động, ở mọi chặng. Nguyên tắc cốt lõi là phát hiện lỗi ở chặng nào thì dây chuyền phải dừng ngay tại chặng đó.
 
-Đề tài không dừng ở việc mô tả một dây chuyền đã dựng. Nhóm đặt câu hỏi ngược lại: dây chuyền nhóm đã dựng có thực sự dừng khi gặp lỗi không, và những dữ liệu cá nhân nào của người dùng thực sự được bảo vệ. Quá trình kiểm chứng cho một kết quả đáng chú ý được trình bày tại mục Khiếm khuyết trọng yếu của Chương 3: cổng chất lượng báo lỗi nhưng không dừng dây chuyền. Việc tự tìm ra và phân tích khiếm khuyết này có giá trị thực tiễn cao hơn một bản mô tả không có phản biện.
+Đề tài không dừng ở việc mô tả một dây chuyền đã dựng. Nhóm đặt câu hỏi ngược lại: dây chuyền nhóm đã dựng có thực sự dừng khi gặp lỗi không, và những dữ liệu cá nhân nào của người dùng thực sự được bảo vệ. Quá trình kiểm chứng cho hai kết quả đáng chú ý, trình bày ở Chương 3. Bản dây chuyền đầu tiên của nhóm để cổng chất lượng báo lỗi mà vẫn không dừng dây chuyền; nhóm đã tìm ra, sửa lại cho cổng chặn thật, và xác nhận bằng hai lần chạy tự động đều dừng đúng tại cổng. Cùng với đó, bản SonarQube Community trong dây chuyền báo mức an toàn A và không lỗ hổng nào trên cả mã khiếm khuyết lẫn mã đã vá, trong khi Semgrep tìm ra hàng chục vị trí tiêm mã. Việc tự tìm ra và phân tích các khiếm khuyết này có giá trị thực tiễn cao hơn một bản mô tả không có phản biện.
 
 **Mục tiêu và phạm vi.** Mục tiêu tổng quát là đánh giá mức độ an toàn của ứng dụng InlaneWeb Logistics dưới góc độ bảo vệ dữ liệu người dùng, trên toàn bộ vòng đời từ viết mã đến vận hành. Bốn mục tiêu cụ thể gồm:
 
@@ -63,9 +63,9 @@ Mô hình DevSecOps giải quyết mâu thuẫn này bằng cách đưa việc k
 - Mỗi thành viên xác định một vấn đề an toàn, trình bày cách phát hiện, cách xử lý, chính sách bị vi phạm, pha DevSecOps tương ứng, kèm minh chứng Policy as Code hoặc Security as Code và mã nguồn khắc phục.
 - Chỉ ra những khiếm khuyết mà công cụ tự động không phát hiện được, kèm lý giải nguyên nhân.
 
-Phạm vi khảo sát là kho mã `PTIT-DevOps-SonarQube` tại hai mốc: `660e75c` là mốc có đầy đủ kết quả quét của lần chạy `39756107853`, và `eb3f6c7` là hiện trạng nhánh `main`.
+Phạm vi khảo sát là kho mã `btl-devsecops-nhom11` tại hai nhánh: `main` ở mốc `94004f3` là hệ thống còn khiếm khuyết, và `patched` ở mốc `0c9cdfd` là bản đã vá. Kết quả quét của mỗi nhánh lấy từ một lần chạy GitHub Actions riêng, mã số `40748974196` cho `main` và `40748974200` cho `patched`.
 
-**Phương pháp và nguồn minh chứng.** Nhóm sử dụng ba nguồn minh chứng độc lập và chỉ khẳng định một nội dung khi có ít nhất một nguồn chứng minh được: mã nguồn đọc trực tiếp với mọi số dòng lấy từ tệp thật trong kho, tệp kết quả SonarQube và Semgrep tải từ phần Artifacts của lần chạy `39756107853`, và ảnh chụp màn hình GitHub Actions lưu trong `docs/images`. Khi ba nguồn mâu thuẫn nhau, báo cáo ghi nhận mâu thuẫn thay vì chọn một bên, trường hợp cụ thể trình bày ở mục Kết quả quét thực tế của Chương 3.
+**Phương pháp và nguồn minh chứng.** Nhóm sử dụng ba nguồn minh chứng độc lập và chỉ khẳng định một nội dung khi có ít nhất một nguồn chứng minh được: mã nguồn đọc trực tiếp với mọi số dòng lấy từ tệp thật trong kho, tệp kết quả SonarQube và Semgrep tải từ phần Artifacts của hai lần chạy `40748974196` và `40748974200`, và trạng thái mỗi lần chạy xem trực tiếp trên trang GitHub Actions của kho mã. Khi các nguồn mâu thuẫn nhau, báo cáo ghi nhận mâu thuẫn thay vì chọn một bên, trường hợp cụ thể trình bày ở mục Kết quả quét thực tế của Chương 3.
 
 ---
 
@@ -214,7 +214,7 @@ Các yêu cầu số 5, 6, 9, 12, 13 và 14 thì khác. Chúng không phục v�
 
 ## 3.1 Bốn chặng của dây chuyền
 
-Dây chuyền khai báo trong `.github/workflows/devsecops-pipeline.yml`, kích hoạt khi đẩy mã lên nhánh `main` hoặc `dev`, hoặc khi mở yêu cầu hợp nhất vào hai nhánh đó, theo khai báo tại dòng 5-17.
+Dây chuyền khai báo trong `.github/workflows/devsecops-gate.yml`, kích hoạt khi đẩy mã lên nhánh `main`, `dev` hoặc `patched`, hoặc khi mở yêu cầu hợp nhất vào `main` và `dev`, theo khai báo tại dòng 20-24.
 
 *Bảng: Bốn chặng của dây chuyền và điều kiện kích hoạt*
 
@@ -254,7 +254,7 @@ Chặng 2 chạy song song hai công cụ phân tích tĩnh có cơ chế khác 
 
 Với SonarQube, dây chuyền khởi tạo một máy chủ tạm thời ngay trong máy ảo chạy dây chuyền theo khai báo tại dòng 104-110, quét mã rồi hủy. Tiêu chí chấp nhận được viết thành tệp `ci/sonarqube-quality-gate.json`. Đây chính là Security as Code, vì ngưỡng an toàn nằm trong kho mã và mọi thay đổi đều được theo dõi qua lịch sử Git. Tệp này đặt năm điều kiện báo lỗi: `security_rating` lớn hơn 1 tương ứng có lỗ hổng an toàn dưới mức A, `reliability_rating` lớn hơn 1 tương ứng có lỗi ảnh hưởng độ tin cậy, `sqale_rating` lớn hơn 1 tương ứng nợ kỹ thuật vượt ngưỡng, `security_hotspots_reviewed` nhỏ hơn 100 tương ứng còn điểm cần rà soát chưa xử lý, và `duplicated_lines_density` lớn hơn 10 tương ứng trùng lặp mã vượt 10 phần trăm.
 
-Với Semgrep, dây chuyền chạy bốn bộ luật công khai gồm `p/owasp-top-ten`, `p/php`, `p/security-audit` và `p/cwe-top-25`, cộng thêm một tệp luật tự viết, theo khai báo tại dòng 186-195. Tệp `ci/semgrep-local-rules.yml` chứa hai luật, đều nhằm vào việc gán cứng bí mật:
+Với Semgrep, dây chuyền chạy bốn bộ luật công khai gồm `p/owasp-top-ten`, `p/php`, `p/security-audit` và `p/cwe-top-25`, cộng thêm hai tệp luật của nhóm là `ci/semgrep-policy-php.yml` với năm nhóm luật P1 đến P5 và `ci/semgrep-local-rules.yml`, theo khai báo tại dòng 179-186. Lệnh quét mang cờ `--error` nên khi còn phát hiện ở mức ERROR thì bước kết thúc bất thường. Tệp `ci/semgrep-local-rules.yml` chứa hai luật, đều nhằm vào việc gán cứng bí mật:
 
 ```yaml
 # ci/semgrep-local-rules.yml:2-14 (CWE-798: Use of Hard-coded Credentials)
@@ -271,86 +271,67 @@ Luật thứ hai là `compose-hardcoded-mysql-root-password`, bắt biến môi 
 
 Luật thứ hai có một khiếm khuyết. Mục `paths.include` tại dòng 26-30 chỉ liệt kê ba mẫu tên tệp là `**/docker-compose.yml`, `**/compose.yml` và `**/compose.yaml`. Hai tệp đang thực sự chứa mật khẩu gán cứng là `docker-compose.prod.yml` và `docker-compose.monitoring.yml` không khớp mẫu nào, nên luật không bao giờ chạy trên chúng. Kết quả quét trình bày ở mục sau xác nhận điều này, vì luật chỉ kích hoạt trên `InlaneWeb/docker-compose.yml`. Cách sửa được trình bày tại phần của thành viên 3 ở Chương 4.
 
-## 3.4 Khiếm khuyết trọng yếu: cổng chất lượng không dừng dây chuyền
+## 3.4 Khiếm khuyết trọng yếu: cổng chất lượng chỉ báo cáo và cách khắc phục
 
-Đây là phát hiện quan trọng nhất của chương, và nhóm trình bày như một kết quả kiểm chứng thay vì che đi. Biến môi trường quyết định cổng chất lượng có chặn hay không được khai báo như sau:
+Đây là phát hiện quan trọng nhất của chương, và nhóm trình bày như một kết quả kiểm chứng thay vì che đi. Trong bản dây chuyền đầu tiên, biến môi trường quyết định cổng chất lượng có chặn hay không được khai báo như sau:
 
 ```yaml
-# .github/workflows/devsecops-pipeline.yml:55
+# bản đầu tiên của dây chuyền, biểu thức luôn trả về 'false'
 ENFORCE_QUALITY_GATE: ${{ inputs.enforce_quality_gate || 'false' }}
 ```
 
-Ngữ cảnh `inputs` trong GitHub Actions chỉ tồn tại khi dây chuyền được kích hoạt thủ công bằng `workflow_dispatch`. Với sự kiện đẩy mã hoặc mở yêu cầu hợp nhất, tức toàn bộ các lần chạy tự động, `inputs.enforce_quality_gate` không có giá trị nên biểu thức luôn trả về chuỗi `'false'`. Giá trị này được đọc ở bước kiểm tra cuối:
+Ngữ cảnh `inputs` trong GitHub Actions chỉ tồn tại khi dây chuyền được kích hoạt thủ công bằng `workflow_dispatch`. Với sự kiện đẩy mã hoặc mở yêu cầu hợp nhất, tức toàn bộ các lần chạy tự động, `inputs.enforce_quality_gate` không có giá trị nên biểu thức luôn trả về chuỗi `'false'`. Giá trị này được đọc ở bước kiểm tra cuối của `ci/sonarqube.py`:
 
 ```python
-# ci/sonarqube.py:433-439
+# ci/sonarqube.py:433-437
 if status["quality_gate"] == "ERROR":
     if os.environ.get("ENFORCE_QUALITY_GATE", "true").lower() == "true":
         print("Quality Gate FAILED. Reports were exported before this check.", file=sys.stderr)
         return 1
     print("Quality Gate FAILED; report-only mode explicitly selected.")
-else:
-    print("Quality Gate PASSED.")
-return 0
 ```
 
-Khi cổng chất lượng ở trạng thái `ERROR` và biến `ENFORCE_QUALITY_GATE` khác `true`, hàm chỉ in một dòng thông báo rồi trả về giá trị 0, tức báo thành công. Công việc của chặng 2 kết thúc với trạng thái thành công và các chặng sau không bị chặn.
+Bản thân `ci/sonarqube.py` đọc biến này với giá trị mặc định `"true"` ở cả hai vị trí dòng 393 và 434, tức vốn dừng ở trạng thái an toàn. Khiếm khuyết nằm ở chỗ bản đầu tiên ghi đè biến đó bằng một biểu thức luôn cho `'false'`, biến một script dừng-an-toàn thành cổng chỉ báo cáo: khi cổng ở trạng thái `ERROR`, hàm chỉ in một dòng thông báo rồi trả về 0, nên chặng 2 kết thúc thành công và các chặng sau không bị chặn.
 
-Semgrep cũng không chặn, vì hai lý do độc lập. Lệnh quét tại dòng 187-195 không có cờ `--error`, và tệp `ci/semgrep_report.py` chỉ kết thúc bất thường khi bản thân quá trình quét gặp lỗi, không phải khi tìm thấy phát hiện.
+Cách khắc phục là không ghi đè biến đó. Dây chuyền hiện hành `.github/workflows/devsecops-gate.yml` không đặt `ENFORCE_QUALITY_GATE`, nên giá trị mặc định `"true"` của script có hiệu lực. Bước cuối của chặng 2 gọi `ci/sonarqube.py check`, bước này không đặt `continue-on-error`, nên khi cổng ở trạng thái `ERROR` thì bước trả mã khác 0, chặng 2 thất bại và các chặng sau bị bỏ qua. Lệnh Semgrep trong dây chuyền hiện hành cũng đã có sẵn cờ `--error`. Việc chỉ ghi nhận trạng thái mà không chặn được tách sang một dây chuyền riêng là `.github/workflows/security-baseline.yml`, để hai mục đích không dùng chung một tên.
 
-Hệ quả là toàn bộ chặng 2 hiện hoạt động ở chế độ chỉ báo cáo. Nguyên tắc dừng dây chuyền ngay tại chặng phát hiện lỗi chưa được thực hiện. Ba ảnh chụp màn hình dưới đây là minh chứng trực tiếp cho kết luận này.
+Hai lần chạy tự động xác nhận cổng chặn đúng thiết kế. Lần chạy `40748974196` trên nhánh `main` và lần chạy `40748974200` trên nhánh `patched` đều kết thúc ở trạng thái thất bại, vì cổng chất lượng SonarQube ở trạng thái `ERROR` khiến bước kiểm tra cuối trả mã khác 0 và chặn các chặng sau. Trạng thái thất bại này là kết quả mong muốn: dây chuyền dừng ngay tại chặng phát hiện vấn đề, thay vì báo lỗi rồi vẫn đi tiếp như bản đầu tiên.
 
-![Tóm tắt lần chạy 39756107853 cho thấy cổng chất lượng ở trạng thái ERROR và chế độ thực thi chỉ báo cáo, trong khi trạng thái chung của lần chạy vẫn là thành công](images/h01-run-summary.png)
+## 3.5 Kết quả quét thực tế trên hai nhánh
 
-![Danh sách các bước của công việc SonarQube, bước Enforce pipeline result kết thúc thành công dù cổng chất lượng đã báo lỗi](images/h02-sonar-job-steps.png)
+Dây chuyền chạy trên hai nhánh cho hai bộ số liệu. Nhánh `main` tại mốc `94004f3` là hệ thống còn khiếm khuyết, đo trong lần chạy `40748974196`. Nhánh `patched` tại mốc `0c9cdfd` là bản đã vá, đo trong lần chạy `40748974200`. Mỗi bộ số lấy từ các tệp `sonarqube/metrics.json`, `sonarqube/quality-gate.json` và `ci-05-semgrep.json` trong artifact `evidence-security-as-code` của lần chạy tương ứng.
 
-![Công việc Semgrep kết thúc thành công sau khi ghi nhận 19 phát hiện ở mức ERROR](images/h03-semgrep-job.png)
+*Bảng: Chỉ số SonarQube của hai nhánh*
 
-Cách khắc phục chỉ cần sửa một dòng, đủ để cổng chất lượng chặn ở mọi lần chạy tự động mà vẫn cho phép tắt chặn có chủ ý khi chạy thủ công:
+| Chỉ số | `main` (`94004f3`) | `patched` (`0c9cdfd`) | Điều kiện cổng | Trạng thái |
+| :--- | ---: | ---: | :--- | :---: |
+| `reliability_rating` | 3 | 3 | Lớn hơn 1 thì báo lỗi | ERROR |
+| `security_rating` | 1 | 1 | Lớn hơn 1 thì báo lỗi | OK |
+| `sqale_rating` | 1 | 1 | Lớn hơn 1 thì báo lỗi | OK |
+| `duplicated_lines_density` | 0,0 | 0,0 | Lớn hơn 10 thì báo lỗi | OK |
+| `vulnerabilities` | 0 | 0 | | |
+| `security_hotspots` | 0 | 0 | | |
+| `bugs` và `code_smells` | 10 và 15 | 8 và 19 | | |
+| Số tệp và số dòng mã | 24 và 734 | 24 và 876 | | |
 
-```yaml
-# .github/workflows/devsecops-pipeline.yml:55 (đề xuất sửa)
-ENFORCE_QUALITY_GATE: ${{ inputs.enforce_quality_gate != 'false' }}
-```
+Trên nhánh `main`, SonarQube ghi nhận 25 phát hiện gồm 1 mức CRITICAL, 13 mức MAJOR và 11 mức MINOR. Trên nhánh `patched` là 27 phát hiện gồm 1 mức CRITICAL, 11 mức MAJOR và 15 mức MINOR. Toàn bộ thuộc nhóm lỗi lập trình và khả năng bảo trì, gồm các quy tắc `Web:InputWithoutLabelCheck` và `Web:S6853` về nhãn biểu mẫu, `php:S100` về quy ước đặt tên hàm, `php:S113` về dòng trống cuối tệp, `php:S2003` về việc dùng `require` thay vì `require_once`, và `php:S121` về dấu ngoặc nhọn. Không quy tắc nào thuộc nhóm an toàn.
 
-Với Semgrep, cần bổ sung cờ `--error` vào lệnh quét để quá trình kết thúc bất thường khi có phát hiện ở mức ERROR.
+Có một kết quả cần được giải thích thay vì bỏ qua. Trên cả hai nhánh, SonarQube báo `vulnerabilities` bằng 0, `security_hotspots` bằng 0 và `security_rating` bằng 1 tương ứng mức A. Cùng mã nguồn đó, Semgrep tìm thấy 12 vị trí tiêm mã SQL theo luật của nhóm trên nhánh `main`. Cổng chất lượng có báo lỗi, nhưng báo lỗi vì `reliability_rating` bằng 3, tức vì chỉ số độ tin cậy, hoàn toàn không phải vì an toàn. Điều kiện `security_rating` của cổng ở trạng thái đạt trên cả hai nhánh.
 
-Nhóm chưa áp dụng hai thay đổi này vào nhánh `main`, vì bật chặn sẽ làm mọi yêu cầu hợp nhất vào `dev` thất bại ngay lập tức, do kho mã hiện có 19 phát hiện mức ERROR và cổng chất lượng đang ở trạng thái ERROR. Việc bật chặn cần đi kèm kế hoạch xử lý các phát hiện đó và cần sự thống nhất của cả nhóm.
+Nguyên nhân là bản SonarQube Community không phân tích luồng dữ liệu xuyên hàm và xuyên tệp: chuỗi SQL được xây ở các tệp `pages` rồi mới truyền sang hàm thực thi ở `lib/db.php`. Hệ quả có hai mặt. Cổng chất lượng đạt về an toàn không đồng nghĩa với mã an toàn; và khác biệt an toàn giữa `main` và `patched` không hiện trong chỉ số SonarQube, vì cả hai đều báo 0 lỗ hổng, trong khi Semgrep phản ánh đúng thay đổi đó, từ 64 phát hiện xuống 46.
 
-## 3.5 Kết quả quét thực tế tại mốc `660e75c`
+*Bảng: Phân bố 64 phát hiện Semgrep trên nhánh `main`, lần chạy `40748974196`*
 
-*Bảng: Chỉ số SonarQube tại mốc `660e75c`*
-
-| Chỉ số | Giá trị | Điều kiện cổng | Trạng thái |
-| :--- | ---: | :--- | :---: |
-| `reliability_rating` | 3 | Lớn hơn 1 thì báo lỗi | ERROR |
-| `security_rating` | 1 | Lớn hơn 1 thì báo lỗi | OK |
-| `sqale_rating` | 1 | Lớn hơn 1 thì báo lỗi | OK |
-| `duplicated_lines_density` | 0,0 | Lớn hơn 10 thì báo lỗi | OK |
-| `vulnerabilities` | 0 | | |
-| `security_hotspots` | 0 | | |
-| `bugs` và `code_smells` | 10 và 10 | | |
-| Số tệp PHP phân tích và số dòng mã | 16 và 408 | | |
-
-SonarQube ghi nhận 20 phát hiện, gồm 1 mức CRITICAL, 10 mức MAJOR và 9 mức MINOR. Toàn bộ thuộc nhóm lỗi lập trình và khả năng bảo trì, cụ thể là các quy tắc `php:S121` về thiếu dấu ngoặc nhọn, `php:S100` về quy ước đặt tên hàm, `php:S2003` về việc dùng `require` thay vì `require_once`, cùng `Web:S6853` và `Web:InputWithoutLabelCheck` về nhãn biểu mẫu.
-
-![Danh sách đầy đủ 20 phát hiện của SonarQube tại mốc 660e75c](images/h04-sonar-issues.png)
-
-Có một kết quả cần được giải thích thay vì bỏ qua. SonarQube báo `vulnerabilities` bằng 0, `security_hotspots` bằng 0 và `security_rating` bằng 1 tương ứng mức A, trên một kho mã mà Semgrep tìm thấy 11 vị trí tiêm mã SQL. Cổng chất lượng có báo lỗi, nhưng báo lỗi vì chỉ số độ tin cậy, hoàn toàn không phải vì an toàn.
-
-Nguyên nhân là bản SonarQube Community dùng trong dây chuyền không có khả năng phân tích luồng dữ liệu xuyên hàm và xuyên tệp. Trong ứng dụng này, chuỗi SQL được xây ở các tệp trong thư mục `pages` rồi truyền sang hàm `query()` ở `lib/db.php` mới thực thi, tạo thành một luồng xuyên tệp mà bản Community không lần được. Kết luận rút ra là cổng chất lượng ở trạng thái đạt không đồng nghĩa với mã nguồn an toàn, và một dây chuyền chỉ dùng một công cụ thì không đủ.
-
-*Bảng: Phân bố 19 phát hiện của Semgrep tại mốc `660e75c`*
-
-| Nhóm luật | Số lượng | Phân loại | Vị trí tiêu biểu |
+| Nhóm luật | Số lượng | Phân loại | Nguồn luật |
 | :--- | :---: | :--- | :--- |
-| `tainted-sql-string` | 11 | CWE-89, tiêm mã SQL | `login.php:19`, `ports.php:24` |
-| `echoed-request` | 4 | CWE-79, XSS | `comment_add.php:29`, `track_api.php:31` |
-| `missing-user`, `missing-user-entrypoint` | 2 | CWE-250 và CWE-269, container chạy quyền root | `db/Dockerfile:15`, `:16` |
-| `php-hardcoded-db-password-fallback` | 1 | CWE-798, bí mật gán cứng | `lib/db.php:17` |
-| `compose-hardcoded-mysql-root-password` | 1 | CWE-798, bí mật gán cứng | `docker-compose.yml:15` |
+| `tainted-sql-string`, `policy-p4-sql-injection` | 19 và 12 | tiêm mã SQL, CWE-89, OWASP A03:2021 | công khai và nhóm |
+| `policy-p2-client-supplied-identity` | 8 | định danh lấy từ client, OWASP A01:2021 | luật của nhóm |
+| `policy-p1-unrestricted-write` | 6 | ghi không kiểm quyền, OWASP A01:2021 | luật của nhóm |
+| `echoed-request` | 5 | XSS, CWE-79 | công khai `p/php` |
+| `policy-p5-statement-logged-verbatim`, `policy-p4-error-detail-to-response` | 4 và 4 | ghi nhật ký nguyên văn, lộ chi tiết lỗi, OWASP A09 và A05 | luật của nhóm |
+| các luật bí mật gán cứng và container chạy root | 6 | CWE-798 và CWE-250 | nhóm và công khai |
 
-Toàn bộ 19 phát hiện đều ở mức ERROR, và hai luật tự viết của nhóm đều kích hoạt đúng mục tiêu. Số dòng của phát hiện tại `lib/db.php:17` tương ứng mốc `660e75c`. Ở hiện trạng `eb3f6c7`, dòng này đã dịch xuống dòng 19 do tệp `lib/logger.php` được thêm vào và `db.php` phải nạp tệp đó.
+Tổng 64 phát hiện trên nhánh `main`, toàn bộ ở mức ERROR, và các luật tự viết của nhóm đều kích hoạt đúng mục tiêu. Trên nhánh `patched`, tổng còn 46 phát hiện, trong đó `policy-p4-sql-injection` giảm còn 8 và `tainted-sql-string` còn 14. Phần phát hiện còn lại thuộc đợt vá thứ hai, có chủ sở hữu và lý do hoãn ghi trong `patches/README.md`.
 
 ---
 
@@ -402,7 +383,7 @@ def validate_commit_message(msg: str) -> tuple[bool, str]:
 
 ## 4.3 Thành viên 2, Nguyễn Đình Hải: tiêm mã SQL làm lộ dữ liệu cá nhân
 
-**Mô tả vấn đề.** Toàn bộ truy vấn của ứng dụng được xây dựng bằng cách nối chuỗi dữ liệu người dùng vào câu lệnh SQL, không dùng truy vấn tham số hóa. Semgrep xác định 11 vị trí như vậy. Tuyến tra cứu cảng biển là một ví dụ:
+**Mô tả vấn đề.** Toàn bộ truy vấn của ứng dụng được xây dựng bằng cách nối chuỗi dữ liệu người dùng vào câu lệnh SQL, không dùng truy vấn tham số hóa. Semgrep xác định 12 vị trí như vậy theo luật của nhóm. Tuyến tra cứu cảng biển là một ví dụ:
 
 ```php
 // pages/ports.php:12, 24
@@ -470,7 +451,7 @@ $rows = query_safe(
 
 Dữ liệu người dùng đi vào máy chủ cơ sở dữ liệu như một tham số, không còn là một phần của câu lệnh, nên ký tự nháy đơn mất khả năng thay đổi cấu trúc truy vấn. Minh chứng Security as Code là tiêu chí `security_rating` trong `ci/sonarqube-quality-gate.json` kết hợp với bộ luật Semgrep, cả hai đều nằm trong kho mã và chạy tự động trên mọi thay đổi.
 
-**Giới hạn.** Như đã trình bày ở Chương 3, SonarQube Community không phát hiện được nhóm lỗi này. Nếu dây chuyền chỉ có SonarQube thì 11 vị trí nêu trên đã lọt hoàn toàn. Đây là căn cứ để nhóm chạy song song hai công cụ phân tích tĩnh có cơ chế khác nhau.
+**Giới hạn.** Như đã trình bày ở Chương 3, SonarQube Community không phát hiện được nhóm lỗi này. Nếu dây chuyền chỉ có SonarQube thì 12 vị trí nêu trên đã lọt hoàn toàn. Đây là căn cứ để nhóm chạy song song hai công cụ phân tích tĩnh có cơ chế khác nhau.
 
 ## 4.4 Thành viên 3, Đào Xuân Mạnh: mật khẩu dạng rõ và bí mật gán cứng
 
@@ -510,7 +491,7 @@ Giá trị dự phòng tại `db.php:19` nguy hiểm hơn vẻ ngoài của nó.
 
 Nhóm phát hiện vấn đề này theo hai cách bổ sung cho nhau.
 
-Cách thứ nhất là luật Semgrep tự viết. Nhóm phải viết luật riêng vì các bộ luật công khai không bắt được mẫu `getenv(...) ?: 'chuỗi'` đặc thù của PHP. Luật đặt tại `ci/semgrep-local-rules.yml:2-14`, nội dung đã trình bày ở Chương 3. Kết quả quét tại mốc `660e75c` xác nhận luật kích hoạt đúng mục tiêu:
+Cách thứ nhất là luật Semgrep tự viết. Nhóm phải viết luật riêng vì các bộ luật công khai không bắt được mẫu `getenv(...) ?: 'chuỗi'` đặc thù của PHP. Luật đặt tại `ci/semgrep-local-rules.yml:2-14`, nội dung đã trình bày ở Chương 3. Kết quả quét trên nhánh `main`, lần chạy `40748974196`, xác nhận luật kích hoạt đúng mục tiêu:
 
 ```
 Phat hien 4: ci.php-hardcoded-db-password-fallback  [ERROR]
@@ -841,7 +822,7 @@ Cùng một loạt kích hoạt đồng thời hai mức cảnh báo, một mứ
 | Khiếm khuyết | Vị trí | Nguyên nhân công cụ không báo |
 | :--- | :--- | :--- |
 | Mật khẩu lưu dạng rõ trong cơ sở dữ liệu | `init.sql:26`, `:34-38` | Nằm ở dữ liệu chứ không ở mã, tệp SQL không được quét |
-| Cổng chất lượng không chặn | `devsecops-pipeline.yml:55` | Không công cụ nào tự kiểm tra cấu hình của chính dây chuyền |
+| Cổng chất lượng chỉ báo cáo ở bản đầu | biểu thức `enforce_quality_gate` mặc định về `'false'` | Không công cụ nào tự kiểm tra cấu hình của chính dây chuyền |
 | Chuỗi rò rỉ mật khẩu ra Grafana | 5 tệp, 2 ngôn ngữ | Chuỗi trải qua PHP và YAML, không công cụ nào phân tích xuyên lớp |
 | Mật khẩu Grafana gán cứng | `monitoring.yml:46` | Mục `paths.include` của luật không khớp tên tệp |
 | Mật khẩu CSDL trong Compose sản xuất | `prod.yml:15`, `:50` | Cùng nguyên nhân với trường hợp trên |
@@ -860,11 +841,11 @@ Hệ quả thực tiễn là một dây chuyền DevSecOps không thay thế đ�
 
 Nhóm đã dựng và vận hành một dây chuyền DevSecOps bốn chặng trên nền công cụ nguồn mở, gồm kiểm tra quy ước phát triển, phân tích tĩnh bằng hai công cụ có cơ chế khác nhau, chạy thử tích hợp, triển khai tự động lên máy chủ thật và giám sát nhật ký tập trung. Nhóm cũng phân tích năm vấn đề an toàn theo phân công, phủ đủ hai nhóm mã nguồn và triển khai vận hành, mỗi vấn đề đều có vị trí cụ thể trong mã, cách phát hiện, căn cứ pháp lý và mã nguồn khắc phục.
 
-Hai kết quả mà nhóm đánh giá là có giá trị nhất đều mang tính phủ định, và đều đến từ việc kiểm chứng chính công trình của mình.
+Hai kết quả mà nhóm đánh giá là có giá trị nhất đều đến từ việc kiểm chứng chính công trình của mình, thay vì chỉ mô tả nó.
 
-Kết quả thứ nhất cho thấy dây chuyền của nhóm chưa dừng khi gặp lỗi. Chương 3 chỉ ra một dòng cấu hình khiến toàn bộ chặng phân tích tĩnh hoạt động ở chế độ chỉ báo cáo, có ba ảnh chụp màn hình làm chứng. Nguyên tắc cốt lõi của DevSecOps chưa được thực hiện, dù hình thức bên ngoài của dây chuyền đã đầy đủ.
+Kết quả thứ nhất đến từ việc kiểm chứng xem dây chuyền có thực sự dừng khi gặp lỗi không. Bản đầu tiên để một dòng cấu hình ghi đè biến `ENFORCE_QUALITY_GATE` thành `'false'`, khiến cổng chất lượng chỉ báo cáo mà không chặn. Nhóm đã sửa bằng cách không ghi đè biến đó, và xác nhận trên hai lần chạy `40748974196` và `40748974200`: cả hai đều dừng ngay tại cổng chất lượng khi cổng ở trạng thái ERROR. Đây là bài học quy trình có giá trị hơn một dây chuyền chạy trơn mà không ai kiểm lại.
 
-Kết quả thứ hai cho thấy cổng chất lượng ở trạng thái đạt không đồng nghĩa với mã nguồn an toàn. SonarQube Community báo `security_rating` ở mức A và không có lỗ hổng nào, trên một kho mã có 11 vị trí tiêm mã SQL mà Semgrep tìm ra. Chương 5 tổng hợp chín khiếm khuyết thật mà công cụ hoàn toàn im lặng.
+Kết quả thứ hai cho thấy cổng chất lượng ở trạng thái đạt không đồng nghĩa với mã nguồn an toàn. SonarQube Community báo `security_rating` ở mức A và không có lỗ hổng nào trên cả hai nhánh, trong khi cùng mã nguồn đó có 12 vị trí tiêm mã SQL mà Semgrep tìm ra. Chương 4 tổng hợp các khiếm khuyết thật mà công cụ phân tích tĩnh của riêng SonarQube hoàn toàn im lặng.
 
 Một kết quả thứ ba mang tính khẳng định đến từ việc kiểm chứng động trên nhánh vá: bộ kiểm thử theo hướng hành vi chuyển từ sáu phép kiểm thất bại sang sáu phép kiểm đạt, các cổng chính sách và quét tĩnh chuyển từ báo lỗi sang sạch, và chuỗi phát hiện khép kín với độ trễ mười lăm đến hai mươi lăm giây. Nhờ đó các đề xuất ở Chương 4 được chạy thử và đo trong môi trường thật, như trình bày ở mục 5.3.
 
@@ -872,7 +853,7 @@ Về hạn chế, phần phân tích năm vấn đề ở Chương 4 dựa trên
 
 Hướng phát triển tiếp theo được sắp xếp theo thứ tự ưu tiên:
 
-- Bật chế độ chặn của cổng chất lượng theo đề xuất ở Chương 3, kèm kế hoạch xử lý 19 phát hiện hiện có. Đây là việc cần làm trước tiên vì nếu không có nó thì mọi cổng kiểm tra khác chỉ mang tính hình thức.
+- Nối kết quả Semgrep thành một điều kiện chặn của chặng 2. Hiện bước Semgrep để `continue-on-error` nên mới ghi nhận phát hiện chứ chưa tự dừng chặng, trong khi cổng chặn của chặng 2 là cổng chất lượng SonarQube. Cùng với đó, xử lý các phát hiện độ tin cậy để cổng chất lượng đạt trạng thái sạch thay vì chỉ dừng ở lỗi độ tin cậy. Đây là việc cần làm trước tiên để mọi tín hiệu an toàn đều có khả năng chặn.
 - Áp dụng chính sách triển khai dạng mã vào chặng 3, và bổ sung luật che dữ liệu nhật ký vào bộ luật Semgrep nội bộ.
 - Khắc phục chuỗi rò rỉ dữ liệu qua đường nhật ký, đồng thời đổi toàn bộ bí mật đã xuất hiện trong lịch sử Git.
 - Bổ sung phân tích thành phần phần mềm bên thứ ba và kiểm thử động vào dây chuyền.
@@ -924,14 +905,14 @@ Toàn bộ hồ sơ minh chứng của báo cáo được liệt kê dưới đ�
 
 | TT | Minh chứng | Vị trí |
 | :---: | :--- | :--- |
-| 1 | Dây chuyền DevSecOps bốn chặng | `.github/workflows/devsecops-pipeline.yml` |
+| 1 | Dây chuyền DevSecOps bốn chặng, có chặn | `.github/workflows/devsecops-gate.yml`, `.github/workflows/security-baseline.yml` |
 | 2 | Policy as Code, quy ước commit và PR | `ci/policy_guard.py`, `.githooks/commit-msg` |
 | 3 | Security as Code, tiêu chí cổng chất lượng | `ci/sonarqube-quality-gate.json` |
 | 4 | Security as Code, luật Semgrep tự viết | `ci/semgrep-local-rules.yml` |
 | 5 | Kiểm tra cú pháp tệp cấu hình | `ci/validate_configs.py`, `tests/test_validate_configs.py` |
 | 6 | Cấu hình triển khai và thu thập nhật ký | `InlaneWeb/docker-compose.prod.yml`, `docker-compose.monitoring.yml`, `monitoring/promtail/promtail-config.yml` |
 | 7 | Lược đồ cơ sở dữ liệu và bản ghi kỹ thuật khai thác | `InlaneWeb/db/init.sql`, `InlaneWeb/writeup.md` |
-| 8 | Kết quả SonarQube và Semgrep của lần chạy `39756107853` | Phần Artifacts của lần chạy trong kho mã |
-| 9 | Ảnh chụp màn hình dây chuyền | `docs/images` |
+| 8 | Kết quả SonarQube và Semgrep của hai lần chạy `40748974196` (`main`) và `40748974200` (`patched`) | Artifact `evidence-security-as-code` của mỗi lần chạy |
+| 9 | Trạng thái và nhật ký hai lần chạy | Trang GitHub Actions của kho mã |
 
-Để tái lập kết quả quét, mở trang lần chạy `39756107853` trong kho mã, tải hai tệp nén ở mục Artifacts, giải nén rồi mở tệp `report.html` trong mỗi tệp nén. Tệp `summary.md` chứa cùng nội dung ở dạng văn bản. Mọi số liệu về chỉ số SonarQube và phân bố phát hiện Semgrep trong Chương 3 đều lấy từ hai nguồn này.
+Để tái lập kết quả quét, mở trang hai lần chạy `40748974196` và `40748974200` trong kho mã, tải artifact `evidence-security-as-code` của mỗi lần, giải nén rồi mở `sonarqube/report.html`. Các tệp `sonarqube/metrics.json`, `sonarqube/quality-gate.json` và `ci-05-semgrep.json` chứa cùng số liệu ở dạng máy đọc được. Mọi số liệu SonarQube và Semgrep trong Chương 3 đều lấy từ hai nguồn này.
