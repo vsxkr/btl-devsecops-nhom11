@@ -55,6 +55,8 @@ tương ứng và một tệp bằng chứng.
 | 37 | Profile tuân thủ báo đạt trên một container đã tạo nhưng chưa chạy | `compliance/controls/docker_runtime.rb` | `ilf-run-00-dang-chay` | CS-07 | Đức Anh |
 | 38 | Ảnh `chef/inspec` không có docker CLI, nên sáu control báo lỗi thay vì đánh giá | `.github/workflows/devsecops-gate.yml` | đối chiếu nội dung `ci-13-inspec.txt` với trạng thái bước | CS-07 | Đức Anh |
 
+| 39 | `ci/validate_configs.py` ghép đường dẫn sai nên kiểm 0 tệp rồi trả về 0, tức báo đạt mà không kiểm gì, và không được gọi ở workflow nào | `ci/validate_configs.py`, `.github/workflows/devsecops-gate.yml` | chạy thật rồi đối chiếu dòng tổng kết | CS-07 | Mạnh |
+
 ## Đợt 2, chưa vá, có chủ đích
 
 Mười điểm chèn mã truy vấn còn lại trong các trang nghiệp vụ:

@@ -71,6 +71,15 @@ jobs:
         if: always()
         run: python3 ci/check_exceptions.py
 
+      - name: Kiem cu phap tep cau hinh
+        # Script nay truoc day ghep duong dan sai nen kiem 0 tep roi tra ve 0,
+        # tuc bao dat ma khong kiem gi, va no cung khong duoc goi o workflow nao.
+        # Ban hien tai that bai khi tap tep rong, va duoc goi o day.
+        if: always()
+        run: |
+          python3 -m pip install --quiet pyyaml
+          python3 ci/validate_configs.py
+
   # ---------------------------------------------------------------------------
   stage1_policy_as_code:
     name: "[CHANG 1] Policy as Code, cau hinh va quan tri"
