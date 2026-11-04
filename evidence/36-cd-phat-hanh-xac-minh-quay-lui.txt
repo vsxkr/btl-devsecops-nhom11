@@ -1,0 +1,67 @@
+# Stage 5 CD, run 41817338284, nhanh patched, moc eaf0241
+# Day la run dau tien di het nam stage. Bon run truoc do moi run bi chan tai
+# mot cong khac nhau, va moi lan chan la mot phat hien that:
+#   41812598120  cong CS-01 tu choi commit co scope nhieu phan cach nhau dau phay
+#   41814045236  InSpec bao loi vi anh chef/inspec khong co docker CLI
+#   41815649692  tep bi mat quyen 0600, container khong dac quyen khong doc duoc
+#   41817338284  tat ca dat, ke ca stage CD
+
+=== ci-14, diem quay lui duoc ghi truoc khi phat hanh ===
+moc ma nguon truoc phat hanh: eaf0241e7b5026864eca10f4eb711c90f9b8b011
+HEAD~1
+
+=== ci-15, phat hanh va cho den khi container khoe (trich) ===
+ Container ilfreight_db  Created
+ Container ilfreight_web  Creating
+ Container ilfreight_web  Created
+ Container ilfreight_db  Starting
+ Container ilfreight_db  Started
+ Container ilfreight_db  Waiting
+ Container ilfreight_db  Healthy
+ Container ilfreight_web  Starting
+ Container ilfreight_web  Started
+lan 1: starting
+lan 2: starting
+lan 3: healthy
+
+=== ci-16, xac minh sau phat hanh bang InSpec tren container vua phat hanh ===
+Status: Downloaded newer image for chef/inspec@sha256:a68cacc3693f89abfe5eaee76cbeb42a9ada691f0f0088c68accd5416785bc66
+
+Profile:   InlaneWeb container runtime baseline (inlaneweb-runtime)
+Version:   1.0.0
+Target:    local://
+Target ID: c6455692-b81a-5638-ae7b-ff7469a6d24d
+
+  OK  ilf-run-00-dang-chay: Container thuc su dang chay
+     OK  State.Running is expected to eq true
+     OK  State.Health.Status is expected to eq "healthy"
+  OK  ilf-run-01-non-root: Container khong chay bang root
+     OK  Config.User cua ilfreight_web is expected not to be nil
+     OK  Config.User cua ilfreight_web is expected not to eq ""
+     OK  Config.User cua ilfreight_web is expected not to match /^(root|0)(:|$)/
+  OK  ilf-run-02-least-privilege: Khong dac quyen, khong leo thang dac quyen, bo het capability
+     OK  HostConfig.Privileged is expected to eq false
+     OK  HostConfig.SecurityOpt is expected to include "no-new-privileges:true"
+     OK  HostConfig.CapDrop is expected to include "ALL"
+  OK  ilf-run-03-network-exposure: Moi cong da cong bo chi buoc vao loopback
+     OK  cong 8080/tcp rang buoc thu 1 is expected to eq "127.0.0.1"
+  OK  ilf-run-04-no-secrets-in-env: Khong co thong tin xac thuc trong bien moi truong cua container
+     OK  bien moi truong co ten giong thong tin xac thuc is expected to be empty
+  OK  ilf-run-05-no-docker-socket: Khong mount socket cua Docker vao container
+     OK  mount tro toi docker.sock is expected to be empty
+  OK  ilf-run-06-readonly-rootfs: He tep goc nen o che do chi doc
+     OK  HostConfig.ReadonlyRootfs is expected to eq true
+
+
+Profile Summary: 7 successful controls, 0 control failures, 0 controls skipped
+Test Summary: 12 successful, 0 failures, 0 skipped
+
+=== ci-18, ket luan phat hanh ===
+Phat hanh dat: container khoe va toan bo phep kiem tuan thu dat.
+
+=== Buoc quay lui ===
+Buoc 'Quay lui khi xac minh that bai' co dieu kien
+`if: steps.verify.outcome == 'failure'`, nen o run nay buoc do o trang thai
+skipped. Khong co ban ghi ci-17-cd-rollback.txt, va do la ket qua dung: duong
+quay lui chi chay khi xac minh that bai.
+

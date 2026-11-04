@@ -80,6 +80,42 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON ilfreight.* TO 'ilf_app'@'%';
 Mật khẩu người dùng chuyển sang `password_hash()` với `PASSWORD_DEFAULT`, và
 `TDS-4` là phép kiểm cho việc đó.
 
+## Bản vá đợt sau, bí mật chuyển sang dạng tệp
+
+Phép kiểm `ilf-run-04-no-secrets-in-env` của InSpec bắt được một thiếu sót mà cả
+Semgrep và rego đều không thấy: ngay cả khi `DB_PASS` lấy từ biến môi trường,
+biến môi trường của container vẫn đọc được bằng `docker inspect`, nên bí mật đặt ở
+đó là bí mật đã bị tiết lộ. Đối chiếu PCI DSS 8.6.2.
+
+Bản vá chuyển bí mật sang dạng tệp:
+
+```yaml
+# docker-compose.yml
+secrets:
+  app_db_password:
+    file: ./secrets/app_db_password
+# dich vu web
+    environment:
+      DB_PASS_FILE: /run/secrets/app_db_password
+```
+
+Ứng dụng đọc qua `secret_from_env('DB_PASS')` trong `lib/db.php`, ưu tiên dạng
+`<TEN>_FILE`, và không có giá trị dự phòng dạng hằng. Dịch vụ `db` dùng
+`MARIADB_ROOT_PASSWORD_FILE` và `APP_DB_PASSWORD_FILE`.
+
+Ba việc phát sinh khi vá, nên nói ra khi demo vì đó là phần có độ khó:
+
+1. Quy tắc `CREDENTIALS` trong `compose_security.rego` báo vi phạm trên chính
+   dạng đúng này, vì khóa `DB_PASS_FILE` khớp biểu thức bí mật trong khi giá trị
+   là một đường dẫn. Đã thêm ngoại lệ cho khóa kết thúc bằng `_FILE`, kèm hai
+   test giữ cả hai chiều.
+2. Quyền tệp phải là `0444` chứ không phải `0600`. Compose giữ nguyên chủ sở hữu
+   của tệp trên host, trong khi hai container chạy bằng hai tài khoản không đặc
+   quyền khác nhau là `mysql` và `www-data`. Với `0600` thì MariaDB không khởi
+   động nổi, đo được ở run `41815649692`.
+3. Entrypoint của `db` phải đọc được cả hai dạng, nên có hàm `read_secret` ưu
+   tiên `<TEN>_FILE` rồi mới đến biến môi trường.
+
 ## Điều cổng của Mạnh không chứng minh được
 
 **Trivy, một công cụ quét bí mật phổ dụng, báo "No issues detected" trên cả bốn tệp

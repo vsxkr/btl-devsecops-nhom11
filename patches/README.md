@@ -49,6 +49,12 @@ tương ứng và một tệp bằng chứng.
 | 32 | Tám lỗi lập trình làm `reliability_rating` ở mức C, quality gate chặn vì lý do ngoài an toàn | 7 tệp trong `pages/`, `index.php` | SonarQube, `sonarqube/issues.json` của run `40748974200` | CS-07 | Mạnh |
 | 33 | Không có vòng lặp theo dõi lỗ hổng xuất hiện sau ngày phát hành | `.github/workflows/auto-remediate.yml`, `ci/cve_watch.py` | so sánh với mốc cơ sở `sbom/cve-baseline.json` | CS-02, CS-07 | Mạnh |
 
+| 34 | Bí mật đi vào container qua biến môi trường, đọc được bằng `docker inspect` | `docker-compose.yml`, `lib/db.php`, `db/entrypoint.sh` | `ilf-run-04-no-secrets-in-env` | PCI DSS 8.6.2, GDPR 32 | Mạnh |
+| 35 | Quy tắc `CREDENTIALS` báo vi phạm trên chính dạng đúng, vì khóa `DB_PASS_FILE` khớp biểu thức bí mật | `policy/compose_security.rego` | hai test hai chiều trong `compose_security_test.rego` | CS-02 | Đức Anh |
+| 36 | Quyền `0600` của tệp bí mật làm container không đặc quyền không đọc được, MariaDB không khởi động | `ci/make_env.sh` | chạy thật, run `41815649692` | CS-04 | Mạnh |
+| 37 | Profile tuân thủ báo đạt trên một container đã tạo nhưng chưa chạy | `compliance/controls/docker_runtime.rb` | `ilf-run-00-dang-chay` | CS-07 | Đức Anh |
+| 38 | Ảnh `chef/inspec` không có docker CLI, nên sáu control báo lỗi thay vì đánh giá | `.github/workflows/devsecops-gate.yml` | đối chiếu nội dung `ci-13-inspec.txt` với trạng thái bước | CS-07 | Đức Anh |
+
 ## Đợt 2, chưa vá, có chủ đích
 
 Mười điểm chèn mã truy vấn còn lại trong các trang nghiệp vụ:
