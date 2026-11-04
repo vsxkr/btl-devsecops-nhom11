@@ -31,17 +31,24 @@ if hasattr(sys.stdout, "reconfigure"):
 if hasattr(sys.stderr, "reconfigure"):
     sys.stderr.reconfigure(encoding="utf-8")
 
+# LUU Y VE PHAM VI SCOPE, da do duoc:
+# Ban dau scope chi nhan mot dinh danh, dang `\([a-zA-Z0-9_\-\.\/]+\)`. Lich su
+# kho ma nguon da co commit dang `feat(report,telemetry): ...`, tuc quy tac tu
+# choi mot dang ma nhom dang dung that. Mot cong tu choi dau vao hop le cung la
+# mot cong sai, nen bieu thuc duoc mo rong de nhan danh sach scope cach nhau boi
+# dau phay. Bo test o tests/test_policy_guard.py giu ca hai chieu.
+#
 # Quy uoc commit: Conventional Commits
 # Cu phap: <type>(<scope>): <mo ta> hoac <type>: <mo ta>
 # Cho phep merge commit mac dinh cua Git: Merge branch... hoac Merge pull request...
 COMMIT_REGEX = re.compile(
-    r"^(Merge\s.+|Revert\s.+|(release|RELEASE):\s+v[0-9]+\.[0-9]+\.[0-9]+.*|(feat|fix|sec|ci|docs|refactor|test|chore|style|perf|revert|release)(\([a-zA-Z0-9_\-\.\/]+\))?:\s.+)",
+    r"^(Merge\s.+|Revert\s.+|(release|RELEASE):\s+v[0-9]+\.[0-9]+\.[0-9]+.*|(feat|fix|sec|ci|docs|refactor|test|chore|style|perf|revert|release)(\([a-zA-Z0-9_\-\.\/]+(\s*,\s*[a-zA-Z0-9_\-\.\/]+)*\))?:\s.+)",
     re.IGNORECASE,
 )
 
 # Quy uoc PR vao dev: [<ma_nhanh>] <type>(<scope>): <mo ta>
 PR_DEV_REGEX = re.compile(
-    r"^\[(namng|haind|manhdx|anhld|mainp)\]\s+(feat|fix|sec|ci|docs|refactor|test|chore|style|perf|revert)(\([a-zA-Z0-9_\-\.\/]+\))?:\s.+",
+    r"^\[(namng|haind|manhdx|anhld|mainp)\]\s+(feat|fix|sec|ci|docs|refactor|test|chore|style|perf|revert)(\([a-zA-Z0-9_\-\.\/]+(\s*,\s*[a-zA-Z0-9_\-\.\/]+)*\))?:\s.+",
     re.IGNORECASE,
 )
 

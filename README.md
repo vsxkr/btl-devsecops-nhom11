@@ -1,7 +1,9 @@
 # Bài tập lớn DevSecOps, Nhóm 11, M26CQAT01-B
 
 Đánh giá an toàn ứng dụng **InlaneWeb Logistics Portal** theo yêu cầu bảo vệ dữ
-liệu cá nhân, với bốn cổng kiểm soát viết thành mã và chứng minh hai chiều.
+liệu cá nhân, bằng một pipeline năm stage có cổng chặn thật, mọi cổng viết
+thành mã và chứng minh hai chiều, và mọi cổng truy được về một điều khoản chính
+sách của doanh nghiệp.
 
 Giảng viên: TS. Phạm Hoàng Duy. Hạn nộp 31/10/2026.
 
@@ -9,7 +11,9 @@ Giảng viên: TS. Phạm Hoàng Duy. Hạn nộp 31/10/2026.
 
 ```
 app/InlaneWeb/        ung dung duoc danh gia, giu nguyen khiem khuyet lam doi tuong
-policy/              Policy as Code, ba lop, kem unit test cho chinh chinh sach
+policy/              Chinh sach va Policy as Code
+  00-chinh-sach-attt.md       chinh sach ATTT doanh nghiep, CS-01 den CS-08
+  exceptions.json             ngoai le co thoi han, theo CS-08
   docker_security.rego        + _test.rego    lop build
   compose_security.rego       + _test.rego    lop trien khai
   repo_policy.rego            + _test.rego    lop quan tri
@@ -17,6 +21,9 @@ ci/                  Security as Code
   semgrep-policy-php.yml      8 luat P1 den P5 cho PHP
   semgrep-local-rules.yml     2 luat bi mat gan cung
   sonarqube.py, policy_guard.py, semgrep_report.py, validate_configs.py
+  check_branch_payload.py     kiem cau truc phan hoi API truoc khi danh gia
+  check_exceptions.py         thi hanh CS-08, ngoai le het han lam stage 1 do
+  cve_watch.py                theo doi CVE moi sau khi phat hanh
 tests/security/      Test-Driven Security, 6 phep kiem hanh vi
 compliance/          Compliance as Code, 6 control InSpec tren container dang chay
 fixtures/            cap doi chung: ban co y sai va ban da sua, cho tung lop
@@ -24,13 +31,14 @@ patches/             ban va, gom phan chua telemetry
 evidence/            output da luu cua tung lenh kiem chung, co ghi ma thoat
 sbom/                SBOM CycloneDX cua hai anh nen
 .github/workflows/
-  devsecops-gate.yml          day chuyen CO CHAN
+  devsecops-gate.yml          pipeline nam stage, CO CHAN, co stage CD
+  auto-remediate.yml          vong doi quy tac, tu dong mo pull request va CVE
   security-baseline.yml       ghi nhan trang thai, KHONG chan
 docs/demo/           huong dan demo cho tung nguoi (KHONG nop cho thay)
 report/              bao cao nop thay
 ```
 
-## Bốn cổng, bốn lớp khác nhau
+## Năm lớp kiểm soát, năm đối tượng khác nhau
 
 | Cổng | Công cụ | Lớp kiểm | Bắt được loại gì |
 |---|---|---|---|
@@ -39,6 +47,7 @@ report/              bao cao nop thay
 | Test-Driven Security | PHP, socket thô, mysqli | hành vi khi chạy | quyền được xoá không được thực thi, bản xuất lộ thông tin xác thực, phân quyền ngang |
 | Compliance as Code | InSpec qua `docker inspect` | container đang chạy | khoảng lệch giữa cấu hình khai báo và thực tế |
 | Chuỗi cung ứng | Trivy 0.70.0 | ảnh container | CVE của ảnh nền, SBOM |
+| CD, phát hành có xác minh | docker compose, InSpec | môi trường đích sau khi phát hành | sai lệch phát sinh trong chính quá trình phát hành |
 
 ## Trạng thái đo được của hệ thống
 
@@ -46,7 +55,7 @@ report/              bao cao nop thay
 |---|---|---|---|
 | Build | hai Dockerfile | 8 | 2 |
 | Triển khai | ba tệp compose | 31 | 11 |
-| Quản trị | nhánh `main` và `dev` | 2 | 0 |
+| Quản trị | nhánh `main` | 1 trước khi bật bảo vệ nhánh, 0 sau khi bật | 0 |
 | Mã nguồn | 23 tệp PHP | 36 phát hiện | |
 | Chuỗi cung ứng | hai ảnh nền | 145 CVE mức HIGH và CRITICAL | |
 
@@ -62,7 +71,7 @@ tương ứng trong `evidence/`, mỗi tệp ghi lệnh đã chạy, kết quả
 | Quản trị | 1 lỗi, exit 1 | 0 lỗi, exit 0 |
 | Mã PHP | 8 phát hiện, exit 1 | 0 phát hiện, exit 0 |
 
-## Hai cái bẫy mọi người phải biết
+## Ba cái bẫy mọi người phải biết
 
 **Thiếu `--namespace`** thì Conftest in `0 tests, 0 failures` và trả mã thoát 0, tức
 cổng xanh trong khi không đánh giá gì. Xem `evidence/05`.
@@ -70,7 +79,13 @@ cổng xanh trong khi không đánh giá gì. Xem `evidence/05`.
 **Thiếu `--error` cho Semgrep hoặc `--exit-code 1` cho Trivy** thì công cụ chỉ báo
 cáo: 36 phát hiện vẫn exit 0, 119 CVE vẫn exit 0. Xem `evidence/17` và `evidence/23`.
 
-Dây chuyền `devsecops-gate.yml` có một bước kiểm riêng để bảo đảm không cổng nào
+**Thiếu `shell: bash` cho một bước có dấu pipe** thì mã thoát của cả chuỗi lệnh là
+mã thoát của `tee` và luôn bằng 0. Ba cổng stage 1 và hai cổng stage 4 từng báo
+thành công trong khi tệp kết quả của chính chúng chứa dòng FAIL, trong run
+`40748974196` và `40748974200`. Sau khi sửa, cùng mã nguồn cho kết quả trái
+ngược trong run `41810794218`. Xem bao cao muc 4.2.
+
+Pipeline `devsecops-gate.yml` có một bước kiểm riêng để bảo đảm không cổng nào
 chạy ở trạng thái 0 test.
 
 ## Chạy toàn bộ

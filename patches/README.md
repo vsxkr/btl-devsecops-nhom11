@@ -31,6 +31,24 @@ tương ứng và một tệp bằng chứng.
 | 21 | Cổng chất lượng bị tắt bằng biểu thức luôn cho `false` | `.github/workflows/devsecops-gate.yml` | so sánh mã thoát | GDPR 32 | Nam |
 | 22 | Kết thúc dòng CRLF làm container không khởi động được trên Windows | `.gitattributes` | chạy thật | nguyên tắc tái lập | Nam |
 
+## Đợt 1b, đã vá, phần cổng và cấu hình triển khai
+
+Đợt này sinh ra từ một phát hiện về chính cơ chế kiểm soát, không về ứng dụng.
+
+| # | Khiếm khuyết | Tệp | Cổng phát hiện | Điều khoản | Chủ sở hữu |
+|---|---|---|---|---|---|
+| 23 | Năm bước có dấu pipe mất mã thoát, nên ba cổng stage 1 và hai cổng stage 4 báo thành công trong khi tệp kết quả chứa dòng FAIL | `.github/workflows/devsecops-gate.yml` | đối chiếu trạng thái bước với nội dung tệp kết quả | CS-07 | Nam |
+| 24 | Vòng lặp đọc nhánh `dev` không tồn tại, Conftest kết luận trên một đối tượng rỗng | cùng tệp trên | `ci/check_branch_payload.py` | CS-07 | Nam |
+| 25 | `validate_push_event()` không chặn đẩy trực tiếp vào nhánh phát hành | `ci/policy_guard.py` | ba kịch bản trong `evidence/20-policy-guard-cs01.txt` | CS-01 | Nam |
+| 26 | Hook `commit-msg` trả về 0 khi máy không có Python, tức bỏ qua kiểm tra mà vẫn báo thành công | `.githooks/commit-msg` | chạy thật trên máy không có Python | CS-07 | Nam |
+| 27 | Không có cơ chế ngoại lệ có thời hạn, nên mọi miễn trừ là ngầm định | `policy/exceptions.json`, `ci/check_exceptions.py` | cổng kiểm thời hạn ở stage 1 | CS-08 | Nam |
+| 28 | `paths.include` không phủ `docker-compose.prod.yml` và `docker-compose.monitoring.yml` | `ci/semgrep-local-rules.yml` | so sánh số vi phạm trước và sau khi mở rộng phạm vi | CS-02 | Đức Anh |
+| 29 | Chín vi phạm trên tệp compose của môi trường thật: bí mật dạng hằng, tài khoản `root`, thiếu `cap_drop` và `no-new-privileges`, ảnh dùng thẻ `latest` | `app/InlaneWeb/docker-compose.prod.yml` | `compose_security.rego` | CS-02, CS-04, CS-06 | Đức Anh |
+| 30 | Cụm giám sát dùng bản chưa vá, và mật khẩu Grafana có giá trị dự phòng `admin` | `app/InlaneWeb/docker-compose.monitoring.yml` | `compose_security.rego` | CS-02, CS-04 | Mai |
+| 31 | Quy tắc bí mật dự phòng chỉ bắt `getenv('DB_PASS') ?:`, bỏ sót `??`, `$_ENV` và `$_SERVER` | `ci/semgrep-local-rules.yml` | cặp fixture hai chiều | CS-04 | Mạnh |
+| 32 | Tám lỗi lập trình làm `reliability_rating` ở mức C, quality gate chặn vì lý do ngoài an toàn | 7 tệp trong `pages/`, `index.php` | SonarQube, `sonarqube/issues.json` của run `40748974200` | CS-07 | Mạnh |
+| 33 | Không có vòng lặp theo dõi lỗ hổng xuất hiện sau ngày phát hành | `.github/workflows/auto-remediate.yml`, `ci/cve_watch.py` | so sánh với mốc cơ sở `sbom/cve-baseline.json` | CS-02, CS-07 | Mạnh |
+
 ## Đợt 2, chưa vá, có chủ đích
 
 Mười điểm chèn mã truy vấn còn lại trong các trang nghiệp vụ:

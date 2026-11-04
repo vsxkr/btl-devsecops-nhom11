@@ -58,6 +58,12 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+      - name: Kiem chinh cong truoc khi dung lam cong
+        # Cung nguyen tac voi `conftest verify` o job ben canh: bo test cua chinh
+        # quy tac phai dat TRUOC khi quy tac duoc dung de chan bat ky thu gi. Bo
+        # test giu ca hai chieu, ke ca chieu "dang hop le phai duoc chap nhan".
+        run: python3 tests/test_policy_guard.py
+
       - name: Kiem quy uoc dat ten commit va PR
         run: python3 ci/policy_guard.py
 
@@ -334,20 +340,43 @@ jobs:
         shell: bash
         run: ./trivy fs --scanners secret --no-progress app/ | tee evidence/ci-09-trivy-secret.txt
 
+      - name: Ghi lai nhung lo hong duoc mien tru va thoi han
+        shell: bash
+        run: |
+          mkdir -p evidence
+          {
+            echo "Ngoai le co thoi han cho cong CVE, theo dieu khoan CS-08."
+            echo "Qua ngay expired_at, Trivy dua lo hong tro lai va cong chan tiep."
+            echo
+            cat .trivyignore.yaml
+          } | tee evidence/ci-10b-trivy-ignore.txt
+
       - name: Cong CVE, chan khi co CRITICAL
         # Hai deck cua mon hoc ghi "builds fail on High CVEs". --exit-code 1 la
         # bat buoc; khong co no thi Trivy tra 0 du co 119 lo hong.
+        #
+        # Chay HAI LAN cho moi anh. Lan thu nhat KHONG dung tep mien tru, de ho
+        # so bang chung ghi lai day du trang thai that cua anh nen. Lan thu hai
+        # moi la cong, va co dung tep mien tru. Neu chi chay lan thu hai thi
+        # bang chung khong con cho nao the hien nhung gi da duoc mien.
         shell: bash
         run: |
           set +e
-          ./trivy image --quiet --severity CRITICAL --exit-code 1 php:8.2-apache \
+          ./trivy image --quiet --severity CRITICAL php:8.2-apache \
             | tee evidence/ci-10-trivy-cve-web.txt
-          WEB_RC=${PIPESTATUS[0]}
-          ./trivy image --quiet --severity CRITICAL --exit-code 1 mariadb:10.11 \
+          ./trivy image --quiet --severity CRITICAL mariadb:10.11 \
             | tee evidence/ci-11-trivy-cve-db.txt
+
+          ./trivy image --quiet --severity CRITICAL --exit-code 1 \
+            --ignorefile .trivyignore.yaml php:8.2-apache \
+            | tee evidence/ci-10c-trivy-cve-web-sau-mien-tru.txt
+          WEB_RC=${PIPESTATUS[0]}
+          ./trivy image --quiet --severity CRITICAL --exit-code 1 \
+            --ignorefile .trivyignore.yaml mariadb:10.11 \
+            | tee evidence/ci-11c-trivy-cve-db-sau-mien-tru.txt
           DB_RC=${PIPESTATUS[0]}
           set -e
-          echo "php:8.2-apache exit=$WEB_RC | mariadb:10.11 exit=$DB_RC"
+          echo "sau mien tru: php:8.2-apache exit=$WEB_RC | mariadb:10.11 exit=$DB_RC"
           [ "$WEB_RC" -eq 0 ] && [ "$DB_RC" -eq 0 ]
 
       - uses: actions/upload-artifact@v4
@@ -412,6 +441,15 @@ jobs:
           mkdir -p evidence
           echo "moc ma nguon truoc phat hanh: ${GITHUB_SHA}" | tee evidence/ci-14-cd-rollback-point.txt
           git rev-parse HEAD~1 2>/dev/null | tee -a evidence/ci-14-cd-rollback-point.txt || true
+
+      - name: Sinh bi mat cho moi truong dich
+        shell: bash
+        run: |
+          # Compose doc bi mat tu bien moi truong, khong co gia tri du phong dang
+          # hang (dieu khoan CS-04). Khong co tep .env thi Compose thay bang chuoi
+          # rong va MariaDB tu choi khoi dong, dung nhu thiet ke fail-closed.
+          # Moi truong dich tam nay dung bi mat sinh ngau nhien cho tung lan chay.
+          bash ci/make_env.sh app/InlaneWeb/.env
 
       - name: Phat hanh len moi truong dich
         id: deploy

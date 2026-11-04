@@ -1,0 +1,49 @@
+# =============================================================================
+# Ngoai le co thoi han cho cong CVE, theo dieu khoan CS-08.
+#
+# Ba lo hong duoi day nam trong ANH NEN cua ben thu ba, khong nam trong ma nguon
+# cua nhom, va tai thoi diem danh gia khong co anh nen nao vua con ho tro vua
+# khong chua chung. Mien tru la quyet dinh co ho so, khong phai viec tat cong.
+#
+# Co che tu thu hoi: Trivy doc truong `expired_at`. Qua ngay do, lo hong quay
+# lai danh sach va cong CVE chan tro lai ma khong can ai can thiep. Day la cung
+# mot co che voi policy/exceptions.json, chi khac cong thi hanh.
+#
+# Moi muc phai tra loi duoc ba cau: lo hong co ban va chua, ung dung co dung
+# duong ma lo hong di qua khong, va neu khong va duoc thi han den khi nao.
+#
+# Nguon so lieu: evidence/ci-10-trivy-cve-web.txt va ci-11-trivy-cve-db.txt
+# cua run 41812598120.
+# =============================================================================
+vulnerabilities:
+  - id: CVE-2026-6653
+    statement: >-
+      libxml2 trong php:8.2-apache, muc CRITICAL, tu choi dich vu. Debian 13
+      chua phat hanh ban va cho goi nay, trang thai Trivy ghi la "affected"
+      chu khong phai "fixed", nen khong co duong va bang cach nang goi.
+      InlaneWeb khong phan tich tai lieu XML tu nguon khong tin cay: toan bo
+      dau vao di qua truy van SQL va bieu mau HTML. Duong ma lo hong di qua
+      khong duoc ung dung dung den.
+      Nguoi phe duyet: Dao Xuan Manh, B26CHAT026.
+    expired_at: 2026-12-31
+
+  - id: CVE-2026-99083
+    statement: >-
+      Goi linux-libc-dev trong php:8.2-apache, muc CRITICAL, loi ghi ngoai
+      vung bo nho trong ksmbd cua kernel. Goi nay chi chua tep tieu de cua
+      kernel, khong chua ma thuc thi; kernel dang chay la kernel cua may chu
+      chu khong phai cua container. Dich vu ksmbd cung khong duoc bat trong
+      container. Day la mot phat hien dung ve goi nhung khong tuong ung voi
+      mot duong khai thac trong container.
+      Nguoi phe duyet: Dao Xuan Manh, B26CHAT026.
+    expired_at: 2026-12-31
+
+  - id: CVE-2025-68121
+    statement: >-
+      Thu vien chuan Go trong mot tep thuc thi cua anh mariadb:10.11, muc
+      CRITICAL, xac thuc chung chi TLS khong dung. Ban va nam o Go 1.24.13 tro
+      len, tuc phai cho ben phat hanh anh nen dung lai bang Go moi. InlaneWeb
+      khong dung TLS giua ung dung va co so du lieu: hai container noi voi nhau
+      qua mang noi bo cua Compose, khong cong bo cong ra ngoai may chu.
+      Nguoi phe duyet: Dao Xuan Manh, B26CHAT026.
+    expired_at: 2026-12-31
