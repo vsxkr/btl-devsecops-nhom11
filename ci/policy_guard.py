@@ -170,7 +170,7 @@ def validate_release_branch_push(event_data: dict, ref: str) -> int:
         f"Day truc tiep vao nhanh phat hanh '{branch}' vi pham dieu khoan CS-01.\n"
         "Moi thay doi vao nhanh phat hanh phai di qua pull request co nguoi phe duyet.\n"
         "Neu day la truong hop bat buoc, phai ghi mot ngoai le co thoi han trong "
-        "policy/exceptions.json voi du bon truong: clause, branch, reason, approved_by, expires."
+        "policy/exceptions.json voi du nam truong: clause, branch, reason, approved_by, expires."
     )
     print("\n" + LINE, file=sys.stderr)
     print("[LOI] VI PHAM CHINH SACH DUA MA VAO NHANH PHAT HANH", file=sys.stderr)

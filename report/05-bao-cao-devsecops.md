@@ -1,6 +1,6 @@
 # BÁO CÁO BÀI TẬP LỚN HỌC PHẦN DEVSECOPS
 
-**Đề tài:** Đánh giá an toàn ứng dụng và bảo vệ dữ liệu người dùng trên dây chuyền DevSecOps CI/CD của hệ thống InlaneWeb Logistics
+**Đề tài:** Đánh giá an toàn ứng dụng và bảo vệ dữ liệu người dùng trên pipeline DevSecOps CI/CD của hệ thống InlaneWeb Logistics
 
 | | |
 | :--- | :--- |
@@ -20,11 +20,11 @@
 
 | TT | Họ và tên | Mã học viên | Vấn đề an toàn phụ trách | Nhóm |
 | :---: | :--- | :--- | :--- | :--- |
-| 1 | Nguyễn Giang Nam (trưởng nhóm) | *(cần điền)* | Thiếu kiểm soát thay đổi mã nguồn | Quy trình |
-| 2 | Nguyễn Đình Hải | *(cần điền)* | Tiêm mã SQL làm lộ dữ liệu cá nhân | Mã nguồn |
+| 1 | Nguyễn Giang Nam (trưởng nhóm) | B26CHAT030 | Thiếu kiểm soát thay đổi mã nguồn | Quy trình |
+| 2 | Nguyễn Đình Hải | B26CHAT010 | Tiêm mã SQL làm lộ dữ liệu cá nhân | Mã nguồn |
 | 3 | Đào Xuân Mạnh | B26CHAT026 | Mật khẩu dạng rõ và bí mật gán cứng | Mã nguồn |
-| 4 | Lê Đức Anh | *(cần điền)* | Cấu hình triển khai mất an toàn | Triển khai |
-| 5 | Nguyễn Phương Mai | *(cần điền)* | Rò rỉ dữ liệu qua đường nhật ký | Vận hành |
+| 4 | Lê Đức Anh | B26CHAT003 | Cấu hình triển khai mất an toàn | Triển khai |
+| 5 | Nguyễn Phương Mai | B26CHAT025 | Rò rỉ dữ liệu qua luồng nhật ký | Vận hành |
 
 ---
 
@@ -40,7 +40,7 @@
 | OWASP | Open Worldwide Application Security Project | Tổ chức về an toàn ứng dụng web |
 | SQLi | SQL Injection | Tiêm mã truy vấn SQL |
 | XSS | Cross-Site Scripting | Chèn mã kịch bản liên trang |
-| PR | Pull Request | Yêu cầu hợp nhất nhánh mã nguồn |
+| PR | Pull Request | Pull request nhánh mã nguồn |
 | GDPR | General Data Protection Regulation | Quy định bảo vệ dữ liệu chung của Liên minh châu Âu |
 | NĐ 13 | | Nghị định 13/2023/NĐ-CP về bảo vệ dữ liệu cá nhân |
 | DLCN | Personal Data | Dữ liệu cá nhân |
@@ -50,22 +50,22 @@
 
 # MỞ ĐẦU
 
-**Bối cảnh và lý do chọn đề tài.** Khi một nhóm phát triển chuyển sang mô hình phát hành liên tục, khâu kiểm định an toàn theo lối cũ, tức rà soát thủ công một lần trước khi phát hành, không còn theo kịp tốc độ. Mỗi ngày có thể có vài lần hợp nhất mã nguồn, trong khi một đợt rà soát thủ công mất nhiều ngày. Hệ quả là khâu an toàn hoặc trở thành nút thắt làm chậm cả dây chuyền, hoặc bị bỏ qua.
+**Bối cảnh và lý do chọn đề tài.** Khi chuyển sang mô hình phát hành liên tục, kiểm định an toàn truyền thống bằng rà soát thủ công không còn đáp ứng kịp tốc độ phát triển. Mã nguồn có thể hợp nhất nhiều lần mỗi ngày, trong khi rà soát thủ công kéo dài nhiều ngày. Hệ quả là an toàn dễ trở thành điểm nghẽn làm chậm pipeline, hoặc bị bỏ qua.
 
-Mô hình DevSecOps giải quyết mâu thuẫn này bằng cách đưa việc kiểm tra an toàn vào chính dây chuyền tự động, ở mọi chặng. Nguyên tắc cốt lõi là phát hiện lỗi ở chặng nào thì dây chuyền phải dừng ngay tại chặng đó.
+DevSecOps giải quyết mâu thuẫn này nhờ tích hợp kiểm tra an toàn vào pipeline tự động tại mọi stage: phát hiện lỗi ở stage nào, pipeline dừng ngay tại stage đó.
 
-Đề tài không dừng ở việc mô tả một dây chuyền đã dựng. Nhóm đặt câu hỏi ngược lại: dây chuyền nhóm đã dựng có thực sự dừng khi gặp lỗi không, và những dữ liệu cá nhân nào của người dùng thực sự được bảo vệ. Quá trình kiểm chứng cho hai kết quả đáng chú ý, trình bày ở Chương 3. Bản dây chuyền đầu tiên của nhóm để cổng chất lượng báo lỗi mà vẫn không dừng dây chuyền; nhóm đã tìm ra, sửa lại cho cổng chặn thật, và xác nhận bằng hai lần chạy tự động đều dừng đúng tại cổng. Cùng với đó, bản SonarQube Community trong dây chuyền báo mức an toàn A và không lỗ hổng nào trên cả mã khiếm khuyết lẫn mã đã vá, trong khi Semgrep tìm ra hàng chục vị trí tiêm mã. Việc tự tìm ra và phân tích các khiếm khuyết này có giá trị thực tiễn cao hơn một bản mô tả không có phản biện.
+Không chỉ mô tả pipeline đã thiết lập, đề tài kiểm chứng pipeline có thực sự dừng khi gặp lỗi và mức độ bảo vệ dữ liệu cá nhân. Chương 3 ghi nhận hai kết quả thực nghiệm: ban đầu, quality gate báo lỗi nhưng pipeline không dừng; nhóm đã tìm nguyên nhân, hiệu chỉnh chặn lỗi, và xác nhận qua hai run tự động đều dừng chính xác tại quality gate. Đồng thời, SonarQube Community trong pipeline đánh giá an toàn mức A, không ghi nhận lỗ hổng trên cả mã khiếm khuyết lẫn mã đã vá, trong khi Semgrep phát hiện hàng chục vị trí tiêm mã. Kiểm chứng thực nghiệm xác thực được hiệu lực thực tế của từng cổng kiểm soát.
 
-**Mục tiêu và phạm vi.** Mục tiêu tổng quát là đánh giá mức độ an toàn của ứng dụng InlaneWeb Logistics dưới góc độ bảo vệ dữ liệu người dùng, trên toàn bộ vòng đời từ viết mã đến vận hành. Bốn mục tiêu cụ thể gồm:
+**Mục tiêu và phạm vi.** Đề tài đánh giá mức độ an toàn của ứng dụng InlaneWeb Logistics về bảo vệ dữ liệu người dùng từ viết mã đến vận hành, với bốn mục tiêu cụ thể:
 
-- Mô tả ứng dụng và phân tích hai nghiệp vụ có xử lý dữ liệu cá nhân.
-- Mô tả môi trường triển khai và đối chiếu với các yêu cầu an toàn tối thiểu.
-- Mỗi thành viên xác định một vấn đề an toàn, trình bày cách phát hiện, cách xử lý, chính sách bị vi phạm, pha DevSecOps tương ứng, kèm minh chứng Policy as Code hoặc Security as Code và mã nguồn khắc phục.
-- Chỉ ra những khiếm khuyết mà công cụ tự động không phát hiện được, kèm lý giải nguyên nhân.
+- Mô tả ứng dụng và hai nghiệp vụ xử lý dữ liệu cá nhân.
+- Đối chiếu môi trường triển khai theo yêu cầu an toàn tối thiểu.
+- Mỗi thành viên chọn một vấn đề an toàn: cách phát hiện, xử lý, chính sách vi phạm, phase DevSecOps, minh chứng Policy as Code hoặc Security as Code và mã khắc phục.
+- Phân tích nguyên nhân khiếm khuyết công cụ tự động bỏ sót.
 
-Phạm vi khảo sát là kho mã `btl-devsecops-nhom11` tại hai nhánh: `main` ở mốc `94004f3` là hệ thống còn khiếm khuyết, và `patched` ở mốc `0c9cdfd` là bản đã vá. Kết quả quét của mỗi nhánh lấy từ một lần chạy GitHub Actions riêng, mã số `40748974196` cho `main` và `40748974200` cho `patched`.
+Báo cáo khảo sát kho mã nguồn `btl-devsecops-nhom11` trên hai nhánh: `main` (commit `94004f3`, hệ thống khiếm khuyết) và `patched` (commit `0c9cdfd`, phiên bản đã vá). Kết quả quét mỗi nhánh lấy từ run GitHub Actions riêng biệt: `40748974196` cho `main` và `40748974200` cho `patched`.
 
-**Phương pháp và nguồn minh chứng.** Nhóm sử dụng ba nguồn minh chứng độc lập và chỉ khẳng định một nội dung khi có ít nhất một nguồn chứng minh được: mã nguồn đọc trực tiếp với mọi số dòng lấy từ tệp thật trong kho, tệp kết quả SonarQube và Semgrep tải từ phần Artifacts của hai lần chạy `40748974196` và `40748974200`, và trạng thái mỗi lần chạy xem trực tiếp trên trang GitHub Actions của kho mã. Khi các nguồn mâu thuẫn nhau, báo cáo ghi nhận mâu thuẫn thay vì chọn một bên, trường hợp cụ thể trình bày ở mục Kết quả quét thực tế của Chương 3.
+**Phương pháp và nguồn minh chứng.** Nhóm dựa vào ba nguồn độc lập và chỉ khẳng định khi có ít nhất một nguồn chứng minh: mã nguồn đối chiếu số dòng từ tệp thực tế; tệp kết quả SonarQube và Semgrep tải từ mục Artifacts của hai run `40748974196` và `40748974200`; trạng thái từng run kiểm tra trên GitHub Actions. Khi dữ liệu mâu thuẫn, báo cáo ghi nhận sự bất đồng thay vì thiên lệch, thể hiện rõ tại mục Kết quả quét thực tế của Chương 3.
 
 ---
 
@@ -73,9 +73,9 @@ Phạm vi khảo sát là kho mã `btl-devsecops-nhom11` tại hai nhánh: `main
 
 ## 1.1 Giới thiệu ứng dụng
 
-InlaneWeb Logistics là cổng thông tin vận tải biển, phục vụ ba nhóm người dùng: khách hàng tra cứu vận đơn của mình, nhân viên cập nhật trạng thái đơn hàng, và quản trị viên xem báo cáo tổng hợp. Ứng dụng viết bằng PHP 8.2 chạy trên Apache, cơ sở dữ liệu MariaDB 10.11, đóng gói bằng Docker. Mã nguồn tổ chức theo mô hình front controller: toàn bộ yêu cầu đi qua `InlaneWeb/web/src/index.php` rồi phân tuyến tới các trình xử lý trong thư mục `pages`. Thư mục `lib` chứa hai thư viện dùng chung là `db.php` lo truy vấn cơ sở dữ liệu và `layout.php` lo dựng giao diện.
+InlaneWeb Logistics là cổng thông tin vận tải biển phục vụ ba nhóm người dùng: khách hàng tra cứu vận đơn, nhân viên cập nhật đơn hàng và quản trị viên theo dõi báo cáo. Ứng dụng dùng PHP 8.2 trên máy chủ Apache, CSDL MariaDB 10.11 và triển khai bằng Docker. Mã nguồn theo kiến trúc front controller: mọi yêu cầu qua `InlaneWeb/web/src/index.php` đều phân tuyến tới các trình xử lý trong `pages`. Thư mục `lib` gồm hai thư viện: `db.php` truy vấn cơ sở dữ liệu và `layout.php` kết xuất giao diện.
 
-Cần nêu rõ ngay từ đầu rằng đây là ứng dụng huấn luyện được cố ý cài lỗ hổng để phục vụ việc học kỹ thuật tiêm mã SQL. Điều này được ghi công khai trong mã nguồn: `lib/db.php:5-8` chú thích "CO Y DE LO", và giao diện có dải băng "INTENTIONALLY VULNERABLE, TRAINING ONLY" tại `lib/layout.php:25`. Ý nghĩa của ranh giới này đối với kết quả đánh giá được phân tích tại mục cuối Chương 2.
+Ứng dụng phục vụ huấn luyện, cài sẵn lỗ hổng để thực hành tiêm mã SQL. Điều này thể hiện qua chú thích "CO Y DE LO" tại `lib/db.php:5-8` và biểu ngữ "INTENTIONALLY VULNERABLE, TRAINING ONLY" trên giao diện tại `lib/layout.php:25`. Tác động của ranh giới thực nghiệm tới kết quả đánh giá được phân tích ở cuối Chương 2.
 
 *Bảng: Các tuyến đường chính của ứng dụng*
 
@@ -90,27 +90,27 @@ Cần nêu rõ ngay từ đầu rằng đây là ứng dụng huấn luyện đ�
 
 ## 1.2 Mô hình dữ liệu và phân loại mức độ nhạy cảm
 
-Hệ thống tạo hai cơ sở dữ liệu tại `InlaneWeb/db/init.sql`. Cơ sở dữ liệu `ilfreight` phục vụ nghiệp vụ, gồm năm bảng `users`, `ports`, `shipments`, `comments` và `news`. Cơ sở dữ liệu `dev` gồm hai bảng `credentials` và `flags`. Việc đặt hai cơ sở dữ liệu trên cùng một máy chủ và truy cập bằng cùng một tài khoản có ý nghĩa an toàn trực tiếp, vì một lỗi tiêm mã SQL ở ứng dụng nghiệp vụ cho phép đọc sang cơ sở dữ liệu `dev`.
+Tệp `app/InlaneWeb/db/init.sql.template` khởi tạo hai cơ sở dữ liệu: `ilfreight` nghiệp vụ gồm năm bảng `users`, `ports`, `shipments`, `comments`, `news`; và `dev` gồm hai bảng `credentials`, `flags`. Việc đặt chung máy chủ và chia sẻ tài khoản truy cập gây rủi ro an toàn trực tiếp, do lỗ hổng tiêm mã SQL từ ứng dụng nghiệp vụ cho phép truy xuất trái phép sang `dev`.
 
 *Bảng: Phân loại dữ liệu theo mức độ nhạy cảm*
 
 | Bảng và trường | Phân loại theo NĐ 13 | Ghi chú hiện trạng |
 | :--- | :--- | :--- |
 | `users.username`, `users.email` | DLCN cơ bản | |
-| `users.password` | Thông tin xác thực | Lưu dạng rõ, xem `init.sql:26` và `:34-38` |
+| `users.password` | Thông tin xác thực | Lưu dạng rõ tại `init.sql.template:26`, `:34-38` |
 | `users.api_key` | Thông tin xác thực | Hiển thị thẳng trên trang hồ sơ tại `account.php:20` |
 | `users.remember_token` | Thông tin xác thực | Khai báo tại `init.sql:30`, chưa dùng trong mã |
 | `shipments.customer_id` | DLCN cơ bản, gián tiếp | Ranh giới phân quyền giữa các khách hàng |
 | `comments.content` | Do người dùng cung cấp | |
 | `dev.credentials` | Thông tin xác thực | Băm bằng MD5, xem `init.sql:120` |
 
-Trọng tâm cần bảo vệ của hệ thống là nhóm thông tin xác thực, gồm mật khẩu, khóa API và thẻ phiên. Nếu nhóm dữ liệu này bị lộ, kẻ tấn công có thể mạo danh người dùng và từ đó truy cập toàn bộ dữ liệu cá nhân còn lại.
+Trọng tâm bảo vệ là thông tin xác thực gồm mật khẩu, khóa API và thẻ phiên. Khi lộ lọt, kẻ tấn công có thể mạo danh người dùng truy cập mọi dữ liệu cá nhân còn lại.
 
 ## 1.3 Nghiệp vụ thứ nhất: xác thực và quản lý phiên người dùng
 
 ### 1.3.1 Luồng xử lý hiện tại
 
-Người dùng gửi biểu mẫu `POST /login` với hai trường `username` và `password`. Trình xử lý thực hiện như sau:
+Người dùng gửi biểu mẫu qua `POST /login` với hai trường `username` và `password`. Quy trình xử lý như sau:
 
 ```php
 // pages/login.php:14-29
@@ -129,7 +129,7 @@ if ($row) {
 }
 ```
 
-Nếu truy vấn trả về một bản ghi, định danh người dùng được ghi vào `$_SESSION['uid']`. Ở mỗi yêu cầu sau đó, hàm `current_user()` tại `lib/layout.php:4-11` đọc lại bản ghi người dùng từ cơ sở dữ liệu theo giá trị `uid` trong phiên. Thao tác đăng xuất gọi `session_destroy()` tại `pages/logout.php:3`. Đối chiếu luồng này với yêu cầu tối thiểu của một cơ chế xác thực cho thấy bốn điểm còn thiếu.
+Khi truy vấn trả về bản ghi hợp lệ, mã người dùng được lưu vào `$_SESSION['uid']`. Trong các yêu cầu kế tiếp, hàm `current_user()` tại `lib/layout.php:4-11` truy vấn lại người dùng từ CSDL theo `uid` phiên. Thao tác đăng xuất gọi hàm `session_destroy()` tại `pages/logout.php:3`. Đối chiếu luồng này với yêu cầu xác thực tối thiểu bộc lộ bốn điểm thiếu sót.
 
 ### 1.3.2 Đối chiếu với yêu cầu của một luồng xác thực đúng
 
@@ -142,15 +142,15 @@ Nếu truy vấn trả về một bản ghi, định danh người dùng đượ
 | Tái sinh định danh phiên sau khi đăng nhập thành công | Không gọi `session_regenerate_id()` | `login.php:22-26` |
 | Cookie phiên phải đặt cờ `HttpOnly` | Đặt `session.cookie_httponly = Off` | `web/php.ini:12` |
 
-Ba điểm đầu thuộc phần việc của thành viên 2 và thành viên 3, được phân tích tại Chương 4. Điểm thứ tư cho phép mã kịch bản phía trình duyệt đọc được cookie phiên, khiến một lỗi XSS bất kỳ có thể chuyển thành chiếm phiên người dùng.
+Ba thiếu sót đầu do thành viên 2 và thành viên 3 phân tích ở Chương 4. Thiếu sót thứ tư cho phép mã phía client truy cập cookie phiên, biến mọi lỗ hổng XSS thành nguy cơ chiếm đoạt phiên người dùng.
 
-Một lần đăng nhập làm mật khẩu dạng rõ đi qua bốn vị trí: thân yêu cầu HTTP, biến `$_POST`, chuỗi câu lệnh SQL tại `login.php:19`, và đường nhật ký nếu truy vấn thất bại. Đây là chuỗi lan truyền dài hơn mức cần thiết. Nếu dùng truy vấn tham số hóa và băm mật khẩu, mật khẩu dạng rõ sẽ không bao giờ xuất hiện trong chuỗi câu lệnh.
+Khi đăng nhập, mật khẩu dạng rõ xuất hiện ở bốn điểm: thân yêu cầu HTTP, biến `$_POST`, câu lệnh SQL tại `login.php:19` và nhật ký lỗi truy vấn. Chuỗi lan truyền dài làm tăng rủi ro lộ lọt. Truy vấn tham số hóa kết hợp băm mật khẩu sẽ ngăn mật khẩu dạng rõ xuất hiện trong câu lệnh.
 
 ## 1.4 Nghiệp vụ thứ hai: tra cứu vận đơn và bình luận đơn hàng
 
 ### 1.4.1 Luồng xử lý
 
-Khách hàng đã đăng nhập mở `/account` để xem danh sách vận đơn của mình, danh sách được lọc theo `customer_id`:
+Sau đăng nhập, khách hàng vào tuyến `/account` xem danh sách vận đơn cá nhân lọc theo `customer_id`:
 
 ```php
 // pages/account.php:39-42
@@ -159,638 +159,630 @@ $sql = "SELECT tracking_no, port_code, status FROM shipments WHERE customer_id =
      . intval($u['id']) . " ORDER BY $order";
 ```
 
-Từ danh sách, khách hàng mở `/shipments/{id}` để xem chi tiết và các bình luận, rồi gửi bình luận mới qua `POST /shipments/{id}/comments`. Tuyến thêm bình luận khai báo tại `index.php:116-119`, tuyến xóa bình luận tại `index.php:124-127`. Ngoài ra, tuyến `/api/track?tracking=...` tại `index.php:109` trả về trạng thái vận đơn dưới dạng JSON, phục vụ tra cứu công khai không cần đăng nhập.
+Khách hàng truy cập `/shipments/{id}` để xem chi tiết và gửi bình luận qua yêu cầu `POST /shipments/{id}/comments`. Tuyến tiếp nhận và xóa bình luận lần lượt nằm tại `index.php:116-119` và `index.php:124-127`. Ngoài ra, tuyến `/api/track?tracking=...` tại `index.php:109` trả về trạng thái vận đơn dạng JSON, hỗ trợ tra cứu công khai không cần đăng nhập.
 
 ### 1.4.2 Ranh giới phân quyền và điểm yếu
 
-Ranh giới phân quyền thứ nhất nằm giữa các khách hàng, theo đó khách hàng A không được xem vận đơn của khách hàng B. Ranh giới này cài đặt đúng ở `/account` nhờ mệnh đề `WHERE customer_id = intval($u['id'])`. Tuy nhiên tham số sắp xếp `$order` lại nối thẳng vào mệnh đề `ORDER BY`, nên một giá trị `?order=` dựng khéo cho phép đọc dữ liệu ngoài phạm vi mệnh đề `WHERE`. Semgrep ghi nhận đúng luồng này, nguồn tại `account.php:39` và điểm thực thi tại `account.php:41`.
+Ranh giới phân quyền thứ nhất giữa các khách hàng nhằm đảm bảo khách hàng A không xem được vận đơn của khách hàng B. Tuyến `/account` đã cài đặt đúng qua `WHERE customer_id = intval($u['id'])`. Tuy nhiên, tham số `$order` nối trực tiếp vào `ORDER BY`, khiến giá trị `?order=` có chủ đích có thể truy xuất dữ liệu ngoài phạm vi `WHERE`. Semgrep ghi nhận luồng này với nguồn tại `account.php:39` và điểm thực thi tại `account.php:41`.
 
-Ranh giới phân quyền thứ hai nằm giữa người viết và người xóa bình luận. Tuyến xóa tại `pages/comment_delete.php:18` xây dựng câu lệnh `DELETE FROM comments WHERE id = $comment_id` mà không kiểm tra bình luận có thuộc về người đang đăng nhập hay không, đồng thời không ràng buộc kiểu dữ liệu của `$comment_id`.
+Ranh giới phân quyền thứ hai nằm giữa người viết và người xóa bình luận. Tuyến xóa tại `pages/comment_delete.php:18` dùng `DELETE FROM comments WHERE id = $comment_id` nhưng không kiểm tra quyền sở hữu của người đăng nhập, đồng thời không ràng buộc kiểu dữ liệu cho `$comment_id`.
 
-Tuyến `/api/track` không yêu cầu đăng nhập nhưng trả về trạng thái vận đơn theo mã tra cứu. Thiết kế này chấp nhận được nếu mã vận đơn đủ khó đoán, nhưng với dữ liệu mẫu hiện tại từ `ILF1042CN` đến `ILF1046US` tại `init.sql:70-75` thì mã có quy luật rõ ràng và có thể duyệt tuần tự.
+Tuyến `/api/track` trả về trạng thái vận đơn mà không yêu cầu đăng nhập. Thiết kế này chỉ an toàn nếu mã khó đoán; dữ liệu mẫu từ `ILF1042CN` đến `ILF1046US` tại `init.sql:70-75` mang tính tuần tự, dễ bị duyệt vét.
 
 ---
+# CHƯƠNG 2. BỐI CẢNH CHÍNH SÁCH VÀ MÔI TRƯỜNG TRIỂN KHAI
 
-# CHƯƠNG 2. MÔI TRƯỜNG TRIỂN KHAI VÀ YÊU CẦU AN TOÀN TỐI THIỂU
+## 2.1 Chính sách an toàn thông tin của doanh nghiệp
 
-## 2.1 Kiến trúc triển khai
+Mọi cổng kiểm soát trong báo cáo này đều xuất phát từ một văn bản quản trị, không từ nhận định cảm tính. Công ty cổ phần Logistics Inlane ban hành chính sách `CS-ATTT-2026`, hiệu lực từ 01/11/2026, phạm vi gồm ứng dụng InlaneWeb, cơ sở dữ liệu khách hàng, hạ tầng container và chuỗi công cụ phát triển. Toàn văn chính sách đặt tại `policy/00-chinh-sach-attt.md` trong kho mã nguồn, để chính sách thay đổi theo cùng một quy trình kiểm soát phiên bản như mã nguồn.
 
-Hệ thống chạy trên một máy chủ riêng ảo, tổ chức thành hai cụm Docker Compose độc lập dùng chung một mạng nội bộ. Cụm ứng dụng khai báo trong `docker-compose.prod.yml` với tên dự án `inlaneweb-prod`, gồm `db` chạy MariaDB và `web` chạy PHP-Apache, tạo mạng `inlaneweb_net` với bí danh `labnet` tại dòng 59-62. Cụm giám sát khai báo trong `docker-compose.monitoring.yml` với tên dự án `inlaneweb-monitoring`, gồm `loki` lưu nhật ký, `promtail` thu thập, `grafana` hiển thị và `autoheal` khởi động lại container hỏng, tham gia cùng mạng ở chế độ `external: true` tại dòng 77-80.
+Căn cứ ban hành là nghĩa vụ chứng minh tuân thủ. Theo Nghị định 13/2023/NĐ-CP Điều 26 và 27, tương ứng GDPR Điều 24 và 32, công ty là bên kiểm soát dữ liệu và phải chứng minh đã áp dụng biện pháp kỹ thuật, biện pháp quản lý phù hợp. Theo nghĩa vụ chứng minh, khi cơ quan quản lý hoặc chủ thể dữ liệu yêu cầu, công ty phải cung cấp bằng chứng thay vì lời cam kết. Vì vậy chính sách không dừng ở việc nêu yêu cầu. Mỗi điều khoản được gắn với một cổng kiểm soát tự động, và mỗi lượt chạy pipeline để lại một tệp bằng chứng kiểm chứng được.
 
-Việc tách hai cụm cho phép cập nhật ứng dụng mà không làm gián đoạn hệ giám sát và ngược lại. Hai tên dự án khác nhau cũng tránh được tình huống lệnh `docker compose down` của cụm này xóa nhầm container của cụm kia. Ứng dụng web chỉ mở cổng trên giao diện vòng lặp nội bộ với khai báo `"127.0.0.1:8088:80"` tại dòng 38, lưu lượng từ bên ngoài đi qua Nginx Proxy Manager là nơi cấp chứng chỉ TLS. Cơ sở dữ liệu không công bố cổng nào ra máy chủ.
+*Bảng: Tám điều khoản chính sách và cổng kiểm soát thi hành tương ứng*
 
-## 2.2 Đối chiếu với yêu cầu an toàn tối thiểu
+| Mã | Điều khoản | Tình huống làm phát sinh rủi ro | Cổng thi hành | Thành viên |
+| :--- | :--- | :--- | :--- | :--- |
+| CS-01 | Thay đổi vào nhánh phát hành phải qua pull request có người phê duyệt khác tác giả | Phát hành gấp ngoài giờ, một thành viên đẩy trực tiếp lên nhánh phát hành | `policy_guard.py`, `repo_policy.rego`, bảo vệ nhánh | Nam |
+| CS-02 | Cấu hình triển khai phải qua cổng chính sách, và phạm vi kiểm tra phải phủ đúng tệp được triển khai | Thêm tệp compose riêng cho môi trường sản xuất, ngoài phạm vi kiểm tra | `compose_security.rego`, `docker_security.rego` | Đức Anh |
+| CS-03 | Dữ liệu nhận từ người dùng không được ghép vào câu lệnh truy vấn | Khách tra cứu vận đơn bằng mã nhập tự do trên trang công khai | `policy-p4-sql-injection` | Hải |
+| CS-04 | Bí mật chỉ đến từ nguồn quản lý bí mật, không có giá trị dự phòng dạng hằng | Triển khai lên máy mới, quên nạp biến môi trường, dịch vụ vẫn khởi động | `php-hardcoded-db-password-fallback`, Trivy, InSpec | Mạnh |
+| CS-05 | Dữ liệu cá nhân chỉ truyền qua kênh đã khai báo; nhật ký không thuộc số này | Bật nhật ký tập trung, câu lệnh lỗi kèm mật khẩu đi vào kho nhật ký | TDS-2, TDS-6, pipeline stage che giấu dữ liệu | Mai |
+| CS-06 | Tài khoản và tiến trình ở mức quyền tối thiểu, ảnh phải ghim phiên bản | Ứng dụng kết nối cơ sở dữ liệu bằng tài khoản quản trị toàn quyền | InSpec, `policy-p3-privileged-db-account-default` | Mạnh, Đức Anh |
+| CS-07 | Cổng tự động phải chặn, không được chỉ báo cáo | Bước CI ghi vi phạm ra tệp nhưng vẫn báo trạng thái thành công | Đối chiếu mã thoát với nội dung tệp kết quả | Nam |
+| CS-08 | Mọi ngoại lệ phải có lý do, người phê duyệt đích danh và thời hạn | Nhánh được miễn kiểm soát tạm thời rồi bị bỏ quên thu hồi | `policy/exceptions.json`, `ci/check_exceptions.py` | Nam |
+
+Bốn phase của vòng đời DevSecOps nhận các điều khoản khác nhau: Plan và Code thi hành CS-01, CS-03, CS-04; Build và Test thi hành CS-02, CS-03, CS-04, CS-07; Release và Deploy thi hành CS-02, CS-06, CS-07; Operate và Monitor thi hành CS-05, CS-06, CS-08. Chương 4 đi theo đúng ánh xạ này: mỗi vấn đề an toàn được nêu kèm điều khoản bị vi phạm, tình huống nghiệp vụ làm nó phát sinh, và vị trí của nó trên workflow.
+
+Chế tài cũng là một phần của chính sách. Pull request vi phạm bất kỳ điều khoản nào bị cổng tự động chặn và không hợp nhất được. Trường hợp phát hiện vi phạm sau khi đã phát hành, quy trình ứng phó sự cố yêu cầu xác định thay đổi gây ra và người phê duyệt trong 72 giờ theo CS-01 và CS-08, quay lui bản phát hành theo quy trình CD ở mục 3.5, và bổ sung một quy tắc mới vào bộ quy tắc nhằm chặn chính xác mẫu lỗi tương tự.
+
+## 2.2 Kiến trúc triển khai
+
+Hệ thống triển khai trên máy chủ riêng ảo thành hai cụm Docker Compose độc lập dùng chung mạng nội bộ. Cụm ứng dụng trong `docker-compose.prod.yml` (dự án `inlaneweb-prod`) gồm dịch vụ `db` (MariaDB), `web` (PHP-Apache), tạo mạng `inlaneweb_net` (bí danh `labnet`) tại dòng 59-62. Cụm giám sát trong `docker-compose.monitoring.yml` (dự án `inlaneweb-monitoring`) gồm `loki` lưu nhật ký, `promtail` thu thập, `grafana` hiển thị và `autoheal` tự khởi động container sự cố, tham gia mạng qua `external: true` tại dòng 77-80.
+
+Tách hai cụm cho phép cập nhật ứng dụng độc lập, không gây gián đoạn giám sát. Tên dự án riêng biệt ngăn lệnh `docker compose down` của cụm này xóa nhầm container cụm kia. Dịch vụ web chỉ mở cổng trên giao diện vòng lặp nội bộ qua `"127.0.0.1:8088:80"` tại dòng 38; lưu lượng ngoài do Nginx Proxy Manager tiếp nhận, cấp chứng chỉ TLS. Cơ sở dữ liệu hoàn toàn không mở cổng ra ngoài máy chủ.
+
+## 2.3 Đối chiếu với yêu cầu an toàn tối thiểu
 
 *Bảng: Bảng kiểm yêu cầu an toàn tối thiểu của môi trường triển khai*
 
-| # | Yêu cầu tối thiểu | Kết quả | Dẫn chứng |
-| :---: | :--- | :---: | :--- |
-| 1 | Cơ sở dữ liệu không công bố cổng ra ngoài máy chủ | Đạt | `prod.yml`, dịch vụ `db` không có mục `ports` |
-| 2 | Ứng dụng web chỉ lắng nghe trên giao diện nội bộ | Đạt | `prod.yml:38` |
-| 3 | Dữ liệu cơ sở dữ liệu lưu trên volume bền vững | Đạt | `prod.yml:26-28`, `:64-66` |
-| 4 | Dịch vụ có kiểm tra sức khỏe và tự phục hồi | Đạt | `prod.yml:21-25`, `:41-46`; `monitoring.yml:63-75` |
-| 5 | Container không chạy bằng quyền `root` | Không đạt | `web/Dockerfile` và `db/Dockerfile` không có chỉ thị `USER` |
-| 6 | Không gán cứng bí mật trong tệp cấu hình | Không đạt | `prod.yml:15`, `:50`; `monitoring.yml:46`; `init.sql:11` |
-| 7 | Tài khoản cơ sở dữ liệu của ứng dụng có quyền tối thiểu | Không đạt | `prod.yml:49` dùng `root`; `init.sql:12-13` cấp `ALL PRIVILEGES` và `FILE` |
-| 8 | Tài khoản quản trị cơ sở dữ liệu không đăng nhập từ mọi máy | Không đạt | `prod.yml:16` đặt `MYSQL_ROOT_HOST: "%"`; `init.sql:11` |
-| 9 | Ảnh container ghim phiên bản, không dùng thẻ `latest` | Không đạt | `prod.yml:11`, `:31`; `monitoring.yml:64` |
-| 10 | Không hiển thị lỗi hệ thống ra trình duyệt | Không đạt | `web/php.ini:6-7` đặt `display_errors = On` |
-| 11 | Cookie phiên đặt cờ `HttpOnly` | Không đạt | `web/php.ini:12` đặt `session.cookie_httponly = Off` |
-| 12 | Giao diện quản trị hệ giám sát không mở ra Internet | Không đạt | `monitoring.yml:43` công bố Grafana trên `0.0.0.0:3000` |
-| 13 | Container thu thập nhật ký chạy với quyền hạn chế | Không đạt | `monitoring.yml:26` đặt `user: root` |
-| 14 | Không gắn socket Docker với quyền ghi | Không đạt | `monitoring.yml:73` gắn `docker.sock` cho `autoheal` ở chế độ ghi |
+| # | Yêu cầu tối thiểu | Điều khoản | Kết quả | Dẫn chứng |
+| :---: | :--- | :---: | :---: | :--- |
+| 1 | Cơ sở dữ liệu không công bố cổng ra ngoài máy chủ | CS-02 | Đạt | `prod.yml`, dịch vụ `db` không có mục `ports` |
+| 2 | Ứng dụng web chỉ lắng nghe trên giao diện nội bộ | CS-02 | Đạt | `prod.yml:38` |
+| 3 | Dữ liệu cơ sở dữ liệu lưu trên volume bền vững | CS-02 | Đạt | `prod.yml:26-28`, `:64-66` |
+| 4 | Dịch vụ có kiểm tra sức khỏe và tự phục hồi | CS-02 | Đạt | `prod.yml:21-25`, `:41-46`; `monitoring.yml:63-75` |
+| 5 | Container không chạy bằng quyền `root` | CS-06 | Không đạt | `web/Dockerfile` và `db/Dockerfile` không có chỉ thị `USER` |
+| 6 | Không gán cứng bí mật trong tệp cấu hình | CS-04 | Không đạt | `prod.yml:15`, `:50`; `monitoring.yml:46`; `init.sql:11` |
+| 7 | Tài khoản cơ sở dữ liệu của ứng dụng có quyền tối thiểu | CS-06 | Không đạt | `prod.yml:49` dùng `root`; `init.sql:12-13` cấp `ALL PRIVILEGES` và `FILE` |
+| 8 | Tài khoản quản trị cơ sở dữ liệu không đăng nhập từ mọi máy | CS-06 | Không đạt | `prod.yml:16` đặt `MYSQL_ROOT_HOST: "%"`; `init.sql:11` |
+| 9 | Ảnh container ghim phiên bản, không dùng thẻ `latest` | CS-02 | Không đạt | `prod.yml:11`, `:31`; `monitoring.yml:64` |
+| 10 | Không hiển thị lỗi hệ thống ra trình duyệt | CS-05 | Không đạt | `web/php.ini:6-7` đặt `display_errors = On` |
+| 11 | Cookie phiên đặt cờ `HttpOnly` | CS-05 | Không đạt | `web/php.ini:12` đặt `session.cookie_httponly = Off` |
+| 12 | Giao diện quản trị hệ giám sát không mở ra Internet | CS-02 | Không đạt | `monitoring.yml:43` công bố Grafana trên `0.0.0.0:3000` |
+| 13 | Container thu thập nhật ký chạy với quyền hạn chế | CS-06 | Không đạt | `monitoring.yml:26` đặt `user: root` |
+| 14 | Không gắn socket Docker với quyền ghi | CS-06 | Không đạt | `monitoring.yml:73` gắn `docker.sock` cho `autoheal` ở chế độ ghi |
 
-Bốn yêu cầu đầu đạt, mười yêu cầu còn lại không đạt. Yêu cầu số 12 đáng chú ý nhất. Trong khi ứng dụng web được đóng cẩn thận sau giao diện vòng lặp nội bộ, Grafana lại được công bố trực tiếp ra mọi giao diện mạng, mà đây chính là nơi hiển thị toàn bộ nhật ký hệ thống, bao gồm cả nội dung câu lệnh SQL thất bại. Tình trạng này là nền của vấn đề được phân tích tại mục cuối Chương 4.
+Bốn yêu cầu đầu đạt chuẩn, mười yêu cầu còn lại không đạt. Yêu cầu số 12 là khiếm khuyết an toàn trọng yếu nhất: ứng dụng web nằm sau giao diện vòng lặp nội bộ, còn Grafana mở ra mọi giao diện mạng. Dịch vụ này hiển thị toàn bộ nhật ký gồm cả lệnh SQL thực thi thất bại, dẫn tới vấn đề an toàn phân tích tại mục 4.6.
 
-## 2.3 Phân biệt lỗ hổng chủ ý với khiếm khuyết ngoài ý muốn
+## 2.4 Phân biệt lỗ hổng chủ ý với khiếm khuyết ngoài ý muốn
 
-Vì ứng dụng được dựng làm bài thực hành tiêm mã SQL, một phần các điểm trong bảng kiểm trên là chủ ý. Yêu cầu số 10 không đạt nhằm phục vụ kỹ thuật khai thác dựa trên thông báo lỗi, yêu cầu số 7 không đạt nhằm phục vụ kỹ thuật đọc ghi tệp qua quyền `FILE`, và việc không băm mật khẩu nhằm minh họa hậu quả. Những điểm này nằm trong mã ứng dụng, có chú thích rõ trong nguồn, và chỉ gây hậu quả bên trong môi trường thực hành.
+Do ứng dụng phục vụ bài thực hành tiêm mã SQL, một phần tiêu chí không đạt là có chủ ý: yêu cầu số 10 phục vụ khai thác dựa trên thông báo lỗi, yêu cầu số 7 hỗ trợ đọc ghi tệp qua quyền `FILE`, và không băm mật khẩu để minh họa hậu quả khai thác. Các khiếm khuyết này nằm trong mã ứng dụng, được ghi rõ trong mã nguồn và chỉ tác động trong môi trường thực hành.
 
-Các yêu cầu số 5, 6, 9, 12, 13 và 14 thì khác. Chúng không phục vụ bài học tiêm mã SQL nào, mà là thiếu sót thật ở lớp hạ tầng. Riêng yêu cầu số 12 còn mở rộng hậu quả của các lỗ hổng chủ ý ra ngoài phạm vi môi trường thực hành. Phân biệt này quan trọng khi đánh giá, vì không thể lấy tính chất thực hành của ứng dụng để biện minh cho việc công bố Grafana ra Internet kèm mật khẩu quản trị nằm trong kho mã công khai.
+Các yêu cầu số 5, 6, 9, 12, 13 và 14 phản ánh thiếu sót hạ tầng, không phục vụ nội dung thực hành nào. Riêng yêu cầu số 12 lan rộng hậu quả lỗ hổng có chủ ý ra ngoài môi trường thực hành. Mục tiêu thực hành không biện minh cho việc công bố Grafana ra Internet kèm mật khẩu quản trị trong kho mã nguồn công khai.
 
 ---
+# CHƯƠNG 3. PIPELINE DEVSECOPS VÀ CÁC CỔNG KIỂM SOÁT BẮT BUỘC
 
-# CHƯƠNG 3. DÂY CHUYỀN DEVSECOPS VÀ CƠ CHẾ DỪNG KHI CÓ LỖI
+## 3.1 Năm stage của pipeline
 
-## 3.1 Bốn chặng của dây chuyền
+Pipeline khai báo trong `.github/workflows/devsecops-gate.yml`, kích hoạt khi đẩy mã lên `main`, `dev`, `patched`, khi mở pull request vào `main` và `dev`, hoặc khi chạy theo yêu cầu. Nguyên tắc thiết kế: mỗi stage là một cổng, cổng thất bại làm các stage sau bị bỏ qua và pull request không hợp nhất được.
 
-Dây chuyền khai báo trong `.github/workflows/devsecops-gate.yml`, kích hoạt khi đẩy mã lên nhánh `main`, `dev` hoặc `patched`, hoặc khi mở yêu cầu hợp nhất vào `main` và `dev`, theo khai báo tại dòng 20-24.
+*Bảng: Năm stage của pipeline, công việc và điều kiện chặn*
 
-*Bảng: Bốn chặng của dây chuyền và điều kiện kích hoạt*
+| Stage | Job | Công việc | Điều kiện chặn |
+| :---: | :--- | :--- | :--- |
+| 1 | `stage1_policy_guard`, `stage1_policy_as_code` | Quy ước commit và pull request, cổng CS-01, Conftest trên Dockerfile, Compose và cấu hình quản trị kho mã nguồn | Có bất kỳ `deny`, hoặc vi phạm quy ước, hoặc đẩy trực tiếp vào nhánh phát hành không có ngoại lệ còn hạn |
+| 2 | `stage2_security_as_code` | SonarQube với quality gate, Semgrep với bộ quy tắc P1 đến P5 của nhóm cùng bốn bộ công khai, kiểm cú pháp PHP, cặp fixture hai chiều | Quality gate trả về `ERROR`, hoặc Semgrep có phát hiện mức ERROR |
+| 3 | `stage3_supply_chain` | Sinh SBOM dạng CycloneDX cho hai ảnh nền, quét bí mật, cổng CVE | Có CVE mức CRITICAL trên ảnh nền |
+| 4 | `stage4_test_driven_security` | Bộ test hành vi trên ứng dụng đang chạy, Compliance as Code bằng InSpec trên container | Một phép kiểm hành vi hoặc một phép kiểm tuân thủ thất bại |
+| 5 | `stage5_cd_release` | Phát hành lên môi trường đích, xác minh sau phát hành, quay lui khi xác minh thất bại | Container không đạt trạng thái khỏe, hoặc phép kiểm sau phát hành thất bại |
 
-| Chặng | Công việc | Điều kiện chạy | Dòng |
-| :--- | :--- | :--- | :---: |
-| 1 | `branch_policy_guard`, kiểm tra quy ước nhánh, commit và PR | Mọi sự kiện | 29 |
-| 2 | `analyze` chạy SonarQube và `semgrep` chạy Semgrep | PR vào `dev`, hoặc đẩy lên `dev` | 44, 162 |
-| 3 | `production_smoke_test`, dựng ảnh Docker và chạy thử | PR vào `main`, hoặc đẩy lên `main` | 211 |
-| 4 | `production_deploy_monitoring` và `production_deploy_web` | Đẩy lên `main` | 438, 593 |
+Ràng buộc `needs` tạo trật tự: stage 2 cần cả hai job của stage 1, stage 3 cần job Policy as Code, stage 4 cần stage 2, và stage 5 cần cả stage 2, stage 3, stage 4. Job tổng kết chạy với `if: always()` và trả mã khác 0 khi bất kỳ job nào thất bại. Điều kiện để trạng thái của run phản ánh đúng trạng thái xấu nhất của các cổng là từng bước phải giữ được mã thoát, phần được phân tích ở mục 3.6.
 
-Thiết kế này đặt hai cổng theo hai hướng hợp nhất khác nhau. Mã nguồn đi vào `dev` phải qua phân tích tĩnh, còn mã nguồn đi vào `main` phải qua chạy thử tích hợp. Ràng buộc `needs` tại các dòng 213, 440 và 596 bảo đảm các chặng chạy tuần tự.
+Stage 5 chỉ chạy trên nhánh `patched`. Nhánh `main` được giữ ở trạng thái có khiếm khuyết để làm đối tượng đánh giá, nên không được phát hành. Điều kiện này viết thành `if: github.ref == 'refs/heads/patched'` ngay trong job, thay vì dựa vào quy ước giữa các thành viên.
 
-## 3.2 Policy as Code tại chặng 1
+## 3.2 Policy as Code tại stage 1
 
-Chặng 1 chạy `ci/policy_guard.py`. Đây là chính sách quản trị quy trình được viết thành mã, theo đó quy ước đặt tên commit và yêu cầu hợp nhất được mã hóa thành biểu thức chính quy mà máy kiểm tra được, thay vì tồn tại dưới dạng thỏa thuận miệng giữa các thành viên.
+Stage 1 quản trị quy trình bằng mã: quy ước đặt tên commit và pull request mã hóa thành biểu thức chính quy cho máy kiểm tra, thay vì thỏa thuận giữa các thành viên. Ba biểu thức tạo ba cấp kiểm soát: commit theo Conventional Commits, pull request vào `dev` mang mã của một trong năm thành viên, và pull request vào `main` đánh số phiên bản phát hành.
 
-```python
-# ci/policy_guard.py:23-38
-COMMIT_REGEX = re.compile(
-    r"^(Merge\s.+|Revert\s.+|(release|RELEASE):\s+v[0-9]+\.[0-9]+\.[0-9]+.*"
-    r"|(feat|fix|sec|ci|docs|refactor|test|chore|style|perf|revert|release)"
-    r"(\([a-zA-Z0-9_\-\.\/]+\))?:\s.+)", re.IGNORECASE)
-
-PR_DEV_REGEX = re.compile(
-    r"^\[(namng|haind|manhdx|anhld|mainp)\]\s+"
-    r"(feat|fix|sec|ci|docs|refactor|test|chore|style|perf|revert)"
-    r"(\([a-zA-Z0-9_\-\.\/]+\))?:\s.+", re.IGNORECASE)
-```
-
-Biểu thức thứ ba là `PR_MAIN_REGEX` tại dòng 35-38, yêu cầu tiêu đề PR vào `main` có dạng `release: vX.Y.Z`. Ba biểu thức tương ứng ba cấp kiểm soát: commit theo chuẩn Conventional Commits, PR vào `dev` mở đầu bằng tên nhánh của một trong năm thành viên trong danh sách cố định, và PR vào `main` là một bản phát hành có đánh số phiên bản. Cùng đoạn mã này chạy lại ở máy lập trình viên qua móc `.githooks/commit-msg`, nên lỗi đặt tên bị chặn ngay trước khi commit được tạo.
-
-Giới hạn của cơ chế này cần được nêu rõ. Hàm `validate_push_event()` chỉ kiểm tra định dạng thông điệp commit, không có đoạn mã nào từ chối việc đẩy thẳng lên `main` hay `dev`. Việc cấm đẩy thẳng hiện phụ thuộc vào thiết lập bảo vệ nhánh phía GitHub, nằm ngoài kho mã, nên không thuộc phạm vi Policy as Code và không được kiểm chứng trong báo cáo này.
-
-## 3.3 Security as Code tại chặng 2
-
-Chặng 2 chạy song song hai công cụ phân tích tĩnh có cơ chế khác nhau.
-
-Với SonarQube, dây chuyền khởi tạo một máy chủ tạm thời ngay trong máy ảo chạy dây chuyền theo khai báo tại dòng 104-110, quét mã rồi hủy. Tiêu chí chấp nhận được viết thành tệp `ci/sonarqube-quality-gate.json`. Đây chính là Security as Code, vì ngưỡng an toàn nằm trong kho mã và mọi thay đổi đều được theo dõi qua lịch sử Git. Tệp này đặt năm điều kiện báo lỗi: `security_rating` lớn hơn 1 tương ứng có lỗ hổng an toàn dưới mức A, `reliability_rating` lớn hơn 1 tương ứng có lỗi ảnh hưởng độ tin cậy, `sqale_rating` lớn hơn 1 tương ứng nợ kỹ thuật vượt ngưỡng, `security_hotspots_reviewed` nhỏ hơn 100 tương ứng còn điểm cần rà soát chưa xử lý, và `duplicated_lines_density` lớn hơn 10 tương ứng trùng lặp mã vượt 10 phần trăm.
-
-Với Semgrep, dây chuyền chạy bốn bộ luật công khai gồm `p/owasp-top-ten`, `p/php`, `p/security-audit` và `p/cwe-top-25`, cộng thêm hai tệp luật của nhóm là `ci/semgrep-policy-php.yml` với năm nhóm luật P1 đến P5 và `ci/semgrep-local-rules.yml`, theo khai báo tại dòng 179-186. Lệnh quét mang cờ `--error` nên khi còn phát hiện ở mức ERROR thì bước kết thúc bất thường. Tệp `ci/semgrep-local-rules.yml` chứa hai luật, đều nhằm vào việc gán cứng bí mật:
-
-```yaml
-# ci/semgrep-local-rules.yml:2-14 (CWE-798: Use of Hard-coded Credentials)
-- id: php-hardcoded-db-password-fallback
-  languages: [php]
-  severity: ERROR
-  message: A database password has a hardcoded fallback. Require a secret from the environment instead.
-  patterns:
-    - pattern: "getenv('DB_PASS') ?: $FALLBACK"
-    - metavariable-regex: { metavariable: $FALLBACK, regex: ^['"].+['"]$ }
-```
-
-Luật thứ hai là `compose-hardcoded-mysql-root-password`, bắt biến môi trường `MYSQL_ROOT_PASSWORD` có giá trị không phải là tham chiếu bí mật.
-
-Luật thứ hai có một khiếm khuyết. Mục `paths.include` tại dòng 26-30 chỉ liệt kê ba mẫu tên tệp là `**/docker-compose.yml`, `**/compose.yml` và `**/compose.yaml`. Hai tệp đang thực sự chứa mật khẩu gán cứng là `docker-compose.prod.yml` và `docker-compose.monitoring.yml` không khớp mẫu nào, nên luật không bao giờ chạy trên chúng. Kết quả quét trình bày ở mục sau xác nhận điều này, vì luật chỉ kích hoạt trên `InlaneWeb/docker-compose.yml`. Cách sửa được trình bày tại phần của thành viên 3 ở Chương 4.
-
-## 3.4 Khiếm khuyết trọng yếu: cổng chất lượng chỉ báo cáo và cách khắc phục
-
-Đây là phát hiện quan trọng nhất của chương, và nhóm trình bày như một kết quả kiểm chứng thay vì che đi. Trong bản dây chuyền đầu tiên, biến môi trường quyết định cổng chất lượng có chặn hay không được khai báo như sau:
-
-```yaml
-# bản đầu tiên của dây chuyền, biểu thức luôn trả về 'false'
-ENFORCE_QUALITY_GATE: ${{ inputs.enforce_quality_gate || 'false' }}
-```
-
-Ngữ cảnh `inputs` trong GitHub Actions chỉ tồn tại khi dây chuyền được kích hoạt thủ công bằng `workflow_dispatch`. Với sự kiện đẩy mã hoặc mở yêu cầu hợp nhất, tức toàn bộ các lần chạy tự động, `inputs.enforce_quality_gate` không có giá trị nên biểu thức luôn trả về chuỗi `'false'`. Giá trị này được đọc ở bước kiểm tra cuối của `ci/sonarqube.py`:
+Bản đầu của `ci/policy_guard.py` có một khiếm khuyết về phạm vi: hàm `validate_push_event()` chỉ đối chiếu định dạng thông điệp, không ngăn việc đẩy trực tiếp vào nhánh phát hành, trong khi điều khoản CS-01 cấm chính việc đó. Bản hiện tại bổ sung một cổng cho CS-01 kèm cơ chế ngoại lệ theo điều khoản CS-08:
 
 ```python
-# ci/sonarqube.py:433-437
-if status["quality_gate"] == "ERROR":
-    if os.environ.get("ENFORCE_QUALITY_GATE", "true").lower() == "true":
-        print("Quality Gate FAILED. Reports were exported before this check.", file=sys.stderr)
-        return 1
-    print("Quality Gate FAILED; report-only mode explicitly selected.")
+# ci/policy_guard.py, co che ngoai le co thoi han
+exception, rejected = find_valid_exception("CS-01", branch)
+if exception is not None:
+    print(f"[DAT, CO NGOAI LE] ... ngoai le {exception['id']}, "
+          f"het han {exception['expires']}, "
+          f"nguoi phe duyet {exception['approved_by']}.")
+    return 0
 ```
 
-Bản thân `ci/sonarqube.py` đọc biến này với giá trị mặc định `"true"` ở cả hai vị trí dòng 393 và 434, tức vốn dừng ở trạng thái an toàn. Khiếm khuyết nằm ở chỗ bản đầu tiên ghi đè biến đó bằng một biểu thức luôn cho `'false'`, biến một script dừng-an-toàn thành cổng chỉ báo cáo: khi cổng ở trạng thái `ERROR`, hàm chỉ in một dòng thông báo rồi trả về 0, nên chặng 2 kết thúc thành công và các chặng sau không bị chặn.
+Một bản ghi ngoại lệ chỉ có hiệu lực khi đủ năm trường `clause`, `branch`, `reason`, `approved_by`, `expires`, và `expires` còn hiệu lực tính theo ngày chạy. Hết hạn là hết hiệu lực, cơ chế chặn tự động tái kích hoạt. Hook `.githooks/commit-msg` chạy cùng mã trên máy lập trình viên và được chuyển sang fail-closed: khi máy không có Python, hook trả mã khác 0 thay vì bỏ qua kiểm tra.
 
-Cách khắc phục là không ghi đè biến đó. Dây chuyền hiện hành `.github/workflows/devsecops-gate.yml` không đặt `ENFORCE_QUALITY_GATE`, nên giá trị mặc định `"true"` của script có hiệu lực. Bước cuối của chặng 2 gọi `ci/sonarqube.py check`, bước này không đặt `continue-on-error`, nên khi cổng ở trạng thái `ERROR` thì bước trả mã khác 0, chặng 2 thất bại và các chặng sau bị bỏ qua. Lệnh Semgrep trong dây chuyền hiện hành cũng đã có sẵn cờ `--error`. Việc chỉ ghi nhận trạng thái mà không chặn được tách sang một dây chuyền riêng là `.github/workflows/security-baseline.yml`, để hai mục đích không dùng chung một tên.
+Lớp thứ hai của stage 1 là Conftest. Bộ test của chính quy tắc phải đạt trước khi quy tắc được dùng làm cổng, vì một quy tắc sai cú pháp vẫn chạy và vẫn trả về kết quả không có vi phạm. Bước đầu tiên của job do đó chạy `conftest verify -p policy/` và đối chiếu dòng tổng kết bằng `grep`.
 
-Hai lần chạy tự động xác nhận cổng chặn đúng thiết kế. Lần chạy `40748974196` trên nhánh `main` và lần chạy `40748974200` trên nhánh `patched` đều kết thúc ở trạng thái thất bại, vì cổng chất lượng SonarQube ở trạng thái `ERROR` khiến bước kiểm tra cuối trả mã khác 0 và chặn các chặng sau. Trạng thái thất bại này là kết quả mong muốn: dây chuyền dừng ngay tại chặng phát hiện vấn đề, thay vì báo lỗi rồi vẫn đi tiếp như bản đầu tiên.
+## 3.3 Security as Code tại stage 2
 
-## 3.5 Kết quả quét thực tế trên hai nhánh
+Stage 2 chạy hai công cụ phân tích tĩnh theo hai cơ chế khác nhau.
 
-Dây chuyền chạy trên hai nhánh cho hai bộ số liệu. Nhánh `main` tại mốc `94004f3` là hệ thống còn khiếm khuyết, đo trong lần chạy `40748974196`. Nhánh `patched` tại mốc `0c9cdfd` là bản đã vá, đo trong lần chạy `40748974200`. Mỗi bộ số lấy từ các tệp `sonarqube/metrics.json`, `sonarqube/quality-gate.json` và `ci-05-semgrep.json` trong artifact `evidence-security-as-code` của lần chạy tương ứng.
+Với SonarQube, pipeline dựng một máy chủ tạm trong máy ảo của runner, quét mã rồi hủy khi hoàn thành. Tiêu chí chấp nhận nằm trong `ci/sonarqube-quality-gate.json`, đặt năm điều kiện báo lỗi: `security_rating` lớn hơn 1, `reliability_rating` lớn hơn 1, `sqale_rating` lớn hơn 1, `security_hotspots_reviewed` nhỏ hơn 100, và `duplicated_lines_density` lớn hơn 10. Quản lý tiêu chí qua lịch sử kho mã nguồn xác lập bản chất Security as Code, thay cho một thiết lập trên giao diện.
+
+Với Semgrep, pipeline chạy bốn bộ quy tắc công khai `p/owasp-top-ten`, `p/php`, `p/security-audit`, `p/cwe-top-25`, cùng hai tệp quy tắc của nhóm là `ci/semgrep-policy-php.yml` với tám quy tắc thuộc năm nhóm P1 đến P5, và `ci/semgrep-local-rules.yml` với hai quy tắc chống gán cứng bí mật. Cờ `--error` là bắt buộc: không có cờ này, Semgrep trả mã thoát 0 dù có phát hiện.
+
+Quy tắc chống bí mật có giá trị dự phòng được viết lại để phủ cả bốn dạng cú pháp và cả ba nguồn biến môi trường:
+
+```yaml
+# ci/semgrep-local-rules.yml, quy tac php-hardcoded-db-password-fallback
+pattern-either:
+  - pattern: "getenv($NAME) ?: $FALLBACK"
+  - pattern: "getenv($NAME) ?? $FALLBACK"
+  - pattern: "$_ENV[$NAME] ?: $FALLBACK"
+  - pattern: "$_SERVER[$NAME] ?? $FALLBACK"
+```
+
+Quy tắc thứ hai, `compose-hardcoded-mysql-root-password`, từng có một khiếm khuyết về phạm vi: mục `paths.include` chỉ liệt kê ba mẫu không khớp hai tệp compose thực sự dùng khi triển khai, nên quy tắc không chạy trên chúng. Phân tích đầy đủ khiếm khuyết này và cách khắc phục nằm ở mục 4.5.
+
+## 3.4 Chuỗi cung ứng, Test-Driven Security và Compliance as Code
+
+Stage 3 xử lý ba tác vụ trên hai ảnh nền `php:8.2-apache` và `mariadb:10.11`: sinh SBOM dạng CycloneDX nhằm kiểm kê thành phần hệ thống, quét bí mật trên toàn bộ `app/`, và đặt một cổng CVE. Cổng CVE là nơi dễ mất hiệu lực nhất: Trivy trả mã thoát 0 dù phát hiện lỗ hổng nếu thiếu `--exit-code 1`, và mã thoát đó còn bị mất lần nữa nếu kết quả đi qua một chuỗi lệnh pipe. Bước này do đó giữ mã thoát bằng `${PIPESTATUS[0]}` cho từng ảnh rồi so sánh tường minh.
+
+Stage 4 chuyển từ việc đọc mã sang việc quan sát hành vi. Bộ test trong `tests/security/run.sh` dựng ứng dụng, chờ dịch vụ đạt trạng thái sẵn sàng, chạy sáu phép kiểm hành vi bên trong container, và kiểm một khẳng định không thực hiện được từ bên trong: luồng nhật ký của container không chứa nguyên văn câu lệnh truy vấn. Tiếp đó InSpec chạy trên container đang hoạt động để xác nhận trạng thái đang có hiệu lực, chứ không phải trạng thái được khai báo trong tệp. Đây là phần Compliance as Code: cùng một yêu cầu, nhưng đối tượng kiểm là hệ thống đang chạy.
+
+## 3.5 CD tại stage 5: phát hành có xác minh và quay lui
+
+Stage 5 là phần CD, chỉ chạy trên nhánh vá và chỉ sau khi cả ba stage trước đạt. Trình tự gồm năm bước, trong đó bước thứ tư là bước quyết định.
+
+| Bước | Tác vụ | Kết quả |
+| :---: | :--- | :--- |
+| 1 | Ghi lại mốc đang chạy để có điểm quay lui | `evidence/ci-14-cd-rollback-point.txt` |
+| 2 | Phát hành lên môi trường đích và chờ kiểm tra sức khỏe báo khỏe | `evidence/ci-15-cd-deploy.txt` |
+| 3 | Xác minh sau phát hành bằng InSpec trên container vừa phát hành | `evidence/ci-16-cd-postdeploy-inspec.txt` |
+| 4 | Quay lui khi xác minh thất bại, rồi trả mã khác 0 | `evidence/ci-17-cd-rollback.txt` |
+| 5 | Kết luận phát hành khi xác minh đạt | `evidence/ci-18-cd-release-ok.txt` |
+
+Điểm thiết kế đáng nêu là bước xác minh chạy lại đúng phép kiểm tuân thủ của stage 4, nhưng trên một đối tượng khác: container trong môi trường đích thay vì container trong môi trường kiểm thử. Chạy cùng một phép kiểm trên hai đối tượng khác nhau là cách duy nhất phát hiện sai lệch phát sinh trong chính quá trình phát hành.
+
+Bước quay lui được khai báo với điều kiện `if: steps.verify.outcome == 'failure'`, nên nó chỉ chạy khi xác minh thất bại, và sau khi đưa môi trường về trạng thái trước phát hành, bước này trả mã khác 0 để run thất bại. Bản phát hành không đạt xác minh bị chặn hoàn toàn, không thể ghi nhận là thành công.
+
+## 3.6 Hai khiếm khuyết của chính cơ chế chặn
+
+Hai phát hiện quan trọng nhất của chương này thuộc về chính pipeline, không thuộc về ứng dụng. Điều khoản CS-07 xếp một cổng báo đạt mà không kiểm tra gì là vi phạm nặng hơn việc thiếu cổng, nên hai phát hiện được ghi nhận nguyên trạng.
+
+Khiếm khuyết thứ nhất, ở bản pipeline đầu, biến quyết định việc chặn của quality gate được khai báo `ENFORCE_QUALITY_GATE: ${{ inputs.enforce_quality_gate || 'false' }}`. Ngữ cảnh `inputs` chỉ tồn tại khi kích hoạt thủ công, nên ở mọi run tự động biểu thức luôn trả về `'false'`. Trong khi đó `ci/sonarqube.py` đọc biến này với giá trị mặc định `"true"` ở cả hai vị trí, tức script vốn dừng an toàn. Việc ghi đè biến bằng một biểu thức luôn cho `'false'` đã biến quality gate thành cổng chỉ báo cáo. Cách sửa là không ghi đè biến đó.
+
+Khiếm khuyết thứ hai nặng hơn và được nhóm phát hiện ngày 04/11/2026, khi đối chiếu trạng thái của từng bước với nội dung tệp kết quả do chính bước đó sinh ra. Năm bước trong tệp workflow chuyển kết quả qua `tee` mà không khai báo `shell`. GitHub Actions khi đó chạy `bash -e {0}`, cấu hình không bật `-o pipefail`, nên mã thoát của cả chuỗi lệnh là mã thoát của `tee` và luôn bằng 0. Ba cổng chính sách ở stage 1 và hai cổng ở stage 4 vì vậy không thực hiện chức năng ngăn chặn, trong khi tệp kết quả của chính chúng chứa các dòng FAIL. Phân tích đầy đủ, kèm bảng đối chiếu và mã thoát, nằm ở mục 4.2.
+
+Cách sửa là khai báo `shell: bash` cho mọi bước có chuỗi lệnh pipe, vì GitHub Actions chạy shell này bằng `bash --noprofile --norc -eo pipefail {0}`. Đối chứng thực tế cho thấy sự thiếu nhất quán khi áp dụng một nguyên tắc đã biết: trong cùng tệp đó, cổng CVE đã giữ mã thoát bằng `${PIPESTATUS[0]}` và bước kiểm cú pháp PHP đã đối chiếu lại bằng `grep`.
+
+## 3.7 Kết quả quét thực tế trên hai nhánh
+
+Pipeline cho hai bộ số đối chứng: nhánh `main` mốc `94004f3` qua run `40748974196`, giữ trạng thái có khiếm khuyết; nhánh `patched` mốc `0c9cdfd` qua run `40748974200`, đã vá đợt một. Từng bộ số lấy từ `sonarqube/metrics.json`, `sonarqube/quality-gate.json` và `ci-05-semgrep.json` trong artifact `evidence-security-as-code` tương ứng.
 
 *Bảng: Chỉ số SonarQube của hai nhánh*
 
 | Chỉ số | `main` (`94004f3`) | `patched` (`0c9cdfd`) | Điều kiện cổng | Trạng thái |
 | :--- | ---: | ---: | :--- | :---: |
-| `reliability_rating` | 3 | 3 | Lớn hơn 1 thì báo lỗi | ERROR |
-| `security_rating` | 1 | 1 | Lớn hơn 1 thì báo lỗi | OK |
-| `sqale_rating` | 1 | 1 | Lớn hơn 1 thì báo lỗi | OK |
-| `duplicated_lines_density` | 0,0 | 0,0 | Lớn hơn 10 thì báo lỗi | OK |
+| `reliability_rating` | 3 | 3 | Báo lỗi khi lớn hơn 1 | ERROR |
+| `security_rating` | 1 | 1 | Báo lỗi khi lớn hơn 1 | OK |
+| `sqale_rating` | 1 | 1 | Báo lỗi khi lớn hơn 1 | OK |
+| `duplicated_lines_density` | 0,0 | 0,0 | Báo lỗi khi lớn hơn 10 | OK |
 | `vulnerabilities` | 0 | 0 | | |
 | `security_hotspots` | 0 | 0 | | |
 | `bugs` và `code_smells` | 10 và 15 | 8 và 19 | | |
 | Số tệp và số dòng mã | 24 và 734 | 24 và 876 | | |
 
-Trên nhánh `main`, SonarQube ghi nhận 25 phát hiện gồm 1 mức CRITICAL, 13 mức MAJOR và 11 mức MINOR. Trên nhánh `patched` là 27 phát hiện gồm 1 mức CRITICAL, 11 mức MAJOR và 15 mức MINOR. Toàn bộ thuộc nhóm lỗi lập trình và khả năng bảo trì, gồm các quy tắc `Web:InputWithoutLabelCheck` và `Web:S6853` về nhãn biểu mẫu, `php:S100` về quy ước đặt tên hàm, `php:S113` về dòng trống cuối tệp, `php:S2003` về việc dùng `require` thay vì `require_once`, và `php:S121` về dấu ngoặc nhọn. Không quy tắc nào thuộc nhóm an toàn.
+SonarQube ghi nhận 25 phát hiện trên `main` và 27 trên `patched`, toàn bộ là lỗi lập trình và bảo trì: `Web:InputWithoutLabelCheck`, `Web:S6853`, `php:S100`, `php:S113`, `php:S2003`, `php:S121`. Không quy tắc nào thuộc nhóm an toàn. Trên cả hai nhánh, `vulnerabilities` bằng 0, `security_hotspots` bằng 0 và `security_rating` bằng 1, tức mức A, trong khi Semgrep phát hiện 12 vị trí tiêm mã SQL theo quy tắc của nhóm trên `main`. Quality gate báo lỗi vì `reliability_rating` bằng 3, không phải vì an toàn.
 
-Có một kết quả cần được giải thích thay vì bỏ qua. Trên cả hai nhánh, SonarQube báo `vulnerabilities` bằng 0, `security_hotspots` bằng 0 và `security_rating` bằng 1 tương ứng mức A. Cùng mã nguồn đó, Semgrep tìm thấy 12 vị trí tiêm mã SQL theo luật của nhóm trên nhánh `main`. Cổng chất lượng có báo lỗi, nhưng báo lỗi vì `reliability_rating` bằng 3, tức vì chỉ số độ tin cậy, hoàn toàn không phải vì an toàn. Điều kiện `security_rating` của cổng ở trạng thái đạt trên cả hai nhánh.
+Nguyên nhân là bản SonarQube Community không phân tích luồng dữ liệu xuyên hàm và xuyên tệp, nên không nối được chuỗi truy vấn từ `pages` sang hàm bao trong `lib/db.php`. Hai hệ quả: quality gate đạt tiêu chí an toàn không đồng nghĩa mã an toàn, và SonarQube không thể hiện khác biệt giữa hai nhánh vì đều báo 0 lỗ hổng, trong khi Semgrep phản ánh đúng mức giảm từ 64 xuống 46 phát hiện.
 
-Nguyên nhân là bản SonarQube Community không phân tích luồng dữ liệu xuyên hàm và xuyên tệp: chuỗi SQL được xây ở các tệp `pages` rồi mới truyền sang hàm thực thi ở `lib/db.php`. Hệ quả có hai mặt. Cổng chất lượng đạt về an toàn không đồng nghĩa với mã an toàn; và khác biệt an toàn giữa `main` và `patched` không hiện trong chỉ số SonarQube, vì cả hai đều báo 0 lỗ hổng, trong khi Semgrep phản ánh đúng thay đổi đó, từ 64 phát hiện xuống 46.
+*Bảng: Phân bố 64 phát hiện Semgrep trên nhánh `main`, run `40748974196`*
 
-*Bảng: Phân bố 64 phát hiện Semgrep trên nhánh `main`, lần chạy `40748974196`*
-
-| Nhóm luật | Số lượng | Phân loại | Nguồn luật |
+| Nhóm quy tắc | Số lượng | Phân loại | Nguồn quy tắc |
 | :--- | :---: | :--- | :--- |
 | `tainted-sql-string`, `policy-p4-sql-injection` | 19 và 12 | tiêm mã SQL, CWE-89, OWASP A03:2021 | công khai và nhóm |
-| `policy-p2-client-supplied-identity` | 8 | định danh lấy từ client, OWASP A01:2021 | luật của nhóm |
-| `policy-p1-unrestricted-write` | 6 | ghi không kiểm quyền, OWASP A01:2021 | luật của nhóm |
+| `policy-p2-client-supplied-identity` | 8 | định danh lấy từ client, OWASP A01:2021 | quy tắc của nhóm |
+| `policy-p1-unrestricted-write` | 6 | ghi không kiểm quyền, OWASP A01:2021 | quy tắc của nhóm |
 | `echoed-request` | 5 | XSS, CWE-79 | công khai `p/php` |
-| `policy-p5-statement-logged-verbatim`, `policy-p4-error-detail-to-response` | 4 và 4 | ghi nhật ký nguyên văn, lộ chi tiết lỗi, OWASP A09 và A05 | luật của nhóm |
-| các luật bí mật gán cứng và container chạy root | 6 | CWE-798 và CWE-250 | nhóm và công khai |
+| `policy-p5-statement-logged-verbatim`, `policy-p4-error-detail-to-response` | 4 và 4 | ghi nhật ký nguyên văn, lộ chi tiết lỗi, OWASP A09 và A05 | quy tắc của nhóm |
+| các quy tắc bí mật gán cứng và container chạy `root` | 6 | CWE-798 và CWE-250 | nhóm và công khai |
 
-Tổng 64 phát hiện trên nhánh `main`, toàn bộ ở mức ERROR, và các luật tự viết của nhóm đều kích hoạt đúng mục tiêu. Trên nhánh `patched`, tổng còn 46 phát hiện, trong đó `policy-p4-sql-injection` giảm còn 8 và `tainted-sql-string` còn 14. Phần phát hiện còn lại thuộc đợt vá thứ hai, có chủ sở hữu và lý do hoãn ghi trong `patches/README.md`.
+Trên `main`, cả 64 phát hiện đều ở mức ERROR và quy tắc tự viết kích hoạt đúng mục tiêu. Trên `patched`, tổng còn 46: `policy-p4-sql-injection` còn 8 và `tainted-sql-string` còn 14. Phần còn lại thuộc đợt vá thứ hai, có chủ sở hữu và lý do hoãn trong `patches/README.md`.
 
 ---
-
 # CHƯƠNG 4. NĂM VẤN ĐỀ AN TOÀN THEO PHÂN CÔNG THÀNH VIÊN
 
-## 4.1 Bảng tổng hợp
+## 4.1 Bảng tổng hợp và khuôn trình bày
+
+Mỗi thành viên phụ trách đúng một vấn đề. Vấn đề được chọn theo tiêu chí ràng buộc nhiều lớp: nó vi phạm một điều khoản chính sách cụ thể, nó không tự bộc lộ trước công cụ tự động, và việc khắc phục bị nhiều điều kiện khác giới hạn.
 
 *Bảng: Tổng hợp năm vấn đề an toàn của năm thành viên*
 
-| Thành viên | Vấn đề | Nhóm | Pha DevSecOps | Căn cứ pháp lý | Dạng |
+| Thành viên | Vấn đề | Nhóm | Phase | Điều khoản | Dạng chứng minh |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| Nguyễn Giang Nam | Thiếu kiểm soát thay đổi mã nguồn | Quy trình | Plan, Code | NĐ 13 Điều 26, 27; GDPR Art. 24, 32(1) | PaC |
-| Nguyễn Đình Hải | Tiêm mã SQL làm lộ DLCN | Mã nguồn | Code, Build | NĐ 13 Điều 26, 27; GDPR Art. 5(1)(f), 32 | SaC |
-| Đào Xuân Mạnh | Mật khẩu dạng rõ và bí mật gán cứng | Mã nguồn | Code, Build | NĐ 13 Điều 26, 27; GDPR Art. 5(1)(f), 25, 32(1)(a) | SaC |
-| Lê Đức Anh | Cấu hình triển khai mất an toàn | Triển khai | Release, Deploy | NĐ 13 Điều 26, 27; GDPR Art. 32(1)(b) | PaC |
-| Nguyễn Phương Mai | Rò rỉ DLCN qua đường nhật ký | Vận hành | Operate, Monitor | NĐ 13 Điều 23, 26; GDPR Art. 5(1)(c), 33, 34 | SaC |
+| Nguyễn Giang Nam | Kiểm soát thay đổi được khai báo nhưng không có hiệu lực, và chính cổng kiểm chứng việc đó cũng không ngăn chặn | Quy trình | Plan, Code | CS-01, CS-07, CS-08 | Policy as Code |
+| Nguyễn Đình Hải | Tiêm mã SQL qua hàm bao nội bộ, nên bộ quy tắc có sẵn và SonarQube đều không phát hiện | Mã nguồn | Code, Build | CS-03, CS-05 | Security as Code |
+| Đào Xuân Mạnh | Bí mật không nằm trong kho mã nguồn nhưng vẫn nhận giá trị mặc định dạng hằng khi thiếu biến môi trường | Mã nguồn | Code, Build | CS-04, CS-06 | SaC và CaC |
+| Lê Đức Anh | Cổng chính sách kiểm tra tệp compose không phải tệp dùng khi triển khai | Triển khai | Release, Deploy | CS-02, CS-06 | PaC và CaC |
+| Nguyễn Phương Mai | Năm mắt xích hợp lý riêng lẻ hợp thành một kênh rò rỉ, và biện pháp che giấu xung đột với yêu cầu phát hiện tấn công | Vận hành | Operate, Monitor | CS-05, CS-08 | Test-Driven Security |
 
-Năm vấn đề phủ đủ hai nhóm mà đề bài yêu cầu, trong đó ba vấn đề thuộc mã nguồn và quy trình phát triển, hai vấn đề thuộc triển khai và vận hành.
+Năm vấn đề bao quát hai nhóm theo yêu cầu đề tài: ba vấn đề thuộc mã nguồn và quy trình phát triển, hai vấn đề thuộc triển khai và vận hành.
 
-Về căn cứ pháp lý, đề bài nêu Nghị định 13/2023/NĐ-CP và nhóm trích dẫn theo đúng yêu cầu đó. Cần ghi nhận thêm rằng Nghị định 13/2023 đã hết hiệu lực từ ngày 01/01/2026, được thay thế bằng Luật Bảo vệ dữ liệu cá nhân số 91/2025/QH15 cùng Nghị định 356/2025/NĐ-CP hướng dẫn thi hành. Các nghĩa vụ mà báo cáo viện dẫn, gồm việc áp dụng biện pháp kỹ thuật và quản lý để bảo vệ dữ liệu và việc thông báo vi phạm trong 72 giờ, đều được kế thừa trong văn bản mới, song số hiệu điều khoản đã thay đổi. Nhóm chưa đối chiếu được số hiệu điều khoản của Luật 91/2025/QH15 với văn bản gốc nên không trích dẫn số hiệu cụ thể của luật này.
+Mỗi mục dưới đây trình bày theo tám trường thống nhất: tình huống nghiệp vụ và điều khoản bị ràng buộc; vấn đề và nguyên nhân không tự bộc lộ; môi trường phải dựng để phát hiện; mã dùng để phát hiện; chứng minh hai chiều kèm mã thoát; ràng buộc trong quá trình khắc phục; cách xử lý và vị trí trên workflow; giới hạn kiểm chứng của cổng.
 
-## 4.2 Thành viên 1, Nguyễn Giang Nam: thiếu kiểm soát thay đổi mã nguồn
+Báo cáo trích dẫn Nghị định 13/2023/NĐ-CP theo yêu cầu đề tài. Thực tế, Nghị định 13/2023 hết hiệu lực từ 01/01/2026, được thay thế bởi Luật Bảo vệ dữ liệu cá nhân số 91/2025/QH15 và Nghị định 356/2025/NĐ-CP hướng dẫn thi hành. Các nghĩa vụ pháp lý viện dẫn đều được văn bản mới kế thừa nhưng đổi số hiệu điều khoản. Do chưa đối chiếu trực tiếp văn bản gốc Luật 91/2025/QH15, báo cáo không dẫn số hiệu điều khoản cụ thể của luật này.
 
-**Mô tả vấn đề.** Một hệ thống xử lý dữ liệu cá nhân cần chứng minh được rằng mọi thay đổi mã nguồn đều có nguồn gốc, có người chịu trách nhiệm và có qua rà soát. Nếu bất kỳ ai cũng đẩy được mã thẳng lên nhánh phát hành với thông điệp tùy ý, thì khi xảy ra sự cố rò rỉ dữ liệu sẽ không truy được thay đổi nào gây ra sự cố, do ai thực hiện và đã được ai phê duyệt.
+## 4.2 Thành viên 1, Nguyễn Giang Nam, B26CHAT030: kiểm soát thay đổi được khai báo nhưng không có hiệu lực thi hành
 
-**Cách phát hiện.** Đọc lịch sử Git và đối chiếu với mã nguồn của chặng 1, nhóm phát hiện hai điểm. Trước khi có `ci/policy_guard.py`, không tồn tại ràng buộc nào về thông điệp commit. Ngay cả hiện nay, hàm `validate_push_event()` cũng chỉ kiểm tra định dạng thông điệp chứ không từ chối việc đẩy thẳng lên nhánh được bảo vệ.
+### 4.2.1 Tình huống nghiệp vụ và điều khoản bị ràng buộc
 
-**Chính sách bị vi phạm.** Trường hợp này vi phạm nghĩa vụ áp dụng biện pháp quản lý để bảo vệ dữ liệu cá nhân theo Điều 26 Nghị định 13/2023/NĐ-CP, và nghĩa vụ ban hành quy định nội bộ về bảo vệ dữ liệu cá nhân theo Điều 27. Theo GDPR, tương ứng Điều 24 về trách nhiệm của bên kiểm soát dữ liệu bao gồm khả năng chứng minh sự tuân thủ, và Điều 32(1) về biện pháp tổ chức phù hợp. Vấn đề thuộc pha Plan và Code, phát hiện tại chặng 1.
+Đợt phát hành hạ tầng giám sát diễn ra ngoài giờ làm việc. Một thành viên đưa nhanh cấu hình Loki và Grafana lên nhánh phát hành bằng thao tác đẩy trực tiếp thay vì mở pull request. Thay đổi này tác động tới luồng xử lý nhật ký, đồng nghĩa với tác động tới luồng dữ liệu cá nhân.
 
-**Cách xử lý và minh chứng Policy as Code.** Chính sách được viết thành mã trong `ci/policy_guard.py` và chạy ở hai nơi, gồm móc `commit-msg` tại máy lập trình viên và chặng 1 của dây chuyền:
+Điều khoản CS-01 yêu cầu mọi thay đổi vào nhánh phát hành phải có pull request, có một người phê duyệt khác tác giả, qua toàn bộ cổng kiểm soát tự động và truy vết được tác giả cùng lý do. Điều khoản CS-07 yêu cầu cổng tự động phải chặn chứ không chỉ báo cáo. Hai điều khoản này là nghĩa vụ chứng minh tuân thủ theo GDPR Điều 24 và 32(1), tương ứng Điều 26 và 27 Nghị định 13/2023/NĐ-CP. Thiếu pull request đồng nghĩa với thiếu hồ sơ phê duyệt, và nghĩa vụ giải trình trong 72 giờ không thể bù đắp bằng biện pháp kỹ thuật sau đó.
 
-```python
-# ci/policy_guard.py:47-60
-def validate_commit_message(msg: str) -> tuple[bool, str]:
-    first_line = msg.strip().splitlines()[0] if msg.strip() else ""
-    if not first_line:
-        return False, "Tiêu đề commit không được để trống."
-    if COMMIT_REGEX.match(first_line):
-        return True, ""
-    return False, (
-        f"Tiêu đề commit '{first_line}' vi phạm chuẩn Conventional Commits.\n"
-        "Cú pháp bắt buộc: <loại>(<phạm_vi>): <mô tả>"
-    )
+### 4.2.2 Vấn đề và nguyên nhân không tự bộc lộ
+
+Kho mã nguồn khai báo ba lớp kiểm soát cho CS-01. Kiểm chứng thực tế cho thấy cả ba lớp đều không ngăn chặn được tình huống trên.
+
+Lớp thứ nhất là `ci/policy_guard.py`. Tệp này kiểm tra định dạng thông điệp commit và tiêu đề pull request. Hàm `validate_push_event()` chỉ đối chiếu định dạng, không có đoạn mã nào từ chối một lần đẩy mã vì lý do đẩy trực tiếp vào nhánh phát hành.
+
+Lớp thứ hai là bảo vệ nhánh phía GitHub. Truy vấn trực tiếp qua API ngày 04/11/2026, nhánh `main` trả về `protected: false`, nên thao tác đẩy trực tiếp và đẩy cưỡng bức đều được chấp nhận, không phụ thuộc vào số lượng script kiểm tra trong kho mã nguồn.
+
+Lớp thứ ba là cổng kiểm soát quản trị trên CI, nơi phát sinh khiếm khuyết nghiêm trọng nhất. Bước chính sách lớp quản trị chạy đúng bộ quy tắc, ghi ra đúng kết luận vi phạm, rồi vẫn trả về trạng thái thành công. Nguyên nhân nằm ở một dòng:
+
+```yaml
+# .github/workflows/devsecops-gate.yml, ban truoc khi sua
+./conftest test "branch-${b}.json" -p policy/ --namespace repo --no-color \
+  | tee -a evidence/ci-03-branch-protection.txt
 ```
 
-Đây là Policy as Code đúng nghĩa, vì quy ước làm việc của nhóm tồn tại dưới dạng mã nguồn trong kho, mọi thay đổi được theo dõi qua lịch sử Git, và việc tuân thủ được thực thi tự động chứ không dựa vào nhắc nhở.
+Bước `run` không khai báo `shell`, nên GitHub Actions dùng `bash -e {0}`, cấu hình mặc định này không bật `-o pipefail`. Mã thoát của cả chuỗi lệnh pipe là mã thoát của `tee`, luôn bằng 0. Conftest trả về 1 nhưng bước vẫn ghi nhận trạng thái thành công.
 
-**Giới hạn.** Móc `.githooks/commit-msg` thoát với mã 0 nếu máy lập trình viên không cài Python, tức bỏ qua kiểm tra trong im lặng. Chặng 1 trên máy chủ vẫn bắt được trường hợp này nên đây là suy giảm có kiểm soát, song vẫn cần ghi nhận để người dùng không hiểu nhầm rằng móc cục bộ luôn chạy.
+*Bảng: Trạng thái bước trên CI đối chiếu với nội dung tệp kết quả của chính bước đó, run `40748974196`*
 
-## 4.3 Thành viên 2, Nguyễn Đình Hải: tiêm mã SQL làm lộ dữ liệu cá nhân
+| Bước | Tệp kết quả do bước sinh ra | Nội dung tệp | Trạng thái bước |
+| :--- | :--- | :--- | :---: |
+| Chính sách lớp build, Dockerfile | `ci-01-dockerfile.txt` | 4 dòng FAIL cho mỗi Dockerfile | success |
+| Chính sách lớp triển khai, Compose | `ci-02-compose.txt` | 9 failures cho `docker-compose.yml`, 9 cho `prod.yml`, 13 cho `monitoring.yml` | success |
+| Chính sách lớp quản trị, bảo vệ nhánh | `ci-03-branch-protection.txt` | 2 dòng FAIL, mỗi run ghi `1 failure` | success |
 
-**Mô tả vấn đề.** Toàn bộ truy vấn của ứng dụng được xây dựng bằng cách nối chuỗi dữ liệu người dùng vào câu lệnh SQL, không dùng truy vấn tham số hóa. Semgrep xác định 12 vị trí như vậy theo luật của nhóm. Tuyến tra cứu cảng biển là một ví dụ:
+Job `stage1_policy_as_code` trả về trạng thái thành công trong cả hai run `40748974196` và `40748974200`. Hai bước ở stage 4 cũng mất mã thoát theo đúng cơ chế đó. Khiếm khuyết này không tự bộc lộ vì ba nguyên nhân đồng thời: đây là tình trạng thiếu một kiểm soát chứ không phải một đoạn mã sai, nên phân tích tĩnh không có mẫu nào để đối chiếu; đối tượng cần kiểm tra là trạng thái của hệ thống lưu trữ kho mã nguồn, không nằm trong bản sao làm việc; và biểu hiện của nó là trạng thái thành công, một tín hiệu giả khiến khiếm khuyết bị bỏ qua.
+
+Đối chứng nằm ngay trong cùng tệp workflow: bước cổng CVE giữ mã thoát bằng `${PIPESTATUS[0]}` và bước kiểm tra cú pháp PHP đối chiếu lại bằng `grep`, nên hai bước đó thực thi ngăn chặn đúng chức năng. Khiếm khuyết vì vậy xuất phát từ việc áp dụng thiếu nhất quán một nguyên tắc đã biết về cấu hình shell.
+
+### 4.2.3 Môi trường phải dựng để phát hiện
+
+Phép kiểm chứng phải truy vấn đúng hệ thống đang nắm kiểm soát rồi giao cho một policy engine đánh giá dữ liệu trả về: truy vấn hệ thống danh tính, không căn cứ trên một khai báo tĩnh trong kho mã nguồn. Riêng lớp thứ ba cần một phép kiểm chứng thứ hai, đối chiếu trạng thái của bước trên CI với nội dung tệp kết quả do chính bước đó sinh ra.
+
+*Bảng: Thành phần môi trường cần dựng cho phép kiểm chứng lớp quản trị*
+
+| Thành phần | Bản dùng | Vai trò |
+| :--- | :--- | :--- |
+| GitHub REST API, endpoint `branches/{branch}` | token đọc cấu hình kho mã nguồn | Căn cứ duy nhất về trạng thái bảo vệ nhánh |
+| Conftest, namespace `repo` | 0.71.1, bản ghim, đối chiếu mã băm | Công cụ thực thi chính sách khai báo |
+| API Actions, endpoint `runs/{id}/jobs` và artifact của run | run thực tế | Đối chiếu trạng thái bước với nội dung tệp kết quả |
+
+Trình tự bắt buộc gồm ba bước: tải Conftest bản ghim và đối chiếu mã băm; chạy `conftest verify -p policy/` để bộ test của quy tắc đạt trước; chỉ sau đó mới dùng quy tắc để đánh giá dữ liệu thực tế. Bước thứ hai mang tính bắt buộc, vì một quy tắc sai cú pháp vẫn chạy và vẫn trả về kết quả không có vi phạm.
+
+### 4.2.4 Mã dùng để phát hiện
+
+Chính sách quản trị viết thành ba quy tắc khai báo: nhánh không có bảo vệ, nhánh có bảo vệ nhưng không bắt buộc status check, và nhánh thiếu đúng cổng kiểm soát cần có trong danh sách status check bắt buộc.
+
+```rego
+# policy/repo_policy.rego:22-27
+required_check_patterns := {"Policy Guard", "SonarQube", "Semgrep"}
+
+deny contains msg if {
+	not input.protected == true
+	msg := sprintf("GOVERNANCE: branch '%s' has no protection rule; direct pushes and force pushes are possible.", [input.name])
+}
+```
+
+Cơ chế ngoại lệ theo CS-08 viết thành một phép kiểm thời hạn trong `ci/policy_guard.py`: một lần đẩy trực tiếp vào nhánh phát hành chỉ được chấp nhận khi có bản ghi ngoại lệ đủ năm trường `clause`, `branch`, `reason`, `approved_by`, `expires`, và `expires` còn hiệu lực tính theo ngày chạy.
+
+### 4.2.5 Chứng minh hai chiều
+
+Bộ quy tắc rego cho hai mã thoát khác nhau trên hai đầu vào khác nhau, tại `evidence/11-repo-branch-main-thucte.txt` và `evidence/13-repo-branch-compliant.txt`:
+
+```
+$ conftest test evidence/api/branch-main-slim-truoc.json -p policy/ --namespace repo
+FAIL - GOVERNANCE: branch 'main' has no protection rule
+3 tests, 2 passed, 0 warnings, 1 failure, 0 exceptions        exit=1
+
+$ conftest test fixtures/branch-protection-compliant.json -p policy/ --namespace repo
+3 tests, 3 passed, 0 warnings, 0 failures, 0 exceptions       exit=0
+```
+
+Cổng ngoại lệ được kiểm trên ba kịch bản, kết quả tại `evidence/20-policy-guard-cs01.txt`:
+
+*Bảng: Ba kịch bản của cổng CS-01 và mã thoát tương ứng*
+
+| Kịch bản | Kết luận của cổng | Mã thoát |
+| :--- | :--- | :---: |
+| Đẩy trực tiếp vào `main`, có ngoại lệ `EX-2026-01` còn hạn đến 31/12/2026 | Đạt, có ngoại lệ, ghi rõ người phê duyệt | 0 |
+| Cùng lần đẩy đó, ngoại lệ đã hết hạn từ 01/01/2025 | Chặn, nêu tên ngoại lệ bị loại bỏ và lý do hết hạn | 1 |
+| Thay đổi đến từ một pull request đã hợp nhất | Đạt, không cần ngoại lệ | 0 |
+
+Hai chiều của chính cổng thì đo trên hệ thống thật, không trên fixture. Trước khi sửa, run `40748974196` và `40748974200` cho trạng thái bước là thành công trong khi tệp kết quả chứa dòng FAIL. Sau khi khai báo `shell: bash` và bật bảo vệ nhánh, cùng bộ quy tắc đó cho kết quả đổi dấu đúng ba lần liên tiếp:
+
+*Bảng: Trạng thái cổng quản trị qua ba lượt đo trên hệ thống thật*
+
+| Lượt | Trạng thái nhánh `main` | Kết quả Conftest | Trạng thái bước |
+| :--- | :--- | :--- | :---: |
+| run `40748974196`, trước khi sửa | `protected: false` | 1 failure | success, sai |
+| run `41810794218`, sau khi giữ mã thoát | `protected: false` | 1 failure | failure, đúng |
+| run `41812598120`, sau khi bật bảo vệ nhánh | `protected: true` | 0 failure | success, đúng |
+
+Lượt thứ hai là lượt quan trọng nhất: cùng một trạng thái hệ thống, cùng một bộ quy tắc, nhưng trạng thái bước đổi từ thành công sang thất bại. Khác biệt duy nhất là một dòng khai báo `shell`, nên đó là bằng chứng trực tiếp rằng khiếm khuyết nằm ở cơ chế chuyển mã thoát chứ không ở quy tắc hay ở dữ liệu.
+
+### 4.2.6 Ràng buộc trong quá trình khắc phục
+
+Việc khắc phục vượt quá phạm vi một commit, do bốn ràng buộc tác động đồng thời.
+
+Ràng buộc thẩm quyền: bật bảo vệ nhánh là thao tác trong phần thiết lập kho mã nguồn, và chỉ chủ kho mã nguồn có thẩm quyền thực hiện. Policy as Code ở đây chỉ kiểm chứng chứ không thi hành được kiểm soát, nên bản vá có một phần kỹ thuật và một phần hành chính.
+
+Ràng buộc phạm vi token: khối `permissions` của `GITHUB_TOKEN` không có khóa `administration`. Lần thử khai báo `administration: read` làm cả tệp workflow không phân tích được, và GitHub tạo một run thất bại với 0 job, run `41810605290`. Hệ quả là trường `protection` của một nhánh không đọc được bằng token mặc định của workflow, nên trong CI chỉ quy tắc thứ nhất còn hiệu lực.
+
+Ràng buộc độ tin cậy của điểm thi hành: hook `.githooks/commit-msg` chạy trên máy lập trình viên, và bản trước trả về 0 kèm một dòng cảnh báo khi máy không có Python, tức bỏ qua kiểm tra mà vẫn báo thành công. Lập trình viên cũng có thể vô hiệu hóa hook bằng `git commit --no-verify`.
+
+Ràng buộc giữa chính sách và phương pháp đánh giá: nhánh `main` giữ hệ thống ở trạng thái có khiếm khuyết để làm đối tượng đánh giá, trong khi CS-01 yêu cầu mọi thay đổi vào nhánh phát hành phải qua pull request. Giải pháp là một ngoại lệ có hồ sơ và có thời hạn theo CS-08 thay vì nới lỏng chính sách một cách tùy tiện.
+
+### 4.2.7 Cách xử lý và vị trí trên workflow
+
+Bản vá gồm bốn thay đổi theo thứ tự hiệu lực giảm dần: khai báo `shell: bash` cho mọi bước có chuỗi lệnh pipe để ba cổng ở stage 1 và hai cổng ở stage 4 thực thi ngăn chặn; bổ sung `ci/check_branch_payload.py` kiểm tra cấu trúc phản hồi API trước khi đánh giá; chỉ đánh giá những nhánh vừa thuộc diện chính sách vừa thực sự tồn tại; và chuyển hook sang fail-closed.
+
+*Bảng: Bốn lớp thi hành của cùng một điều khoản chính sách*
+
+| Lớp | Nơi thi hành | Phase | Cơ chế |
+| :--- | :--- | :--- | :--- |
+| Phản hồi sớm | máy lập trình viên | Code | hook `commit-msg`, fail-closed |
+| Quy ước thay đổi và cổng CS-01 | CI | Code | `policy_guard.py` chạy trên payload sự kiện, có cơ chế ngoại lệ theo thời hạn |
+| Quản trị kho mã nguồn | CI | Plan, Code | `repo_policy.rego` đánh giá JSON lấy từ API |
+| Chặn hợp nhất | GitHub | Plan | bảo vệ nhánh, kiểm chứng được nhưng không thi hành được từ mã |
+
+Một điều khoản chính sách cần nhiều điểm thi hành, và điểm thi hành càng gần người viết mã càng cho phản hồi nhanh, đồng thời càng ít tin cậy. Lớp duy nhất thực sự ngăn được một lần hợp nhất không đạt lại nằm ngoài kho mã nguồn, do đó lớp này phải được kiểm chứng liên tục bằng lớp thứ ba, và lớp thứ ba phải tự chứng minh được khả năng ngăn chặn của chính nó.
+
+### 4.2.8 Giới hạn kiểm chứng của cổng
+
+Chính sách quản trị chỉ đọc được trạng thái cấu hình. Cổng không xác minh được một thành viên có thực sự dùng xác thực hai yếu tố, cũng không xác minh được người phê duyệt pull request có đọc mã hay chỉ phê duyệt hình thức. Phần đó thuộc phạm vi quản trị nhân sự. Kết quả kiểm chứng còn phụ thuộc phạm vi token như nêu ở mục 4.2.6, nên phạm vi token là một phần của phép kiểm chứng, không phải chi tiết kỹ thuật phụ.
+
+## 4.3 Thành viên 2, Nguyễn Đình Hải, B26CHAT010: tiêm mã SQL đi qua hàm bao nội bộ
+
+### 4.3.1 Tình huống nghiệp vụ và điều khoản bị ràng buộc
+
+Khách hàng tra cứu vận đơn và tra cứu cảng biển trên trang công khai, không cần đăng nhập. Hai luồng này nhận chuỗi nhập tự do rồi hiển thị kết quả lấy từ cơ sở dữ liệu chứa dữ liệu cá nhân của người nhận hàng.
+
+Điều khoản CS-03 cấm ghép dữ liệu nhận từ người dùng vào câu lệnh truy vấn dưới mọi hình thức. Điều khoản CS-05 yêu cầu dữ liệu cá nhân chỉ rời khỏi hệ thống theo đường đã khai báo. Căn cứ pháp lý là GDPR Điều 5(1)(f) và 32, tương ứng Điều 26 và 27 Nghị định 13/2023/NĐ-CP.
+
+### 4.3.2 Vấn đề và nguyên nhân không tự bộc lộ
+
+Vấn đề không dừng ở một lỗ hổng tiêm mã SQL thông thường. Điểm thực thi câu lệnh không phải `mysqli_query` mà hàm bao `query()` của dự án trong `lib/db.php`, và chuỗi nhiễm đi từ `$_GET` trong tệp trang qua biến trung gian rồi vào hàm bao ở tệp khác.
 
 ```php
-// pages/ports.php:12, 24
+// pages/ports.php:12, 24, 27
 $q = $_GET['q'] ?? '';
 $sql = "SELECT code, city, country, volume FROM ports WHERE code LIKE '%$q%'";
+$res = query($sql);   // diem thuc thi nam o lib/db.php, khong phai o day
 ```
 
-Bảng kết quả hiển thị 4 cột, nên một truy vấn ghép `UNION SELECT` với 4 cột cho phép đọc bất kỳ bảng nào mà tài khoản cơ sở dữ liệu có quyền, bao gồm bảng `users` chứa mật khẩu dạng rõ và khóa API, và cả cơ sở dữ liệu `dev`. Mức độ nghiêm trọng bị khuếch đại bởi hai yếu tố cấu hình: ứng dụng kết nối bằng tài khoản `root` toàn quyền theo `prod.yml:49`, và lỗi SQL được in thẳng ra trang theo `lib/db.php:48-49`, giúp kẻ tấn công dò cấu trúc dữ liệu nhanh chóng.
+Bảng kết quả hiển thị bốn cột, nên một truy vấn `UNION SELECT` bốn cột trích xuất được dữ liệu mọi bảng mà tài khoản kết nối đọc được, gồm bảng `users` chứa mật khẩu dạng rõ và khóa API. Hai cấu hình khác gia tăng thiệt hại: ứng dụng kết nối bằng tài khoản `root` toàn quyền theo `prod.yml:49`, và lỗi SQL xuất trực tiếp ra phản hồi HTTP theo `lib/db.php:48-49`.
 
-**Cách phát hiện.** Semgrep với bộ luật `p/owasp-top-ten` và `p/php`, quy tắc `php.lang.security.injection.tainted-sql-string`. Công cụ xác định được cả nguồn dữ liệu và điểm thực thi:
+Hai biến thể phức tạp hơn nằm ở hai tệp khác. Tệp `pages/track_api.php` trả về JSON và không in kết quả truy vấn ra trang, nên khai thác theo thời gian vẫn thành công mà không để lại dấu vết hiển thị trên giao diện. Tệp `pages/shipment_detail.php` thiếu kiểm tra quyền sở hữu, nên một người dùng đã đăng nhập đọc được đơn hàng của chủ thể dữ liệu khác mà không cần tiêm mã.
 
-```
-Vị trí: InlaneWeb/web/src/pages/ports.php:24
-Nguồn:  12: $q = $_GET['q'] ?? '';
-Đích:   24: $sql = "SELECT code, city, country, volume FROM ports WHERE code LIKE '%$q%'";
-Phân loại: A01:2017 Injection, CWE-89
-```
+Nguyên nhân không tự bộc lộ là tên hàm bao. Bộ quy tắc công khai `p/php` và SonarQube Community đều không liên kết được source với sink khi sink là một hàm do dự án tự định nghĩa ở tệp khác. Trên cả hai nhánh, SonarQube ghi `vulnerabilities` bằng 0, `security_hotspots` bằng 0 và `security_rating` bằng 1, tức mức A.
 
-*Bảng: Mười một vị trí tiêm mã SQL do Semgrep phát hiện*
+### 4.3.3 Môi trường phải dựng để phát hiện
 
-| Tệp và dòng | Nguồn dữ liệu | Loại câu lệnh |
-| :--- | :--- | :--- |
-| `pages/login.php:19` | `$_POST['username']`, `$_POST['password']` | SELECT |
-| `pages/ports.php:24` | `$_GET['q']` | SELECT |
-| `pages/port_detail.php:19` | `$_GET['code']` | SELECT |
-| `pages/news.php:17` | `$_GET['id']` | SELECT |
-| `pages/account.php:41` | `$_GET['order']` | SELECT, mệnh đề ORDER BY |
-| `pages/account_update.php:20` | `$_POST['email']` | UPDATE |
-| `pages/comment_add.php:19` | `$_POST['content']` | INSERT |
-| `pages/comment_delete.php:18` | `$_GET['comment_id']` | DELETE |
-| `pages/shipment_detail.php:15`, `:30` | `$_GET['id']` | SELECT |
-| `pages/track_api.php:18` | `$_GET['tracking']` | SELECT |
+Môi trường gồm Semgrep 1.182.1 bật taint mode với bộ quy tắc tự viết; SonarQube Community dựng tạm trong CI làm đối chứng, cùng mã nguồn và cùng lượt chạy; một cặp fixture PHP gồm bản vi phạm và bản đã vá; và cơ sở dữ liệu có dữ liệu mẫu của hai người dùng khác nhau để kiểm tra quyền sở hữu.
 
-**Chính sách bị vi phạm.** Trường hợp này vi phạm nghĩa vụ áp dụng biện pháp kỹ thuật bảo vệ dữ liệu cá nhân theo Điều 26 và Điều 27 Nghị định 13/2023/NĐ-CP. Theo GDPR, tương ứng Điều 5(1)(f) về nguyên tắc toàn vẹn và bảo mật, và Điều 32 về an toàn của hoạt động xử lý. Vấn đề thuộc pha Code và Build, phát hiện tại chặng 2.
+Việc đặt hai công cụ trên cùng một lượt chạy là có chủ đích. Đặt hai công cụ cạnh nhau làm rõ giới hạn của từng lớp: Semgrep báo 12 vị trí tiêm mã SQL trong khi SonarQube báo 0 lỗ hổng trên cùng mã nguồn và cùng lượt chạy.
 
-**Cách xử lý và minh chứng Security as Code.** Biện pháp xử lý là chuyển sang truy vấn tham số hóa. Bổ sung hàm sau vào `lib/db.php`:
+### 4.3.4 Mã dùng để phát hiện
 
-```php
-/** query_safe(): truy van tham so hoa, du lieu nguoi dung tach khoi cau lenh. */
-function query_safe(string $sql, string $types = '', array $params = []): array
-{
-    $stmt = mysqli_prepare(db(), $sql);
-    if ($stmt === false) {
-        return [];
-    }
-    if ($types !== '') {
-        mysqli_stmt_bind_param($stmt, $types, ...$params);
-    }
-    mysqli_stmt_execute($stmt);
-    $res  = mysqli_stmt_get_result($stmt);
-    $rows = $res ? mysqli_fetch_all($res, MYSQLI_ASSOC) : [];
-    mysqli_stmt_close($stmt);
-    return $rows;
-}
-```
-
-Tuyến tra cứu cảng được viết lại thành:
-
-```php
-// pages/ports.php (sau khi sua)
-$rows = query_safe(
-    "SELECT code, city, country, volume FROM ports WHERE code LIKE ?",
-    's', ['%' . $q . '%']);
-```
-
-Dữ liệu người dùng đi vào máy chủ cơ sở dữ liệu như một tham số, không còn là một phần của câu lệnh, nên ký tự nháy đơn mất khả năng thay đổi cấu trúc truy vấn. Minh chứng Security as Code là tiêu chí `security_rating` trong `ci/sonarqube-quality-gate.json` kết hợp với bộ luật Semgrep, cả hai đều nằm trong kho mã và chạy tự động trên mọi thay đổi.
-
-**Giới hạn.** Như đã trình bày ở Chương 3, SonarQube Community không phát hiện được nhóm lỗi này. Nếu dây chuyền chỉ có SonarQube thì 12 vị trí nêu trên đã lọt hoàn toàn. Đây là căn cứ để nhóm chạy song song hai công cụ phân tích tĩnh có cơ chế khác nhau.
-
-## 4.4 Thành viên 3, Đào Xuân Mạnh: mật khẩu dạng rõ và bí mật gán cứng
-
-### 4.4.1 Mô tả vấn đề
-
-Vấn đề gồm hai phần liên quan nhau, cùng thuộc nhóm quản lý thông tin xác thực.
-
-Phần thứ nhất liên quan tới việc mật khẩu người dùng được lưu dạng rõ. Bảng `users` khai báo cột `password` kèm chú thích thừa nhận cách làm sai:
-
-```sql
--- db/init.sql:23-38 (trich)
-    password       VARCHAR(255) NOT NULL,   -- luu cleartext (bad practice CO Y)
-
-INSERT INTO users (username, password, email, role, api_key) VALUES
-('admin',   'p@ssw0rd',    'admin@ilfreight.local',  'admin',    'ILF-ADM-9f3c1a77e2b04d55'),
-('jsmith',  'Spring2024!', 'jsmith@ilfreight.local', 'customer', 'ILF-CUS-1b2c3d4e5f60718'),
-```
-
-Hệ quả trực tiếp là bất kỳ đường rò rỉ nào tới bảng `users`, dù là một lỗi tiêm mã SQL, một bản sao lưu bị lộ hay một người có quyền đọc cơ sở dữ liệu, đều làm lộ mật khẩu ở dạng dùng được ngay. Vì người dùng thường dùng lại mật khẩu trên nhiều dịch vụ, thiệt hại lan sang cả các hệ thống khác, vượt ra ngoài phạm vi hệ thống này.
-
-Mật khẩu dạng rõ còn khiến việc xác thực phải so sánh chuỗi trong câu lệnh SQL tại `login.php:19`, tức mật khẩu bị ghép vào chuỗi truy vấn. Đây chính là mắt xích đầu tiên của chuỗi rò rỉ được phân tích ở phần của thành viên 5.
-
-Phần thứ hai liên quan tới bí mật gán cứng trong mã nguồn và cấu hình. Cùng một mật khẩu cơ sở dữ liệu xuất hiện ở bốn vị trí trong kho mã:
-
-*Bảng: Các vị trí gán cứng thông tin xác thực*
-
-| Vị trí | Nội dung | Vai trò |
-| :--- | :--- | :--- |
-| `web/src/lib/db.php:19` | `$pass = getenv('DB_PASS') ?: 'password';` | Giá trị dự phòng khi thiếu biến môi trường |
-| `docker-compose.prod.yml:15` | `MYSQL_ROOT_PASSWORD: password` | Mật khẩu khởi tạo máy chủ cơ sở dữ liệu |
-| `docker-compose.prod.yml:50` | `DB_PASS: password` | Mật khẩu ứng dụng dùng để kết nối |
-| `db/init.sql:11` | `CREATE USER ... IDENTIFIED BY 'password'` | Mật khẩu tài khoản quản trị cơ sở dữ liệu |
-
-Giá trị dự phòng tại `db.php:19` nguy hiểm hơn vẻ ngoài của nó. Toán tử `?:` khiến ứng dụng không báo lỗi khi thiếu biến môi trường mà lặng lẽ dùng mật khẩu mặc định. Một môi trường triển khai bị cấu hình thiếu sẽ chạy có vẻ bình thường trong khi đang dùng thông tin xác thực công khai trong kho mã.
-
-### 4.4.2 Cách phát hiện
-
-Nhóm phát hiện vấn đề này theo hai cách bổ sung cho nhau.
-
-Cách thứ nhất là luật Semgrep tự viết. Nhóm phải viết luật riêng vì các bộ luật công khai không bắt được mẫu `getenv(...) ?: 'chuỗi'` đặc thù của PHP. Luật đặt tại `ci/semgrep-local-rules.yml:2-14`, nội dung đã trình bày ở Chương 3. Kết quả quét trên nhánh `main`, lần chạy `40748974196`, xác nhận luật kích hoạt đúng mục tiêu:
-
-```
-Phat hien 4: ci.php-hardcoded-db-password-fallback  [ERROR]
-Vi tri: InlaneWeb/web/src/lib/db.php:17
-Noi dung: $pass = getenv('DB_PASS') ?: 'password';
-Phan loai: A07:2021 Identification and Authentication Failures, CWE-798
-```
-
-Cách thứ hai là rà soát thủ công lược đồ cơ sở dữ liệu. Việc mật khẩu được lưu dạng rõ nằm ở phần dữ liệu chứ không nằm ở phần mã, nên không công cụ phân tích tĩnh nào trong dây chuyền phát hiện được. Nhóm phát hiện bằng cách đọc tệp `init.sql`. Đây là một minh họa cụ thể cho yêu cầu của đề bài về việc chỉ ra giới hạn của công cụ.
-
-### 4.4.3 Chính sách bị vi phạm và pha DevSecOps
-
-Theo Nghị định 13/2023/NĐ-CP, trường hợp này vi phạm Điều 26 về nghĩa vụ áp dụng biện pháp kỹ thuật bảo vệ dữ liệu cá nhân ngay từ đầu và trong suốt quá trình xử lý, và Điều 27 về bảo vệ dữ liệu cá nhân cơ bản, trong đó có yêu cầu kiểm tra an ninh mạng đối với hệ thống phục vụ xử lý dữ liệu trước khi đưa vào xử lý.
-
-Theo GDPR, trường hợp này vi phạm Điều 32(1)(a) về yêu cầu áp dụng biện pháp giả danh hóa và mã hóa dữ liệu cá nhân ở mức phù hợp với rủi ro, trong đó lưu mật khẩu dạng rõ là vi phạm trực tiếp. Trường hợp này cũng vi phạm Điều 25 về bảo vệ dữ liệu ngay từ khâu thiết kế và theo mặc định, vì việc chọn lược đồ cơ sở dữ liệu không băm mật khẩu là một quyết định ở khâu thiết kế, và Điều 5(1)(f) về nguyên tắc toàn vẹn và bảo mật.
-
-Vấn đề thuộc pha Code và Build, phát hiện tại chặng 2. Mật khẩu dạng rõ được đưa vào từ khâu thiết kế lược đồ thuộc pha Code, còn bí mật gán cứng trong tệp Compose nằm ở ranh giới giữa pha Code và pha Release.
-
-### 4.4.4 Cách xử lý
-
-Để xử lý phần thứ nhất, nhóm chuyển sang băm mật khẩu. PHP cung cấp sẵn `password_hash()` và `password_verify()`, dùng thuật toán bcrypt theo mặc định. Hàm xác thực được viết lại kết hợp cả hai biện pháp là băm mật khẩu và truy vấn tham số hóa:
-
-```php
-/** authenticate(): mat khau khong bao gio duoc ghep vao chuoi cau lenh SQL. */
-function authenticate(string $username, string $password): ?array
-{
-    $stmt = mysqli_prepare(db(),
-        'SELECT id, username, role, password_hash FROM users WHERE username = ? LIMIT 1');
-    if ($stmt === false) { return null; }
-    mysqli_stmt_bind_param($stmt, 's', $username);
-    mysqli_stmt_execute($stmt);
-    $row = mysqli_fetch_assoc(mysqli_stmt_get_result($stmt));
-    mysqli_stmt_close($stmt);
-
-    if ($row === null || !password_verify($password, $row['password_hash'])) {
-        return null;              // khong phan biet sai ten hay sai mat khau
-    }
-    unset($row['password_hash']);
-    return $row;
-}
-```
-
-Trình xử lý đăng nhập dùng hàm trên, đồng thời tái sinh định danh phiên để chống kỹ thuật cố định phiên:
-
-```php
-// pages/login.php (sau khi sua)
-$user = authenticate($_POST['username'] ?? '', $_POST['password'] ?? '');
-if ($user !== null) {
-    session_regenerate_id(true);
-    $_SESSION['uid'] = $user['id'];
-    header('Location: /account'); exit;
-}
-$error = 'Sai tên đăng nhập hoặc mật khẩu.';
-```
-
-Lược đồ cơ sở dữ liệu đổi cột `password VARCHAR(255)` thành `password_hash CHAR(60) NOT NULL`, đủ chứa chuỗi 60 ký tự có tiền tố `$2y$` do `password_hash()` sinh ra, và dữ liệu mẫu được nạp bằng giá trị băm thay vì chuỗi gốc.
-
-Để xử lý phần thứ hai, nhóm đưa bí mật ra khỏi kho mã. Giá trị dự phòng bị loại bỏ, và khi thiếu biến môi trường thì ứng dụng dừng ngay thay vì chạy với mật khẩu mặc định:
-
-```php
-// lib/db.php (sau khi sua)
-$pass = getenv('DB_PASS');
-if ($pass === false || $pass === '') {
-    throw new RuntimeException('Thieu cau hinh bat buoc: DB_PASS');
-}
-```
-
-Tệp Compose nhận bí mật từ môi trường thay vì chứa giá trị:
+Quy tắc tự viết khai báo nguồn không tin cậy, điểm thực thi và bộ khử nhiễm. Điểm then chốt là dòng khai báo `query(...)` làm sink, do bộ quy tắc tiêu chuẩn không nhận diện hàm bao nội bộ của dự án.
 
 ```yaml
-# docker-compose.prod.yml (sau khi sua)
-  db:
-    environment: { MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD:?Thieu}", MYSQL_ROOT_HOST: "localhost" }
-  web:
-    environment: { DB_USER: "${DB_USER:?Thieu}", DB_PASS: "${DB_PASS:?Thieu}" }
+# ci/semgrep-policy-php.yml, quy tac policy-p4-sql-injection
+mode: taint
+pattern-sources:
+  - pattern-either:
+      - pattern: $_GET[...]
+      - pattern: $_POST[...]
+      - pattern: $_REQUEST[...]
+      - pattern: $_COOKIE[...]
+pattern-sinks:
+  - patterns:
+      - pattern-either:
+          - pattern: query($SINK, ...)
+          - pattern: query_one($SINK, ...)
+          - pattern: mysqli_query($CONN, $SINK, ...)
+      - focus-metavariable: $SINK
+pattern-sanitizers:
+  - pattern: mysqli_real_escape_string(...)
+  - pattern: intval(...)
 ```
 
-Cú pháp `${BIEN:?thông báo}` khiến lệnh khởi động thất bại kèm thông báo rõ ràng nếu thiếu biến, áp dụng đúng nguyên tắc để hệ thống báo lỗi ngay và rõ thay vì chạy tiếp với giá trị mặc định không an toàn.
+### 4.3.5 Chứng minh hai chiều
 
-### 4.4.5 Minh chứng Security as Code
+Cặp fixture chạy ngay trong pipeline tại bước chứng minh cặp fixture hai chiều, kết quả ở `evidence/ci-06-fixture-vulnerable.txt` và `evidence/ci-07-fixture-patched.txt`. Bước này so sánh hai mã thoát bằng biến tường minh thay vì dựa vào mã thoát của chuỗi lệnh pipe:
 
-Tiêu chí an toàn của vấn đề này tồn tại dưới dạng mã trong kho và chạy tự động trên mọi thay đổi. Luật `php-hardcoded-db-password-fallback` tại `ci/semgrep-local-rules.yml:2-14` bắt mẫu gán cứng trong mã PHP, còn luật `compose-hardcoded-mysql-root-password` tại dòng 16-34 bắt mật khẩu gán cứng trong tệp Compose. Để luật thứ hai bao phủ được cả hai tệp Compose đang thực sự chứa bí mật, cần sửa mục `paths.include`:
+```
+ban co y sai: exit=1 (ky vong 1)
+ban da va    : exit=0 (ky vong 0)
+```
+
+Đối chứng âm nằm trong cùng lượt chạy: trên cùng mã nguồn, SonarQube báo 0 lỗ hổng và `security_rating` mức A, trong khi quy tắc tự viết báo vi phạm ở 12 vị trí trên nhánh `main`. Số phát hiện giảm còn 8 trên nhánh `patched`, phần còn lại thuộc đợt vá thứ hai có chủ đích.
+
+### 4.3.6 Ràng buộc trong quá trình khắc phục
+
+Ràng buộc thứ nhất là thứ tự vá. Phép kiểm TDS-6 khẳng định luồng nhật ký không chứa nguyên văn câu lệnh truy vấn. Để khẳng định được điều đó phải có một truy vấn lỗi thực tế. Vá hết các điểm còn lại trong cùng một đợt làm phép kiểm mất đối tượng kiểm chứng: nó sẽ báo đạt vì không còn gì để kiểm, đúng loại đạt giả đã phát sinh ba lần trong quá trình xây dựng bộ kiểm thử. Danh sách hoãn có chủ sở hữu và lý do trong `patches/README.md`.
+
+Ràng buộc thứ hai là bản chất của hai biến thể. Tham số hóa truy vấn không khắc phục được `shipment_detail.php`, vì thiếu sót ở đó là thiếu điều kiện chủ sở hữu trong logic nghiệp vụ. Bản vá phải thêm điều kiện `WHERE customer_id = ?` và một phép kiểm riêng, TDS-3, chứng minh người này không đọc được dữ liệu người khác.
+
+Ràng buộc thứ ba là tầng quyền. Chừng nào ứng dụng còn kết nối bằng `root` với quyền `FILE`, một lỗ hổng tiêm mã SQL còn lại ở bất kỳ đâu vẫn cho phép đọc ghi tệp trên máy chủ cơ sở dữ liệu. Việc hạ quyền thuộc mục 4.4 và 4.5, nên bản vá của ba thành viên phải phối hợp theo thứ tự.
+
+### 4.3.7 Cách xử lý và vị trí trên workflow
+
+Quy tắc chạy ở stage 2 với cờ `--error`, nên một phát hiện mức ERROR làm bước thất bại và chặn pull request. Bản vá dùng `mysqli_prepare` với tham số ràng buộc, bổ sung điều kiện chủ sở hữu, và giữ lại một điểm lỗi có chủ đích làm đối tượng cho TDS-6 đến khi phép kiểm đó được thay bằng phép kiểm trực tiếp trên hàm ghi nhật ký.
+
+### 4.3.8 Giới hạn kiểm chứng của cổng
+
+Taint mode không lần được vết luồng dữ liệu qua một biến siêu toàn cục ghi ở tệp khác, cũng không lần được chuỗi truy vấn tạo bởi thao tác ghép mảng qua `implode`. Quy tắc cũng không chứng minh được dữ liệu chưa từng bị trích xuất trước thời điểm vá; khẳng định đó cần nhật ký truy cập đầy đủ từ ngày hệ thống lên mạng, điều mà hệ thống hiện chưa có.
+
+## 4.4 Thành viên 3, Đào Xuân Mạnh, B26CHAT026: bí mật có giá trị dự phòng dạng hằng và mật khẩu dạng rõ
+
+### 4.4.1 Tình huống nghiệp vụ và điều khoản bị ràng buộc
+
+Đội vận hành triển khai ứng dụng lên một máy chủ mới. Quy trình yêu cầu nạp biến môi trường từ nguồn quản lý bí mật trước khi khởi động, nhưng bước đó bị bỏ qua. Dịch vụ vẫn khởi động bình thường, ứng dụng vẫn kết nối được cơ sở dữ liệu, và không có cảnh báo nào.
+
+Điều khoản CS-04 yêu cầu bí mật chỉ đến từ nguồn quản lý bí mật, không có giá trị dự phòng dạng hằng, và ứng dụng phải dừng khi thiếu bí mật. Điều khoản CS-06 yêu cầu tài khoản dịch vụ ở mức quyền tối thiểu. Căn cứ pháp lý là GDPR Điều 5(1)(f), 25 và 32(1)(a).
+
+### 4.4.2 Vấn đề và nguyên nhân không tự bộc lộ
+
+Do `.env` nằm trong `.gitignore`, trình quét bí mật không có chuỗi tĩnh nào để phát hiện. Khiếm khuyết thực tế nằm ở cơ chế nhận giá trị mặc định dạng hằng khi thiếu biến môi trường, cho phép container khởi động bằng một mật khẩu đã công khai trong kho mã nguồn.
+
+Ba lớp liên hoàn. Lớp thứ nhất là toán tử dự phòng trong `lib/db.php`, nhận chuỗi hằng làm giá trị khi biến môi trường rỗng. Lớp thứ hai là tài khoản mặc định `root` toàn quyền, kèm quyền `FILE`, theo `prod.yml:49` và `init.sql.template:11-14`. Lớp thứ ba là mật khẩu người dùng lưu dạng rõ trong bảng `users`.
+
+Riêng lớp thứ nhất chỉ là một cấu hình sai. Kết hợp với lỗ hổng tiêm mã SQL ở mục 4.3, bộ ba này cho phép đọc ghi tệp trên máy chủ cơ sở dữ liệu, và lộ toàn bộ mật khẩu người dùng ngay tại bản ghi chứ không cần phá băm.
+
+Nguyên nhân không tự bộc lộ là nơi khiếm khuyết biểu hiện. Đọc tệp cấu hình chỉ thấy một chuỗi tham chiếu biến môi trường, hoàn toàn hợp lệ. Khiếm khuyết chỉ bộc lộ trong môi trường thực thi, ở trường hợp biến môi trường không được nạp, tức ở một trạng thái mà phân tích tĩnh không quan sát.
+
+### 4.4.3 Môi trường phải dựng để phát hiện
+
+Môi trường gồm ba thành phần. Hai lần khởi tạo cùng một tệp compose, một lần có biến môi trường và một lần không, nhằm quan sát hành vi nhận giá trị dự phòng. Trivy secret scan chạy trên toàn bộ `app/` làm đối chứng âm, để chứng minh lớp quét bí mật không đủ. InSpec chạy trên container đang hoạt động để đọc giá trị đang có hiệu lực thay vì giá trị được khai báo.
+
+Thành phần thứ ba là thành phần quyết định: phép kiểm phải đọc trạng thái runtime, nơi khiếm khuyết thực sự bộc lộ.
+
+### 4.4.4 Mã dùng để phát hiện
+
+Quy tắc nhận diện mẫu toán tử dự phòng, phủ cả `?:` và `??`, trên cả `getenv`, `$_ENV` và `$_SERVER`:
 
 ```yaml
-# ci/semgrep-local-rules.yml:26-30 (de xuat sua)
-    paths:
-      include:
-        - "**/docker-compose*.yml"
-        - "**/compose*.yml"
-        - "**/compose*.yaml"
+# ci/semgrep-local-rules.yml, quy tac php-hardcoded-db-password-fallback
+patterns:
+  - pattern-either:
+      - pattern: "getenv($NAME) ?: $FALLBACK"
+      - pattern: "getenv($NAME) ?? $FALLBACK"
+      - pattern: "$_ENV[$NAME] ?: $FALLBACK"
+      - pattern: "$_SERVER[$NAME] ?? $FALLBACK"
+  - metavariable-regex:
+      metavariable: $FALLBACK
+      regex: ^['"].+['"]$
 ```
 
-Với mẫu `docker-compose*.yml`, luật sẽ khớp cả `docker-compose.prod.yml:15` và `docker-compose.monitoring.yml:46`, là hai vị trí hiện đang lọt.
+Toán tử `?:` của PHP trùng cú pháp phân tách khóa và giá trị của YAML, nên mọi mẫu chứa toán tử này phải nằm trong dấu nháy; thiếu dấu nháy thì cả tệp quy tắc không phân tích được.
 
-### 4.4.6 Giới hạn của công cụ đối với vấn đề này
+### 4.4.5 Chứng minh hai chiều
 
-Có ba điểm công cụ không phát hiện được, cần nêu rõ.
+Chiều vi phạm: quy tắc báo vi phạm trên `lib/db.php` ở trạng thái hiện tại. Chiều đạt: quy tắc không báo vi phạm sau khi đổi sang bắt buộc có biến môi trường và thoát sớm khi thiếu.
 
-- **Mật khẩu lưu dạng rõ trong lược đồ cơ sở dữ liệu.** Không công cụ nào trong dây chuyền báo. SonarQube không quét tệp SQL trong cấu hình hiện tại, còn Semgrep không có luật nào nhận biết được rằng một cột tên `password` kiểu `VARCHAR(255)` đang chứa giá trị chưa băm.
-- **Mật khẩu quản trị Grafana tại `monitoring.yml:46`.** Vị trí này lọt vì khiếm khuyết `paths.include` nêu trên, và vì luật chỉ nhằm vào khóa `MYSQL_ROOT_PASSWORD`.
-- **Giá trị của bí mật đã lộ.** Công cụ chỉ báo rằng có bí mật gán cứng, không biết bí mật đó đã lộ ra kho mã công khai và cần được thu hồi. Xử lý triệt để đòi hỏi đổi toàn bộ mật khẩu đã từng xuất hiện trong lịch sử Git, vì lịch sử vẫn giữ giá trị cũ ngay cả sau khi tệp được sửa.
+Đối chứng âm trên cùng mã nguồn và cùng lượt chạy: Trivy secret scan ghi kết quả vào `evidence/ci-09-trivy-secret.txt` và không phát hiện bí mật nào trong `app/`. Hai kết quả trái dấu trên cùng một đối tượng là bằng chứng rằng quét bí mật và kiểm tra cấu hình xử lý hai mục tiêu độc lập, không thay thế nhau.
 
-## 4.5 Thành viên 4, Lê Đức Anh: cấu hình triển khai mất an toàn
+Phép kiểm tuân thủ ở stage 4 kiểm giá trị đang có hiệu lực trên container, kết quả tại `evidence/ci-13-inspec.txt`. Trước khi sửa, hai cổng ở stage 4 cũng mất mã thoát theo cơ chế nêu ở mục 4.2, nên kết quả này chỉ trở thành một cổng thật sau bản vá đó.
 
-### 4.5.1 Mô tả vấn đề
+### 4.4.6 Ràng buộc trong quá trình khắc phục
 
-Bảng kiểm ở Chương 2 liệt kê mười yêu cầu không đạt ở lớp hạ tầng. Thành viên 4 phụ trách nhóm vấn đề về quyền hạn và bề mặt tiếp xúc của container, tập trung vào ba điểm.
+Bỏ giá trị dự phòng làm container không khởi động được khi thiếu biến, nên phải sửa cả entrypoint và tài liệu dựng, đồng thời bổ sung một thông điệp lỗi nêu rõ biến bị thiếu.
 
-Điểm thứ nhất là container chạy bằng quyền `root`. Tệp `InlaneWeb/web/Dockerfile` không có chỉ thị `USER` nào nên tiến trình Apache chạy với quyền `root` trong container, và `InlaneWeb/db/Dockerfile` cũng ở tình trạng tương tự. Khi kết hợp với một lỗ hổng cho phép thực thi lệnh, quyền `root` trong container làm tăng đáng kể khả năng kẻ tấn công thoát ra máy chủ.
+Áp dụng hàm băm yêu cầu di trú dữ liệu đồng bộ với `login.php`. Nếu làm đơn phương, toàn bộ tài khoản hiện hành mất quyền đăng nhập. Thứ tự đúng là thêm cột băm, ghi song song khi người dùng đăng nhập thành công, rồi mới bỏ cột mật khẩu dạng rõ.
 
-Điểm thứ hai là tài khoản cơ sở dữ liệu toàn quyền. Ứng dụng kết nối bằng `root` theo `prod.yml:49`, và tài khoản này được cấp quyền rộng nhất có thể:
+Hạ quyền tài khoản cơ sở dữ liệu làm một số truy vấn hiện có thất bại, vì chúng đang dựa vào quyền rộng của `root`. Mỗi truy vấn thất bại phải được xem lại, thay vì cấp thêm quyền tùy tiện.
 
-```sql
--- db/init.sql:11-14
-CREATE USER IF NOT EXISTS 'root'@'%' IDENTIFIED BY 'password';
-GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' WITH GRANT OPTION;
-GRANT FILE ON *.* TO 'root'@'%';
-```
+### 4.4.7 Cách xử lý và vị trí trên workflow
 
-Ba yếu tố ở đây cộng hưởng với nhau. Khai báo `'root'@'%'` cho phép kết nối từ mọi máy, `ALL PRIVILEGES ON *.*` cho phép đọc cả cơ sở dữ liệu `dev`, và `GRANT FILE` cho phép đọc ghi tệp trên máy chủ cơ sở dữ liệu. Một lỗi tiêm mã SQL với tài khoản như vậy không chỉ đọc được dữ liệu mà còn ghi được tệp.
+Quy tắc chạy ở stage 2, phép kiểm tuân thủ chạy ở stage 4 trên container thực tế, và lặp lại ở stage 5 sau khi phát hành. Thứ tự vá gồm bốn bước: tạo tài khoản quyền tối thiểu, đổi chuỗi kết nối sang tài khoản đó, bắt buộc có biến môi trường và thoát sớm khi thiếu, băm mật khẩu kèm di trú dữ liệu.
 
-Điểm thứ ba là ảnh container không ghim phiên bản. Các dịch vụ dùng thẻ `latest` tại `prod.yml:11`, `:31` và `monitoring.yml:64`. Hệ quả là hai lần triển khai cách nhau có thể chạy hai phiên bản khác nhau mà không ai chủ động thay đổi gì, khiến sự cố khó tái hiện và khiến một bản cập nhật có lỗ hổng có thể tự động vào môi trường thật.
+### 4.4.8 Giới hạn kiểm chứng của cổng
 
-### 4.5.2 Cách phát hiện và chính sách bị vi phạm
+Quy tắc chỉ nhận diện được dạng mã đã khai báo. Một bí mật truyền qua tệp cấu hình sinh lúc chạy, hoặc đọc từ một dịch vụ cấu hình từ xa, nằm ngoài phạm vi. Phép kiểm tuân thủ xác nhận trạng thái tại một thời điểm, không xác nhận bí mật chưa từng bị dùng trước đó, và không thu hồi được bí mật đã lộ trong lịch sử kho mã nguồn.
 
-Semgrep phát hiện điểm thứ nhất qua hai luật của bộ `p/security-audit`:
+## 4.5 Thành viên 4, Lê Đức Anh, B26CHAT003: cổng chính sách kiểm tra không đúng tệp được triển khai
 
-```
-Phat hien 1: dockerfile.security.missing-user-entrypoint  [ERROR]
-Vi tri: InlaneWeb/db/Dockerfile:15 | ENTRYPOINT ["fix-perms-entrypoint.sh"]
-Phan loai: A04:2021 Insecure Design, CWE-269
+### 4.5.1 Tình huống nghiệp vụ và điều khoản bị ràng buộc
 
-Phat hien 2: dockerfile.security.missing-user  [ERROR]
-Vi tri: InlaneWeb/db/Dockerfile:16 | CMD ["mariadbd"]
-Phan loai: A04:2021 Insecure Design, CWE-250
-```
+Đội vận hành cần một tệp compose riêng cho môi trường thật, với biến môi trường và cổng khác môi trường phát triển. Tệp mới được thêm vào kho mã nguồn dưới tên `docker-compose.prod.yml`, và một tệp nữa cho cụm giám sát. Phạm vi kiểm tra của cổng chính sách không được cập nhật theo.
 
-Điểm thứ hai và điểm thứ ba được phát hiện bằng rà soát thủ công. Công cụ `ci/validate_configs.py` chạy trong dây chuyền không phát hiện được, vì tệp này chỉ gọi `yaml.safe_load` và `json.load` để kiểm tra cú pháp của 8 tệp cấu hình, hoàn toàn không có tiêu chí an toàn nào.
+Điều khoản CS-02 yêu cầu cấu hình triển khai phải qua cổng chính sách trước khi phát hành, và phạm vi kiểm tra phải phủ đúng tệp được dùng khi triển khai. Điều khoản CS-06 yêu cầu quyền tối thiểu và bề mặt tiếp xúc nhỏ nhất. Căn cứ pháp lý là GDPR Điều 32(1)(b).
 
-Trường hợp này vi phạm Điều 26 và Điều 27 Nghị định 13/2023/NĐ-CP về biện pháp kỹ thuật bảo vệ dữ liệu, trong đó Điều 27 yêu cầu kiểm tra an ninh mạng đối với hệ thống và thiết bị phục vụ xử lý dữ liệu cá nhân trước khi xử lý. Theo GDPR, tương ứng Điều 32(1)(b) về bảo đảm tính bảo mật, toàn vẹn, sẵn sàng và khả năng phục hồi của hệ thống xử lý. Vấn đề thuộc pha Release và Deploy, liên quan chặng 3 và chặng 4.
+### 4.5.2 Vấn đề và nguyên nhân không tự bộc lộ
 
-### 4.5.3 Cách xử lý và minh chứng Policy as Code
+Cổng chính sách, bộ quy tắc rego và kết quả đạt đều tồn tại, nhưng tệp thuộc phạm vi kiểm tra không phải tệp dùng khi triển khai. Mục `paths.include` của quy tắc Semgrep cục bộ chỉ liệt kê ba mẫu `**/docker-compose.yml`, `**/compose.yml` và `**/compose.yaml`. Hai tệp chứa mật khẩu gán cứng là `docker-compose.prod.yml` và `docker-compose.monitoring.yml` không khớp mẫu nào, nên quy tắc không chạy trên chúng.
 
-Biện pháp xử lý gồm ba phần. Sửa Dockerfile để tiến trình chạy bằng tài khoản không đặc quyền, cụ thể là thêm `RUN chown -R www-data:www-data /var/www/html` rồi `USER www-data`. Tạo tài khoản cơ sở dữ liệu riêng cho ứng dụng theo nguyên tắc quyền tối thiểu. Ghim phiên bản ảnh container theo digest thay cho thẻ `latest`.
+Bên dưới lớp che lấp đó là ba nhóm khiếm khuyết thực tế. Container chạy bằng `root` do hai Dockerfile thiếu chỉ thị `USER`. Tệp compose thiếu `cap_drop`, `no-new-privileges` và `read_only`. Ảnh dùng thẻ `latest` tại `prod.yml:11`, `:31` và `monitoring.yml:64`, nên hai lần triển khai có thể chạy hai bản khác nhau dù mã nguồn không đổi.
 
-```sql
--- db/init.sql: tai khoan rieng cho ung dung
-CREATE USER IF NOT EXISTS 'ilf_app'@'%' IDENTIFIED BY '${APP_DB_PASSWORD}';
-GRANT SELECT, INSERT, UPDATE, DELETE ON ilfreight.* TO 'ilf_app'@'%';
--- Khong cap FILE, khong cap GRANT OPTION, khong cap quyen tren CSDL dev
-```
+Nguyên nhân không tự bộc lộ nằm ở hình thức của kết quả. Một cổng báo đạt vì không tìm thấy vi phạm và một cổng báo đạt vì không đọc đến tệp nào cho ra cùng một dòng kết luận. Một kết quả đạt trong trường hợp thứ hai gây rủi ro cao hơn trường hợp không có cổng, vì nó tạo ra sự tin cậy sai lệch. Điều khoản CS-07 xếp đây là vi phạm nặng hơn việc thiếu cổng.
 
-Về minh chứng Policy as Code, các yêu cầu trên được viết thành một kiểm tra tự động chạy trong dây chuyền thay vì chỉ là ghi chú trong tài liệu. Dưới đây là chính sách triển khai dạng mã, bổ sung vào `ci/validate_configs.py`:
+### 4.5.3 Môi trường phải dựng để phát hiện
 
-```python
-RULES = [
-    ("R1 gan cung bi mat",      lambda s: [k for k, v in (s.get("environment") or {}).items()
-                                           if re.search(r"(PASSWORD|PASS|SECRET|TOKEN)$", k, re.I)
-                                           and not str(v).startswith("${")]),
-    ("R2 cong bo ra moi giao dien", lambda s: [p for p in (s.get("ports") or [])
-                                           if str(p).startswith("0.0.0.0:")]),
-    ("R3 anh khong ghim",       lambda s: [s["image"]] if str(s.get("image", "")).endswith(":latest") else []),
-    ("R4 docker.sock ghi duoc", lambda s: [v for v in (s.get("volumes") or [])
-                                           if "/var/run/docker.sock" in str(v) and not str(v).endswith(":ro")]),
-    ("R5 chay bang root",       lambda s: ["user: root"] if str(s.get("user", "")) == "root" else []),
-]
+Môi trường gồm Conftest chạy trên toàn bộ tệp compose có trong kho mã nguồn, kể cả tệp của môi trường thật và tệp của cụm giám sát; một container dựng thực tế để InSpec đọc trạng thái đang có hiệu lực; và phép đối chiếu giữa khai báo trong tệp với kết quả `docker inspect`.
 
-def validate_deployment_policy(compose_path: str) -> int:
-    doc = yaml.safe_load(open(compose_path, encoding="utf-8"))
-    violations = 0
-    for name, svc in (doc.get("services") or {}).items():
-        for label, check in RULES:
-            for hit in check(svc):
-                print(f"[VI PHAM] {label} | dich vu {name}: {hit}", file=sys.stderr)
-                violations += 1
-    return violations
-```
+Phép kiểm chứng quyết định là phép kiểm chứng về chính phạm vi: chạy cổng trước và sau khi mở rộng `paths.include` trên cùng mã nguồn, rồi so sánh số vi phạm. Nếu phạm vi đúng từ đầu, hai lượt cho cùng kết quả; nếu phạm vi sai, số vi phạm tăng từ 0 lên giá trị thực tế.
 
-Chạy hàm này trên hai tệp Compose hiện tại cho ra đúng các vi phạm đã liệt kê trong bảng kiểm ở Chương 2: quy tắc R1 bắt `prod.yml:15`, `:50` và `monitoring.yml:46`; R2 bắt `monitoring.yml:43`; R3 bắt ba vị trí; R4 bắt `monitoring.yml:73`; R5 bắt `monitoring.yml:26`. Đặt kiểm tra này vào chặng 3 với điều kiện dừng khi `violations` lớn hơn 0, dây chuyền sẽ không triển khai được cấu hình vi phạm chính sách, đúng nguyên tắc dừng ngay tại chặng phát hiện lỗi.
-
-## 4.6 Thành viên 5, Nguyễn Phương Mai: rò rỉ dữ liệu cá nhân qua đường nhật ký
-
-### 4.6.1 Mô tả vấn đề
-
-Đây là vấn đề do chính đợt bổ sung hệ giám sát tạo ra, và không công cụ nào trong dây chuyền phát hiện được. Hệ giám sát được thêm vào để tăng khả năng quan sát, nhưng lại mở một đường đưa dữ liệu nhạy cảm ra ngoài. Chuỗi rò rỉ gồm năm mắt xích, mỗi mắt xích đều hợp lý nếu xét riêng.
-
-Mắt xích thứ nhất nằm ở `pages/login.php:19`, nơi mật khẩu người dùng được ghép vào chuỗi câu lệnh SQL.
-
-Mắt xích thứ hai xuất hiện khi truy vấn thất bại, mà chỉ cần tên đăng nhập chứa một dấu nháy đơn là đủ. Hàm `query()` gọi bộ ghi nhật ký và truyền nguyên văn câu lệnh:
-
-```php
-// lib/db.php:40-50
-function query(string $sql)
-{
-    $conn = db();
-    $res = mysqli_query($conn, $sql);
-    if ($res === false) {
-        $err = mysqli_error($conn);
-        InlaneLogger::logSqlError($sql, $err, mysqli_errno($conn));
-        echo '<div class="sql-error"><strong>SQL Error:</strong> ' . $err . '</div>';
-    }
-    return $res;
-}
-```
-
-Mắt xích thứ ba nằm ở bộ ghi nhật ký, nơi nguyên văn câu lệnh được đưa vào trường `failed_query` của bản ghi JSON rồi ghi ra luồng lỗi chuẩn:
-
-```php
-// lib/logger.php:68-79
-public static function logSqlError(string $query, string $errorMessage, int $errorCode = 0): void
-{
-    self::emit('APP-EXCEPTION', [
-        'level'         => 'error',
-        'type'          => 'database_query_failure',
-        'error_message' => $errorMessage,
-        'failed_query'  => $query,          // chua mat khau dang ro
-        'uri'           => $_SERVER['REQUEST_URI'] ?? '/',
-    ], true);
-}
-```
-
-Mắt xích thứ tư nằm ở Promtail, được cấu hình bóc đúng trường này ra khỏi JSON và đẩy sang Loki:
+### 4.5.4 Mã dùng để phát hiện
 
 ```yaml
-# monitoring/promtail/promtail-config.yml:27-39 (trich)
-      - json:
-          expressions:
-            level: level
-            message: message
-            failed_query: failed_query      # boc truong chua mat khau
-            uri: uri
+# ci/semgrep-local-rules.yml, pham vi sau khi sua
+paths:
+  include:
+    - "**/docker-compose*.yml"
+    - "**/docker-compose*.yaml"
+    - "**/compose*.yml"
+    - "**/compose*.yaml"
 ```
 
-Mắt xích thứ năm nằm ở Grafana, nơi đọc Loki và được công bố trên `0.0.0.0:3000` theo `monitoring.yml:43`, tức mở ra mọi giao diện mạng của máy chủ, với mật khẩu quản trị gán cứng tại dòng 46 của chính tệp đang nằm trong kho mã công khai.
+Lớp thứ hai là phép kiểm tuân thủ trên container đang chạy, dùng tài nguyên `docker_container` và `docker_image` để xác nhận trường `User` không rỗng, danh sách `CapDrop` có `ALL`, và ảnh được ghim theo mã băm chứ không theo thẻ `latest`. Lớp này đọc trạng thái thực thi nên không phụ thuộc vào việc tệp nào được khai báo.
 
-Kết quả là mật khẩu người dùng nhập ở biểu mẫu đăng nhập đi tới một bảng điều khiển truy cập được từ Internet. Không mắt xích nào trong năm mắt xích trên tự nó là lỗi nghiêm trọng, hậu quả chỉ xuất hiện khi ghép chúng lại.
+### 4.5.5 Chứng minh hai chiều
 
-### 4.6.2 Cách phát hiện
+Bộ quy tắc rego cho hai kết quả trái dấu trên cặp fixture: báo vi phạm trên `fixtures/docker-compose.insecure.yml` và không báo vi phạm trên `fixtures/docker-compose.hardened.yml`, kèm mã thoát 1 và 0.
 
-Không công cụ nào trong dây chuyền báo vấn đề này. SonarQube báo `vulnerabilities` bằng 0. Semgrep không có luật nào coi hàm ghi nhật ký là điểm thực thi nhạy cảm, vì các bộ luật công khai tập trung vào tiêm mã chứ không vào việc ghi dữ liệu nhạy cảm ra nhật ký.
+Chứng minh về phạm vi kiểm tra đặt cạnh nhau hai lượt trên cùng mã nguồn. Với phạm vi cũ, `docker-compose.prod.yml` không được đọc đến và cổng báo đạt. Với phạm vi đã mở rộng, Conftest đo được 9 vi phạm và 2 cảnh báo trên đúng tệp đó trong run `41810794218`: hai bí mật dạng hằng, tài khoản ứng dụng là `root`, bốn thiếu sót `cap_drop` và `no-new-privileges` trên hai dịch vụ, và hai ảnh ghim theo thẻ `latest`. Sau khi vá cả chín, cùng cổng đó báo 0 vi phạm trong run `41812598120`. Phần tăng từ 0 lên 9 rồi về 0 là số đo của chính phạm vi kiểm tra, không phải của mã nguồn, vì mã nguồn ở hai lượt đầu không đổi.
 
-Nhóm phát hiện bằng cách lần theo đường đi của một trường dữ liệu qua nhiều lớp hệ thống, từ biểu mẫu HTML, qua mã PHP, qua cấu hình thu thập nhật ký, tới cấu hình công bố cổng mạng. Phương pháp này đòi hỏi đọc đồng thời mã ứng dụng và cấu hình hạ tầng, là việc mà công cụ phân tích tĩnh hiện nay không làm được do chúng chỉ làm việc trong phạm vi từng tệp hoặc từng ngôn ngữ.
+Ở stage 1, kết quả của cổng chính sách lớp triển khai nằm trong `evidence/ci-02-compose.txt`. Trước bản vá nêu ở mục 4.2, tệp này ghi 9 failures cho `prod.yml` và 13 cho `monitoring.yml` trong khi bước vẫn trả về trạng thái thành công. Sau bản vá, nội dung tệp và trạng thái bước khớp nhau.
 
-### 4.6.3 Chính sách bị vi phạm và pha DevSecOps
+### 4.5.6 Ràng buộc trong quá trình khắc phục
 
-Theo Nghị định 13/2023/NĐ-CP, trường hợp này vi phạm Điều 26 về nghĩa vụ áp dụng biện pháp bảo vệ dữ liệu cá nhân trong suốt quá trình xử lý, vì việc đưa thông tin xác thực vào hệ thống nhật ký công khai là vi phạm nghĩa vụ đó. Trường hợp này cũng liên quan Điều 23 về nghĩa vụ thông báo vi phạm quy định bảo vệ dữ liệu cá nhân cho Bộ Công an trong thời hạn 72 giờ kể từ khi xảy ra vi phạm, theo Mẫu số 03 của Nghị định, trong đó thông báo sau thời hạn phải kèm lý do chậm trễ. Hệ thống hiện chưa có quy trình nào đáp ứng nghĩa vụ này.
+Bật `read_only` làm Apache không ghi được thư mục tạm, nên phải khai báo thêm `tmpfs` duy nhất cho các thư mục bắt buộc ghi.
 
-Theo GDPR, trường hợp này vi phạm Điều 5(1)(c) về nguyên tắc tối thiểu hóa dữ liệu, vì việc ghi toàn văn câu lệnh SQL vượt xa mức cần thiết cho mục đích chẩn đoán lỗi. Điều 33 và Điều 34 quy định nghĩa vụ thông báo vi phạm cho cơ quan giám sát trong 72 giờ và cho chủ thể dữ liệu khi rủi ro ở mức cao.
+Ghim ảnh theo mã băm làm quy trình cập nhật phải đổi: mỗi lần nâng phiên bản là một pull request có người phê duyệt, thay vì một lần khởi động lại container. Nhờ đó, hai lần triển khai từ cùng mã nguồn cho cùng một kết quả.
 
-Vấn đề trải trên hai pha. Ba mắt xích đầu thuộc pha Code, còn mắt xích thứ tư và thứ năm thuộc pha Operate và Monitor. Đây là nguyên nhân khiến vấn đề lọt qua mọi cổng kiểm tra, vì mỗi pha chỉ nhìn thấy một nửa và không nửa nào tự nó sai.
+Hạ `cap_drop` xuống `ALL` làm một số dịch vụ giám sát mất quyền đọc thông tin tiến trình trên máy chủ, nên phải cấp lại từng năng lực cần thiết thay vì mở toàn bộ.
 
-### 4.6.4 Cách xử lý và minh chứng Security as Code
+Ràng buộc trình tự: phạm vi kiểm tra phải được sửa trước khi vá nội dung, vì vá nội dung trước làm mất khả năng chứng minh cổng từng không đọc đến tệp đó.
 
-Biện pháp thứ nhất là lọc dữ liệu nhạy cảm ngay tại nguồn ghi nhật ký. Đây là biện pháp quan trọng nhất vì nó chặn ở mắt xích sớm nhất:
+### 4.5.7 Cách xử lý và vị trí trên workflow
 
-```php
-// lib/logger.php: bo sung; logSqlError() goi redactQuery($query) thay vi $query
-private static function redactQuery(string $query): string
-{
-    $query = preg_replace(
-        "/\b(password|passwd|pass|api_key|remember_token|token|secret)\b\s*(=|LIKE)\s*'[^']*'/i",
-        '$1 $2 \'[DA CHE]\'', $query);
-    return mb_strlen($query) > 500 ? mb_substr($query, 0, 500) . '...[cat bot]' : $query;
-}
-```
+Cổng chính sách chạy ở stage 1, trước khi dựng ảnh. Phép kiểm tuân thủ chạy ở stage 4 sau khi container hoạt động, và lặp lại ở stage 5 ngay sau khi phát hành, trước khi bản phát hành được chấp nhận. Ba vị trí này kiểm ba đối tượng khác nhau: tệp khai báo, container trong môi trường kiểm thử, và container trong môi trường đích.
 
-Biện pháp thứ hai là đóng Grafana sau proxy, bằng cách sửa `monitoring.yml:43` thành `"127.0.0.1:3000:3000"` và cho phép truy cập qua Nginx Proxy Manager có xác thực, giống cách ứng dụng web đã làm.
+### 4.5.8 Giới hạn kiểm chứng của cổng
 
-Biện pháp thứ ba là đưa mật khẩu quản trị Grafana ra khỏi kho mã, dùng cú pháp `${GRAFANA_ADMIN_PASSWORD:?...}` như đã trình bày ở phần của thành viên 3. Mật khẩu hiện tại đã nằm trong lịch sử Git của kho công khai nên phải coi là đã lộ và bắt buộc phải đổi, không chỉ chuyển sang biến môi trường.
+Conftest chỉ kiểm tra tệp khai báo, không kiểm soát được các lệnh người vận hành nhập thủ công trên máy chủ. Phép kiểm tuân thủ xác nhận một thời điểm, nên một thay đổi sau đó vẫn nằm ngoài tầm nếu không có cổng chạy định kỳ khi vận hành. Đây là lý do mục 5.4 bổ sung một vòng lặp kiểm tra khi vận hành chứ không chỉ khi phát hành.
 
-Biện pháp thứ tư là xây dựng quy trình ứng phó sự cố rò rỉ dữ liệu cá nhân, gồm người chịu trách nhiệm, các bước xác minh phạm vi ảnh hưởng, và mẫu thông báo gửi Bộ Công an trong 72 giờ theo Điều 23.
+## 4.6 Thành viên 5, Nguyễn Phương Mai, B26CHAT025: kênh rò rỉ dữ liệu cá nhân qua luồng nhật ký
 
-Về minh chứng Security as Code, để lỗi tương tự không tái diễn, nhóm đề xuất một luật Semgrep tự viết coi hàm ghi nhật ký là điểm thực thi nhạy cảm:
+### 4.6.1 Tình huống nghiệp vụ và điều khoản bị ràng buộc
 
-```yaml
-# ci/semgrep-local-rules.yml: luat de xuat bo sung
-  - id: php-sql-query-into-logger
-    languages: [php]
-    severity: ERROR
-    message: Cau lenh SQL duoc ghi nguyen van vao nhat ky, co the chua thong tin xac thuc.
-    patterns:
-      - pattern: InlaneLogger::logSqlError($SQL, ...)
-      - pattern-not: InlaneLogger::logSqlError(self::redactQuery(...), ...)
-    metadata:
-      cwe: "CWE-532: Insertion of Sensitive Information into Log File"
-      owasp: "A09:2021 Security Logging and Monitoring Failures"
-```
+Để quan sát sự cố nhanh hơn, công ty dựng hệ giám sát tập trung và đưa toàn bộ nhật ký container vào đó. Quyết định này hợp lý về vận hành. Hệ quả ngoài dự kiến là mật khẩu dạng rõ của người dùng đi vào kho nhật ký, nơi có nhiều người truy cập hơn cơ sở dữ liệu.
 
-Luật này bắt mọi lời gọi ghi nhật ký truyền thẳng câu lệnh SQL chưa qua hàm che dữ liệu, và sẽ báo lỗi ở cả ba vị trí hiện tại trong `lib/db.php` là các dòng 46, 61 và 90.
+Điều khoản CS-05 yêu cầu dữ liệu cá nhân chỉ rời khỏi hệ thống theo đường đã khai báo, và nhật ký không thuộc số đó. Điều khoản CS-08 yêu cầu lưu đủ sự kiện kiểm toán để thông báo vi phạm trong 72 giờ. Căn cứ pháp lý là GDPR Điều 5(1)(c), 33 và 34, tương ứng Điều 23 và 26 Nghị định 13/2023/NĐ-CP.
+
+### 4.6.2 Vấn đề và nguyên nhân không tự bộc lộ
+
+Kênh rò rỉ gồm năm mắt xích, mỗi mắt xích riêng lẻ đều là một lựa chọn kỹ thuật hợp lý.
+
+Mắt xích thứ nhất, `pages/login.php:19` ghép mật khẩu vào câu lệnh truy vấn. Mắt xích thứ hai, hàm `query()` trong `lib/db.php:40-50` truyền toàn văn câu lệnh cho bộ ghi nhật ký khi truy vấn thất bại. Mắt xích thứ ba, Promtail không có pipeline stage che giấu dữ liệu nên chuyển nguyên văn dòng nhật ký. Mắt xích thứ tư, Loki lưu và cho truy vấn tự do, còn Grafana mở trên mọi giao diện mạng theo `monitoring.yml:43`. Mắt xích thứ năm, không có sự kiện kiểm toán khi đăng nhập thất bại, nên hệ thống không ghi nhận được số lần việc này đã xảy ra.
+
+Một mật khẩu chứa dấu nháy đơn làm truy vấn thất bại, và toàn văn câu lệnh kèm mật khẩu đi hết năm mắt xích. Không công cụ nào trong pipeline phát hiện được, vì kênh này trải qua PHP và YAML ở hai tệp khác nhau, và không mắt xích nào là một mẫu mã nguy hiểm.
+
+### 4.6.3 Môi trường phải dựng để phát hiện
+
+Môi trường gồm ngăn xếp giám sát dựng đầy đủ với Promtail, Loki và Grafana; một truy vấn lỗi thực tế lấy từ đợt vá thứ hai chưa vá, làm đối tượng kiểm chứng; và một truy vấn LogQL chạy trước và sau khi bổ sung pipeline stage che giấu dữ liệu.
+
+Về phương pháp, phép kiểm phải là phép kiểm hành vi trên hệ thống đang chạy, không phải phép kiểm trên mã nguồn. Khẳng định cần chứng minh là một khẳng định phủ định về nội dung luồng nhật ký, và nó chỉ kiểm được bằng cách kích hoạt một lỗi thật rồi đọc lại luồng.
+
+### 4.6.4 Mã dùng để phát hiện
+
+Phép kiểm TDS-6 chạy trong `tests/security/run.sh`: kích hoạt một truy vấn lỗi, sau đó khẳng định luồng nhật ký của container không chứa nguyên văn câu lệnh và không chứa giá trị mật khẩu. Bản vá phía giám sát đặt một pipeline stage thay thế giá trị nhạy cảm trong `patches/monitoring/promtail-config.hardened.yml`, và chuyển việc tương quan sang quy tắc Loki để không cần giữ lại dữ liệu gốc.
+
+### 4.6.5 Chứng minh hai chiều
+
+Chiều vi phạm: TDS-6 thất bại trên cấu hình gốc, kèm trích đoạn dòng nhật ký chứa giá trị nhạy cảm. Chiều đạt: TDS-6 đạt trên cấu hình đã che giấu, và cùng một truy vấn LogQL không còn trả về kết quả nào. Mã thoát của cả hai lượt được ghi trong `evidence/ci-12-tds.txt`.
+
+Chuỗi phát hiện được kiểm chứng tiếp ở mục 5.3: tám yêu cầu tiêm mã SQL gửi vào ứng dụng đã vá, độ trễ từ tấn công tới đích nhận cảnh báo đạt mức 15,1, 20,9 và 24,6 giây qua ba lượt độc lập, ghi tại `evidence/35-chuoi-phat-hien-do-tre.txt`.
+
+### 4.6.6 Ràng buộc trong quá trình khắc phục
+
+Ràng buộc nặng nhất là xung đột giữa hai điều khoản của chính sách. Che giấu quá rộng làm quy tắc tương quan mất chính trường dữ liệu cần để nhận diện tấn công, vi phạm CS-08. Che giấu quá hẹp vẫn để lại rò rỉ, vi phạm CS-05. Giải pháp là tách hai nhiệm vụ: Promtail chỉ che giá trị nhạy cảm và giữ lại nhãn phân loại cùng địa chỉ nguồn, còn việc tương quan chuyển sang quy tắc Loki làm trên nhãn thay vì trên nội dung.
+
+Ràng buộc đích nhận cảnh báo: cấu hình gốc gửi cảnh báo tới điểm cuối `alertmanager:9093` không tồn tại, nên dù phát hiện đúng, kết quả vẫn không đến được người tiếp nhận, và nghĩa vụ thông báo trong 72 giờ vẫn không thực hiện được.
+
+Ràng buộc hiệu lực của chính cổng: hai bước ở stage 4 từng mất mã thoát theo cơ chế ở mục 4.2, nên phép kiểm TDS-6 có kết quả nhưng không có hiệu lực chặn. Bản vá ở mục 4.2 là điều kiện cần để kết quả của mục này trở thành một cổng.
+
+### 4.6.7 Cách xử lý và vị trí trên workflow
+
+Pipeline stage che giấu dữ liệu nằm trong Promtail khi vận hành, phép kiểm TDS-6 đặt ở stage 4 trong pipeline, và quy tắc tương quan Loki là ví dụ cụ thể của việc bổ sung quy tắc trong quá trình vận hành, trình bày ở mục 5.4.
+
+### 4.6.8 Giới hạn kiểm chứng của cổng
+
+Phép kiểm chỉ khẳng định về đường nhật ký đã biết, tức luồng đi qua Promtail. Nhật ký do Apache hoặc MariaDB ghi trực tiếp ra tệp trong container nằm ngoài phạm vi. Phép kiểm cũng không chứng minh được dữ liệu đã lưu trong Loki trước thời điểm che giấu đã bị xóa hết; việc đó cần một lần rà soát và xóa có hồ sơ riêng theo nghĩa vụ tại GDPR Điều 17.
 
 ---
-
-# CHƯƠNG 5. GIÁM SÁT, PHÁT HIỆN VÀ ỨNG PHÓ
+# CHƯƠNG 5. GIÁM SÁT, ỨNG PHÓ VÀ VÒNG ĐỜI QUY TẮC
 
 ## 5.1 Kiến trúc nhật ký và nhận diện vector tấn công
 
-Hệ giám sát thu thập nhật ký trực tiếp từ Docker qua socket, lọc giữ lại hai container `ilfreight_web` và `ilfreight_db` theo `promtail-config.yml:17-23`, rồi phân thành hai luồng: luồng lỗi ứng dụng gắn nhãn `log_category: app_exception` tại dòng 42-48, và luồng lưu lượng HTTP gắn nhãn `log_category: http_traffic` tại dòng 51-56. Cách tách này cho phép đặt chính sách lưu trữ và cảnh báo khác nhau cho hai loại nhật ký. Phía ứng dụng, bộ bắt lỗi toàn cục đăng ký tại `index.php:13-33` gồm `set_exception_handler`, `set_error_handler` và `register_shutdown_function`, nhờ đó không có lỗi nào biến mất khỏi nhật ký.
+Hệ thống giám sát thu thập nhật ký từ Docker qua socket, lọc hai container `ilfreight_web` và `ilfreight_db` theo `promtail-config.yml:17-23`, chia thành hai luồng: lỗi ứng dụng gắn nhãn `log_category: app_exception` (dòng 42-48) và lưu lượng HTTP gắn nhãn `log_category: http_traffic` (dòng 51-56). Cơ chế phân tách giúp đặt chính sách lưu trữ và cảnh báo riêng cho từng loại. Phía ứng dụng, cơ chế bắt lỗi toàn cục tại `index.php:13-33` gồm `set_exception_handler`, `set_error_handler` và `register_shutdown_function`, bảo đảm mọi lỗi đều được ghi nhận.
 
-Promtail còn gắn nhãn phân loại tấn công ngay tại khâu thu thập, dựa trên biểu thức chính quy so khớp nội dung dòng nhật ký.
+Promtail đồng thời gắn nhãn phân loại vector tấn công ngay khi thu thập, qua biểu thức chính quy so khớp dòng nhật ký.
 
 *Bảng: Bốn nhóm vector tấn công được nhận diện tự động*
 
@@ -801,62 +793,80 @@ Promtail còn gắn nhãn phân loại tấn công ngay tại khâu thu thập, 
 | `xss` | warning | `<script`, `onerror=`, `javascript:`, `document.cookie` | 78-86 |
 | `command_injection` | critical | `; cat`, `&& ls`, `/bin/sh`, `powershell`, `cmd.exe` | 88-96 |
 
-Ngoài bốn nhóm trên còn nhóm thứ năm là `error_based_leak` tại dòng 98-106, nhận diện phản hồi chứa thông báo lỗi SQL hoặc mã trạng thái 4xx và 5xx. Giới hạn của cách làm này cần được nêu rõ: việc nhận diện dựa trên so khớp mẫu chuỗi nên có thể bị vượt qua bằng các kỹ thuật mã hóa đơn giản, và có thể báo nhầm khi người dùng vô tình nhập chuỗi khớp mẫu. Cơ chế này hữu ích cho việc quan sát và điều tra sau sự cố, không phải là biện pháp ngăn chặn.
+Bên cạnh bốn nhóm trên, nhóm thứ năm `error_based_leak` tại dòng 98-106 nhận diện phản hồi chứa lỗi SQL hoặc mã 4xx và 5xx. Phương pháp này có giới hạn kỹ thuật: việc so khớp chuỗi bị vượt qua bằng kỹ thuật mã hóa đơn giản, đồng thời báo sai khi người dùng nhập chuỗi trùng mẫu. Do đó cơ chế này chỉ hỗ trợ quan sát và điều tra sau sự cố, không ngăn chặn chủ động.
 
 ## 5.2 Tự động phục hồi dịch vụ
 
-Dịch vụ `autoheal` theo dõi trạng thái sức khỏe của các container có nhãn `autoheal: "true"` và khởi động lại container không khỏe, với `AUTOHEAL_INTERVAL=10` và `AUTOHEAL_START_PERIOD=20` tại `monitoring.yml:68-70`. Container web kiểm tra sức khỏe qua điểm cuối `/health` mỗi 10 giây, cho phép thất bại 3 lần liên tiếp theo `prod.yml:41-46`, tức phát hiện sự cố sau khoảng 30 giây. Điểm cuối này tại `index.php:53-90` còn kiểm tra kết nối cơ sở dữ liệu bằng `mysqli_ping` và trả mã 503 khi mất kết nối, nhờ đó một container web còn sống nhưng mất kết nối cơ sở dữ liệu vẫn bị phát hiện.
+Dịch vụ `autoheal` theo dõi container gắn nhãn `autoheal: "true"` để khởi động lại khi gặp sự cố, theo cấu hình `AUTOHEAL_INTERVAL=10` và `AUTOHEAL_START_PERIOD=20` tại `monitoring.yml:68-70`. Container web kiểm tra sức khỏe qua `/health` mỗi 10 giây, cho phép lỗi ba lần liên tiếp theo `prod.yml:41-46`, tức phát hiện lỗi sau 30 giây. Điểm cuối `index.php:53-90` còn kiểm tra cơ sở dữ liệu qua `mysqli_ping` và trả mã 503 khi mất kết nối, giúp nhận diện trường hợp web chạy nhưng mất kết nối dữ liệu.
 
-Cần ghi nhận một đánh đổi về an toàn ở đây. Để khởi động lại container khác, `autoheal` được gắn socket Docker với quyền ghi theo `monitoring.yml:73`, mà quyền này tương đương quyền `root` trên máy chủ, trong khi container `autoheal` lại dùng ảnh thẻ `latest` của bên thứ ba. Một bản cập nhật bị can thiệp ở thượng nguồn sẽ kiểm soát được toàn bộ máy chủ. Đây là rủi ro chuỗi cung ứng cần được cân nhắc so với lợi ích tự phục hồi.
+Giải pháp có một đánh đổi về an toàn: để khởi động lại container khác, `autoheal` gắn socket Docker ở chế độ ghi theo `monitoring.yml:73`, tương đương đặc quyền `root` trên máy chủ, trong khi vẫn dùng ảnh thẻ `latest` từ bên thứ ba. Nếu bản cập nhật thượng nguồn bị can thiệp, kẻ tấn công kiểm soát được toàn bộ máy chủ. Rủi ro chuỗi cung ứng này phải cân nhắc so với lợi ích tự phục hồi, và là một trong các điểm mà vòng lặp ở mục 5.4 theo dõi.
 
 ## 5.3 Chuỗi tấn công đến cảnh báo và độ trễ phát hiện
 
-Các biện pháp khắc phục ở Chương 4 được triển khai trên một nhánh vá và kiểm chứng bằng cách chạy hệ thống thật. Cụm giám sát được sửa để khép kín chuỗi từ tấn công đến cảnh báo: Promtail chỉ còn che dữ liệu trước khi lưu, việc tương quan chuyển sang luật của Loki, và bổ sung hai dịch vụ còn thiếu là Alertmanager cùng một đích nhận cảnh báo. Gửi tám yêu cầu mang đặc trưng tiêm mã SQL vào ứng dụng đã vá, chuỗi chạy tuần tự qua Apache, Promtail, Loki đếm theo địa chỉ nguồn bằng truy vấn `| json`, Alertmanager, tới đích nhận ghi một dòng cho người trực. Độ trễ từ lúc tấn công tới khi cảnh báo tới đích đo được là 15,1 rồi 20,9 rồi 24,6 giây qua ba lần chạy độc lập, bị giới hạn bởi chu kỳ đánh giá luật mười lăm giây của Loki và khoảng chờ gộp mười giây của Alertmanager.
+Biện pháp ở Chương 4 được triển khai trên nhánh vá và kiểm chứng qua vận hành thực tế. Cụm giám sát được chỉnh để khép kín quy trình từ tấn công đến cảnh báo: Promtail chỉ che giấu dữ liệu trước khi lưu, việc tương quan chuyển sang quy tắc Loki, và bổ sung Alertmanager cùng đích nhận cảnh báo. Khi gửi tám yêu cầu tiêm mã SQL vào ứng dụng đã vá, luồng xử lý đi tuần tự qua Apache, Promtail, Loki đếm địa chỉ nguồn bằng `| json`, Alertmanager, tới đích nhận để thông báo người trực. Độ trễ từ tấn công tới đích ghi nhận 15,1, 20,9 và 24,6 giây qua ba lượt độc lập, do chu kỳ đánh giá mười lăm giây của Loki và khoảng chờ gộp mười giây của Alertmanager quyết định.
 
-Cùng một loạt kích hoạt đồng thời hai mức cảnh báo, một mức thông tin để đối chiếu và một mức nghiêm trọng để gọi người trực, đúng kiến trúc hai chuỗi của tài liệu môn học. Phần che dữ liệu được kiểm trực tiếp: khi gửi một yêu cầu chứa mật khẩu, không dòng nhật ký nào trong Loki còn chứa mật khẩu nguyên văn. Cấu hình gốc trỏ bộ luật tới một Alertmanager không tồn tại, nên chuỗi phát hiện của bản gốc đứt ở mắt xích cuối.
+Một đợt gửi kích hoạt hai mức cảnh báo: mức thông tin để đối chiếu và mức nghiêm trọng báo người trực, theo kiến trúc cảnh báo hai chuỗi song song. Cơ chế che giấu dữ liệu được kiểm chứng: gửi yêu cầu chứa mật khẩu, không nhật ký nào trong Loki còn lưu mật khẩu nguyên văn. Ở cấu hình gốc, quy tắc trỏ tới một Alertmanager không tồn tại khiến chuỗi phát hiện bị đứt tại mắt xích cuối.
 
-## 5.4 Tổng hợp những gì công cụ không phát hiện được
+## 5.4 Vòng đời quy tắc và tự động vá khi vận hành
+
+Ba mục trên trình bày việc phát hiện trong một bản phát hành đã có. Mục này trình bày cơ chế hệ thống tự đưa phát hiện mới trở lại đầu pipeline, phần tương ứng với CD trong DevSecOps.
+
+Vòng lặp khi vận hành gồm ba việc, khai báo trong `.github/workflows/auto-remediate.yml`, chạy theo lịch hằng tuần và chạy được theo yêu cầu.
+
+*Bảng: Ba việc của vòng lặp vận hành và cơ chế tương ứng*
+
+| Tác vụ | Cơ chế | Kết quả |
+| :--- | :--- | :--- |
+| Theo dõi chuỗi cung ứng sau khi phát hành | Trivy quét hai ảnh nền ở mức CRITICAL và HIGH, so sánh với mốc cơ sở trong `sbom/cve-baseline.json` | `evidence/cve-watch.txt` |
+| Tự động vá | Khi có CVE chưa từng xuất hiện, `ci/cve_watch.py` cập nhật mốc cơ sở, sinh mô tả bản vá và mở một pull request vào nhánh vá | `evidence/auto-remediate-pr-body.md` |
+| Bổ sung quy tắc | Một mẫu tấn công quan sát được trong Loki trở thành một quy tắc Semgrep hoặc một quy tắc tương quan mới, quay lại stage 2 và trở thành cổng chặn cho lần sau | tệp quy tắc trong `ci/` và nhật ký của run |
+
+Điểm quan trọng về thiết kế: pull request do vòng lặp này sinh ra vẫn phải đi qua toàn bộ cổng kiểm soát như mọi pull request khác. Việc tự động hóa nằm ở khâu phát hiện và khâu soạn thay đổi, không nằm ở khâu phê duyệt. Điều khoản CS-01 không có ngoại lệ cho một tác nhân tự động.
+
+Vòng lặp này xử lý một giới hạn mà bốn stage đầu không xử lý được: một lỗ hổng công bố sau ngày phát hành không vi phạm cổng nào tại thời điểm phát hành, nên không có vòng lặp định kỳ thì nó không bao giờ bị phát hiện. Mỗi lần vòng lặp chạy là một lần hệ thống đối chiếu lại trạng thái hiện tại với tri thức mới nhất về lỗ hổng.
+
+## 5.5 Tổng hợp những gì công cụ không phát hiện được
 
 *Bảng: Khiếm khuyết công cụ không phát hiện và nguyên nhân*
 
 | Khiếm khuyết | Vị trí | Nguyên nhân công cụ không báo |
 | :--- | :--- | :--- |
-| Mật khẩu lưu dạng rõ trong cơ sở dữ liệu | `init.sql:26`, `:34-38` | Nằm ở dữ liệu chứ không ở mã, tệp SQL không được quét |
-| Cổng chất lượng chỉ báo cáo ở bản đầu | biểu thức `enforce_quality_gate` mặc định về `'false'` | Không công cụ nào tự kiểm tra cấu hình của chính dây chuyền |
-| Chuỗi rò rỉ mật khẩu ra Grafana | 5 tệp, 2 ngôn ngữ | Chuỗi trải qua PHP và YAML, không công cụ nào phân tích xuyên lớp |
-| Mật khẩu Grafana gán cứng | `monitoring.yml:46` | Mục `paths.include` của luật không khớp tên tệp |
-| Mật khẩu CSDL trong Compose sản xuất | `prod.yml:15`, `:50` | Cùng nguyên nhân với trường hợp trên |
-| Thiếu tái sinh định danh phiên | `login.php:22-26` | Lỗi do thiếu một lời gọi, luật phân tích tĩnh bắt mẫu có mặt nên khó bắt mẫu vắng mặt |
-| Thiếu kiểm tra quyền sở hữu bình luận | `comment_delete.php:18` | Lỗi logic nghiệp vụ, cần hiểu ý định của ứng dụng |
-| Tài khoản cơ sở dữ liệu thừa quyền | `init.sql:12-13` | Không có luật nào đánh giá mức quyền SQL |
-| Bí mật đã lộ trong lịch sử Git | Toàn bộ lịch sử | Công cụ quét bản làm việc hiện tại, không quét lịch sử |
+| Mật khẩu lưu dạng rõ trong cơ sở dữ liệu | `init.sql.template:26`, `:34-38` | Thuộc dữ liệu, không ở mã; tệp SQL không được quét |
+| Quality gate chỉ báo cáo ở bản đầu, và cổng báo thành công trong khi tệp kết quả của chính nó chứa dòng FAIL | biểu thức `enforce_quality_gate`, năm bước có chuỗi lệnh pipe | Không công cụ nào tự kiểm cấu hình của chính pipeline, cũng không đối chiếu trạng thái bước với tệp kết quả |
+| Kênh rò rỉ mật khẩu ra Grafana | 5 tệp, 2 ngôn ngữ | Kênh trải qua PHP và YAML, không công cụ nào phân tích xuyên lớp |
+| Bí mật trong compose của môi trường thật và của cụm giám sát | `monitoring.yml:46`, `prod.yml:15`, `:50` | Mục `paths.include` của quy tắc không khớp tên tệp |
+| Thiếu tái sinh định danh phiên | `login.php:22-26` | Quy tắc bắt mẫu có mặt nên khó bắt mẫu vắng mặt |
+| Thiếu kiểm tra quyền sở hữu bình luận và đơn hàng | `comment_delete.php:18`, `shipment_detail.php` | Lỗi logic nghiệp vụ, cần hiểu ý định của ứng dụng |
+| Tài khoản cơ sở dữ liệu thừa quyền, và bí mật đã lộ trong lịch sử kho mã nguồn | `init.sql.template:12-13`, toàn bộ lịch sử | Không có quy tắc nào đánh giá mức quyền SQL; công cụ chỉ quét bản làm việc hiện tại |
 
-Chín khiếm khuyết trên có một mẫu chung. Công cụ phân tích tĩnh mạnh ở việc nhận ra mẫu mã nguồn nguy hiểm trong phạm vi một tệp và một ngôn ngữ, nhưng yếu ở ba loại vấn đề: lỗi do thiếu một biện pháp, lỗi logic nghiệp vụ, và lỗi hình thành từ sự kết hợp của nhiều thành phần mà riêng lẻ đều hợp lệ.
+Các khiếm khuyết trên có một đặc tính chung. Phân tích tĩnh nhận diện hiệu quả mã nguy hiểm trong một tệp và một ngôn ngữ, nhưng hạn chế trước bốn nhóm: thiếu một biện pháp kiểm soát, lỗi logic nghiệp vụ, khiếm khuyết từ tổ hợp các thành phần riêng lẻ vốn hợp lệ, và khiếm khuyết của chính cơ chế kiểm soát.
 
-Hệ quả thực tiễn là một dây chuyền DevSecOps không thay thế được việc đọc mã và rà soát thiết kế. Dây chuyền xử lý phần việc lặp đi lặp lại để con người tập trung vào phần việc mà máy chưa làm được.
+Nhóm thứ tư là nhóm đáng chú ý nhất, vì nó làm sai lệch kết quả của mọi nhóm còn lại. Hệ quả thực tiễn: pipeline DevSecOps không thay được việc đọc mã và rà soát thiết kế, chỉ xử lý phần việc lặp lại để con người tập trung vào phần công cụ tự động chưa làm được, và bản thân pipeline cũng phải nằm trong diện bị kiểm chứng.
 
 ---
-
 # KẾT LUẬN
 
-Nhóm đã dựng và vận hành một dây chuyền DevSecOps bốn chặng trên nền công cụ nguồn mở, gồm kiểm tra quy ước phát triển, phân tích tĩnh bằng hai công cụ có cơ chế khác nhau, chạy thử tích hợp, triển khai tự động lên máy chủ thật và giám sát nhật ký tập trung. Nhóm cũng phân tích năm vấn đề an toàn theo phân công, phủ đủ hai nhóm mã nguồn và triển khai vận hành, mỗi vấn đề đều có vị trí cụ thể trong mã, cách phát hiện, căn cứ pháp lý và mã nguồn khắc phục.
+Nhóm xây dựng và vận hành một pipeline DevSecOps năm stage bằng công cụ nguồn mở: kiểm tra quy ước phát triển cùng cổng chính sách khai báo, phân tích tĩnh qua hai công cụ độc lập, kiểm soát chuỗi cung ứng kèm SBOM, kiểm thử hành vi và tuân thủ trên hệ thống đang chạy, và một stage CD có xác minh sau phát hành kèm cơ chế quay lui. Toàn bộ cổng đều bắt nguồn từ tám điều khoản của một văn bản chính sách doanh nghiệp, nên mỗi run pipeline vừa là một lần kiểm thử vừa là một lần tạo hồ sơ chứng minh tuân thủ.
 
-Hai kết quả mà nhóm đánh giá là có giá trị nhất đều đến từ việc kiểm chứng chính công trình của mình, thay vì chỉ mô tả nó.
+Ba kết quả có giá trị thực tiễn cao nhất đều đến từ việc kiểm chứng trực tiếp hệ thống đã triển khai, không từ việc mô tả.
 
-Kết quả thứ nhất đến từ việc kiểm chứng xem dây chuyền có thực sự dừng khi gặp lỗi không. Bản đầu tiên để một dòng cấu hình ghi đè biến `ENFORCE_QUALITY_GATE` thành `'false'`, khiến cổng chất lượng chỉ báo cáo mà không chặn. Nhóm đã sửa bằng cách không ghi đè biến đó, và xác nhận trên hai lần chạy `40748974196` và `40748974200`: cả hai đều dừng ngay tại cổng chất lượng khi cổng ở trạng thái ERROR. Đây là bài học quy trình có giá trị hơn một dây chuyền chạy trơn mà không ai kiểm lại.
+Kết quả thứ nhất, và là phát hiện quan trọng nhất của đề tài, là một cổng có thể báo đạt trong khi không kiểm tra gì. Năm bước trong tệp workflow chuyển kết quả qua `tee` mà không khai báo `shell`, nên mã thoát của cả chuỗi lệnh là mã thoát của `tee` và luôn bằng 0. Ba cổng chính sách ở stage 1 và hai cổng ở stage 4 vì vậy không thực hiện chức năng ngăn chặn trong khi pipeline được giả định có cơ chế chặn, dù tệp kết quả của chính chúng chứa các dòng FAIL. Phát hiện này đến từ một phép đối chiếu đơn giản mà không công cụ nào trong pipeline tự làm: so sánh trạng thái của một bước với nội dung tệp kết quả do chính bước đó sinh ra. Sau khi khai báo `shell: bash` cho mọi bước có chuỗi lệnh pipe, cùng mã nguồn và cùng cấu hình cho ra kết quả trái ngược: cổng chính sách lớp triển khai và cổng quản trị đều trả về trạng thái thất bại, và các stage sau bị bỏ qua đúng thiết kế.
 
-Kết quả thứ hai cho thấy cổng chất lượng ở trạng thái đạt không đồng nghĩa với mã nguồn an toàn. SonarQube Community báo `security_rating` ở mức A và không có lỗ hổng nào trên cả hai nhánh, trong khi cùng mã nguồn đó có 12 vị trí tiêm mã SQL mà Semgrep tìm ra. Chương 4 tổng hợp các khiếm khuyết thật mà công cụ phân tích tĩnh của riêng SonarQube hoàn toàn im lặng.
+Kết quả thứ hai là một quality gate đạt không đồng nghĩa mã nguồn an toàn. Bản SonarQube Community đánh giá `security_rating` mức A và ghi nhận 0 lỗ hổng trên cả hai nhánh, trong khi bộ quy tắc tự viết của nhóm phát hiện 12 vị trí tiêm mã SQL. Nguyên nhân là bản này không phân tích luồng dữ liệu xuyên hàm và xuyên tệp, nên không nối được chuỗi truy vấn từ tệp trang sang hàm bao trong `lib/db.php`. Hiện tượng này khẳng định một cổng chỉ chứng minh được điều nằm trong phạm vi quan sát của nó.
 
-Một kết quả thứ ba mang tính khẳng định đến từ việc kiểm chứng động trên nhánh vá: bộ kiểm thử theo hướng hành vi chuyển từ sáu phép kiểm thất bại sang sáu phép kiểm đạt, các cổng chính sách và quét tĩnh chuyển từ báo lỗi sang sạch, và chuỗi phát hiện khép kín với độ trễ mười lăm đến hai mươi lăm giây. Nhờ đó các đề xuất ở Chương 4 được chạy thử và đo trong môi trường thật, như trình bày ở mục 5.3.
+Kết quả thứ ba là hiệu lực của một cổng phụ thuộc vào phạm vi kiểm tra của nó. Cổng chính sách lớp triển khai từng chỉ đọc một tệp compose của môi trường phát triển, trong khi hai tệp thực sự dùng khi triển khai nằm ngoài phạm vi. Sau khi mở rộng phạm vi, cùng bộ quy tắc đó phát hiện 9 vi phạm trên `prod.yml` và 13 trên `monitoring.yml`. Một cổng báo đạt vì không tìm thấy vi phạm và một cổng báo đạt vì không đọc đến tệp nào cho ra cùng một dòng kết luận, nên phạm vi kiểm tra phải được kiểm chứng tách riêng.
 
-Về hạn chế, phần phân tích năm vấn đề ở Chương 4 dựa trên mã nguồn và cấu hình, còn việc kiểm chứng động được thực hiện cho các biện pháp khắc phục trên nhánh vá như trình bày ở mục 5.3, chưa phủ hết mọi trường hợp khai thác. Nhóm giữ lại một đợt vá thứ hai có chủ đích để bộ kiểm thử còn đối tượng đo. Dây chuyền cũng chưa có phân tích thành phần phần mềm bên thứ ba và chưa đo độ bao phủ kiểm thử. Về pháp lý, nhóm trích dẫn Nghị định 13/2023/NĐ-CP theo yêu cầu của đề bài nhưng chưa đối chiếu được với Luật Bảo vệ dữ liệu cá nhân số 91/2025/QH15 đã thay thế nghị định này từ ngày 01/01/2026.
+Ba kết quả trên có một điểm chung: chúng đều là khiếm khuyết của chính cơ chế kiểm soát, không phải của ứng dụng. Điều khoản CS-07 trong chính sách xếp loại khiếm khuyết này nặng hơn việc thiếu cổng, vì nó làm sai lệch kết quả của mọi cổng còn lại và tạo ra sự tin cậy sai lệch.
 
-Hướng phát triển tiếp theo được sắp xếp theo thứ tự ưu tiên:
+Về hạn chế, phân tích năm vấn đề ở Chương 4 dựa trên mã nguồn và cấu hình, trong khi kiểm chứng động chỉ áp dụng cho bản vá đợt một. Đợt vá thứ hai được hoãn có chủ đích để giữ đối tượng kiểm chứng cho phép kiểm TDS-6, và việc hoãn này được ghi thành một ngoại lệ có thời hạn theo điều khoản CS-08 thay vì để ngầm hiểu. Trường `protection` của một nhánh không đọc được bằng token mặc định của workflow, nên trong CI chỉ một trong ba quy tắc quản trị còn hiệu lực. Stage CD phát hành lên một môi trường đích tạm dựng trong máy ảo của runner, không phải lên máy chủ sản xuất, nên nó chứng minh được trình tự phát hành, xác minh và quay lui, nhưng chưa chứng minh được hành vi của hệ thống dưới tải thực. Về pháp lý, báo cáo trích dẫn Nghị định 13/2023/NĐ-CP theo yêu cầu đề tài nhưng chưa đối chiếu Luật Bảo vệ dữ liệu cá nhân số 91/2025/QH15, văn bản thay thế nghị định từ 01/01/2026.
 
-- Nối kết quả Semgrep thành một điều kiện chặn của chặng 2. Hiện bước Semgrep để `continue-on-error` nên mới ghi nhận phát hiện chứ chưa tự dừng chặng, trong khi cổng chặn của chặng 2 là cổng chất lượng SonarQube. Cùng với đó, xử lý các phát hiện độ tin cậy để cổng chất lượng đạt trạng thái sạch thay vì chỉ dừng ở lỗi độ tin cậy. Đây là việc cần làm trước tiên để mọi tín hiệu an toàn đều có khả năng chặn.
-- Áp dụng chính sách triển khai dạng mã vào chặng 3, và bổ sung luật che dữ liệu nhật ký vào bộ luật Semgrep nội bộ.
-- Khắc phục chuỗi rò rỉ dữ liệu qua đường nhật ký, đồng thời đổi toàn bộ bí mật đã xuất hiện trong lịch sử Git.
-- Bổ sung phân tích thành phần phần mềm bên thứ ba và kiểm thử động vào dây chuyền.
+Các hướng phát triển theo thứ tự ưu tiên:
+
+- Đưa kết quả Semgrep thành điều kiện chặn tại stage 2, sau khi hoàn thành đợt vá thứ hai và thay phép kiểm TDS-6 bằng một phép kiểm trực tiếp trên hàm ghi nhật ký. Ngoại lệ `EX-2026-02` hết hạn ngày 31/12/2026, và chính cổng kiểm hồ sơ ngoại lệ sẽ làm stage 1 thất bại nếu công việc chưa hoàn tất trước thời hạn.
+- Bổ sung một phép kiểm định kỳ về tính toàn vẹn của cổng: đối chiếu tự động trạng thái từng bước với nội dung tệp kết quả của bước đó, để khiếm khuyết dạng mất mã thoát không cần đến một lần rà soát thủ công mới phát hiện được.
+- Dùng một token có quyền quản trị kho mã nguồn cho riêng cổng quản trị, để cả ba quy tắc trong `repo_policy.rego` đều có hiệu lực trong CI.
+- Thu hồi và thay thế mọi bí mật từng xuất hiện trong lịch sử kho mã nguồn, vì công cụ quét chỉ đọc bản làm việc hiện tại.
+- Mở rộng stage CD sang một môi trường đích bền vững, để phép xác minh sau phát hành và cơ chế quay lui được kiểm chứng trên hệ thống có dữ liệu và có tải.
 
 ---
 
@@ -884,35 +894,24 @@ Hướng phát triển tiếp theo được sắp xếp theo thứ tự ưu tiê
 
 ---
 
-# PHỤ LỤC. HƯỚNG DẪN CHỤP ẢNH VÀ HỒ SƠ MINH CHỨNG
+# PHỤ LỤC. HỒ SƠ MINH CHỨNG
 
-Bốn ảnh minh chứng phải được chụp lại từ lần chạy dây chuyền gần nhất, không dùng lại ảnh của các lần chạy cũ, để số liệu trên ảnh khớp với số liệu đã dẫn trong Chương 3. Quy ước chung khi chụp: dùng trình duyệt ở chế độ cửa sổ tối đa, độ phân giải tối thiểu 1600 pixel chiều ngang, mức thu phóng 100 phần trăm; chỉ cắt lấy vùng nội dung chính và giữ lại thanh địa chỉ khi địa chỉ là một phần của bằng chứng; lưu định dạng PNG đúng tên tệp nêu dưới đây vào thư mục `docs/images`; che các giá trị bí mật nếu vô tình lọt vào khung hình; không chỉnh sửa nội dung ảnh ngoài việc cắt khung và che bí mật.
-
-*Bảng: Hướng dẫn chụp từng ảnh minh chứng*
-
-| Tên tệp | Mở ở đâu | Khung hình bắt buộc thấy rõ |
-| :--- | :--- | :--- |
-| `h01-run-summary.png` | Trang tóm tắt lần chạy, mục Summary | Trạng thái chung của lần chạy, dòng `Quality Gate: ERROR`, dòng `Gate enforcement: report-only`, mã commit được quét |
-| `h02-sonar-job-steps.png` | Công việc SonarQube SAST and Quality Gate | Toàn bộ danh sách bước, thấy rõ bước `Enforce pipeline result` kèm dấu hoàn thành, và dấu trạng thái thành công của cả công việc |
-| `h03-semgrep-job.png` | Công việc Semgrep Security SAST | Danh sách bước và dấu trạng thái thành công, kèm thời gian chạy |
-| `h04-sonar-issues.png` | Tệp `report.html` trong artifact SonarQube, bảng Issues | Dòng tiêu đề nêu tổng số phát hiện, đủ các cột Mức độ, Phân loại, Vị trí, Rule ID, Chi tiết vi phạm |
-
-Hai ảnh đầu là minh chứng quan trọng nhất của báo cáo, vì chúng cho thấy cổng chất lượng báo lỗi nhưng lần chạy vẫn kết thúc thành công. Khi chụp, cần bảo đảm trạng thái báo lỗi của cổng và trạng thái thành công của công việc cùng nằm trong một khung hình, vì nếu tách thành hai ảnh thì sức thuyết phục giảm đáng kể.
-
-Toàn bộ hồ sơ minh chứng của báo cáo được liệt kê dưới đây.
+Mọi số liệu trong báo cáo đều lấy từ một trong các nguồn dưới đây. Quy chuẩn thu thập minh chứng hình ảnh được lưu riêng tại `docs/` trong kho mã nguồn, không thuộc phạm vi báo cáo.
 
 *Bảng: Danh mục minh chứng*
 
 | TT | Minh chứng | Vị trí |
 | :---: | :--- | :--- |
-| 1 | Dây chuyền DevSecOps bốn chặng, có chặn | `.github/workflows/devsecops-gate.yml`, `.github/workflows/security-baseline.yml` |
-| 2 | Policy as Code, quy ước commit và PR | `ci/policy_guard.py`, `.githooks/commit-msg` |
-| 3 | Security as Code, tiêu chí cổng chất lượng | `ci/sonarqube-quality-gate.json` |
-| 4 | Security as Code, luật Semgrep tự viết | `ci/semgrep-local-rules.yml` |
-| 5 | Kiểm tra cú pháp tệp cấu hình | `ci/validate_configs.py`, `tests/test_validate_configs.py` |
-| 6 | Cấu hình triển khai và thu thập nhật ký | `InlaneWeb/docker-compose.prod.yml`, `docker-compose.monitoring.yml`, `monitoring/promtail/promtail-config.yml` |
-| 7 | Lược đồ cơ sở dữ liệu và bản ghi kỹ thuật khai thác | `InlaneWeb/db/init.sql`, `InlaneWeb/writeup.md` |
-| 8 | Kết quả SonarQube và Semgrep của hai lần chạy `40748974196` (`main`) và `40748974200` (`patched`) | Artifact `evidence-security-as-code` của mỗi lần chạy |
-| 9 | Trạng thái và nhật ký hai lần chạy | Trang GitHub Actions của kho mã |
+| 1 | Chính sách an toàn thông tin, tám điều khoản CS-01 đến CS-08, và hồ sơ ngoại lệ có thời hạn | `policy/00-chinh-sach-attt.md`, `policy/exceptions.json`, `ci/check_exceptions.py` |
+| 2 | Pipeline năm stage có chặn, và vòng lặp vận hành theo dõi CVE | `.github/workflows/devsecops-gate.yml`, `auto-remediate.yml`, `ci/cve_watch.py` |
+| 3 | Policy as Code: quy ước commit, cổng CS-01, chính sách khai báo và bộ test của chính chính sách | `ci/policy_guard.py`, `.githooks/commit-msg`, `policy/*.rego`, `policy/*_test.rego` |
+| 4 | Kiểm cấu trúc phản hồi API trước khi đánh giá chính sách | `ci/check_branch_payload.py` |
+| 5 | Security as Code: tiêu chí quality gate và quy tắc tự viết | `ci/sonarqube-quality-gate.json`, `ci/semgrep-policy-php.yml`, `ci/semgrep-local-rules.yml` |
+| 6 | Test-Driven Security, Compliance as Code và cặp fixture đạt chuẩn với vi phạm | `tests/security/run.sh`, `compliance/`, `fixtures/` |
+| 7 | Trạng thái bảo vệ nhánh qua API, cùng ba kịch bản của cổng CS-01 kèm mã thoát | `evidence/api/branch-*-slim.json`, `evidence/20-policy-guard-cs01.txt` |
+| 8 | Kết quả quét của hai nhánh | Artifact `evidence-security-as-code` của run `40748974196` và `40748974200` |
+| 9 | Cổng không chặn trước khi sửa, và chặn đúng chức năng sau khi sửa | Artifact `evidence-policy-as-code` của run `40748974196` và `41810794218` |
+| 10 | Tệp workflow không phân tích được do khóa `permissions` không tồn tại | run `41810605290`, 0 job |
+| 11 | Danh sách khiếm khuyết đã vá, cổng phát hiện và chủ sở hữu | `patches/README.md` |
 
-Để tái lập kết quả quét, mở trang hai lần chạy `40748974196` và `40748974200` trong kho mã, tải artifact `evidence-security-as-code` của mỗi lần, giải nén rồi mở `sonarqube/report.html`. Các tệp `sonarqube/metrics.json`, `sonarqube/quality-gate.json` và `ci-05-semgrep.json` chứa cùng số liệu ở dạng máy đọc được. Mọi số liệu SonarQube và Semgrep trong Chương 3 đều lấy từ hai nguồn này.
+Kết quả quét được tái lập qua artifact `evidence-security-as-code` của run tương ứng, giải nén rồi mở `sonarqube/report.html`. Dạng máy đọc gồm `sonarqube/metrics.json`, `sonarqube/quality-gate.json`, `sonarqube/issues.json` và `ci-05-semgrep.json`. Phép kiểm hai chiều của cổng chính sách được tái lập qua artifact `evidence-policy-as-code`, đối chiếu nội dung `ci-01-dockerfile.txt`, `ci-02-compose.txt` và `ci-03-branch-protection.txt` với trạng thái từng bước trên trang của run.

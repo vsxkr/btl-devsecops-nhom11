@@ -44,10 +44,17 @@ db_user_key := `(?i)(^|[_-])(db_?user|mysql_?user|postgres_?user|database_?user)
 
 privileged_db_users := {"root", "admin", "sa", "postgres", "mysql"}
 
-# Gia tri lay tu bien moi truong thi khong phai bi mat gan cung.
+# Gia tri lay tu bien moi truong khong phai bi mat gan cung.
 injected(v) if startswith(v, "${")
 
 injected(v) if startswith(v, "$")
+
+# Mot khoa ket thuc bang _FILE khong chua bi mat ma chua DUONG DAN tro toi tep
+# bi mat, vi du `DB_PASS_FILE: /run/secrets/app_db_password`. Day la dang dung
+# hon dang bien moi truong, vi bien moi truong doc duoc bang `docker inspect`.
+# Ban truoc cua quy tac bao vi pham tren chinh dang dung nay, tuc cong tu choi
+# mot cau hinh dat chuan. Mot cong tu choi dau vao hop le cung la mot cong sai.
+secret_path_key(k) if endswith(upper(k), "_FILE")
 
 # ---- cong da cong bo --------------------------------------------------------
 port_parts(p) := split(sprintf("%v", [p]), ":")
@@ -137,6 +144,7 @@ deny contains msg if {
 	some pair in env_pairs(svc)
 	regex.match(secret_key, pair[0])
 	not injected(pair[1])
+	not secret_path_key(pair[0])
 	msg := sprintf("CREDENTIALS: service '%s' hard-codes secret '%s' in environment; inject it at deploy time.", [name, pair[0]])
 }
 

@@ -33,7 +33,7 @@ một tệp bằng chứng. Phần mềm không qua được cổng thì không 
 | CS-05 | Dữ liệu cá nhân chỉ rời khỏi hệ thống theo đường đã khai báo; nhật ký, thông điệp lỗi và bản xuất dữ liệu không phải đường trong số đó | Bật nhật ký tập trung để quan sát sự cố, câu lệnh lỗi kèm mật khẩu đi vào kho nhật ký | Phép kiểm TDS-2, TDS-6, chặng che giấu dữ liệu trong Promtail | `evidence/ci-12-tds.txt` |
 | CS-06 | Tài khoản dịch vụ và tiến trình chạy ở mức quyền tối thiểu; container không chạy bằng `root` và ảnh phải ghim phiên bản | Ứng dụng kết nối cơ sở dữ liệu bằng tài khoản quản trị toàn quyền cho tiện | InSpec trên container đang chạy, `policy-p3-privileged-db-account-default` | `evidence/ci-13-inspec.txt` |
 | CS-07 | Cổng tự động phải chặn, không được chỉ báo cáo; một cổng báo đạt mà không kiểm tra gì là vi phạm nặng hơn việc thiếu cổng | Một bước CI ghi kết quả vi phạm ra tệp nhưng vẫn báo thành công do mã thoát bị mất | Đối chiếu mã thoát với nội dung tệp kết quả, bước tổng kết cổng | `evidence/ci-00-conftest-verify.txt`, Step Summary của mỗi run |
-| CS-08 | Mọi ngoại lệ đối với chính sách phải có hồ sơ: lý do, người phê duyệt dích danh và thời hạn. Hết hạn là hết hiệu lực | Một nhánh được miễn kiểm soát tạm thời rồi không ai nhớ để thu hồi | `policy/exceptions.json` và kiểm tra thời hạn trong `ci/policy_guard.py` | Nhật ký của stage 1 trong mỗi run |
+| CS-08 | Mọi ngoại lệ đối với chính sách phải có hồ sơ: lý do, người phê duyệt đích danh và thời hạn. Hết hạn là hết hiệu lực | Một nhánh được miễn kiểm soát tạm thời rồi không ai nhớ để thu hồi | `policy/exceptions.json` và kiểm tra thời hạn trong `ci/policy_guard.py` | Nhật ký của stage 1 trong mỗi run |
 
 ## 3. Trách nhiệm
 

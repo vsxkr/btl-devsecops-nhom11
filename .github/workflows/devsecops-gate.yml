@@ -404,12 +404,22 @@ jobs:
       - name: Compliance as Code tren container dang chay
         if: always()
         shell: bash
+        env:
+          INSPEC_IMAGE: chef/inspec@sha256:a68cacc3693f89abfe5eaee76cbeb42a9ada691f0f0088c68accd5416785bc66
         run: |
+          # Anh chef/inspec KHONG co docker CLI, nen `json(command: "docker inspect")`
+          # trong profile khong lay duoc gi va moi control bao loi
+          # `undefined method 'dig' for nil`. Do la hong o duong lay du lieu, khong
+          # phai mot vi pham tuan thu. Truoc khi sua bay pipefail, buoc nay mat ma
+          # thoat nen hong do khong bao gio lo ra: cong vua khong chan, vua khong
+          # thuc su kiem gi. Do duoc o run 41814045236.
+          # Cach dung: host sinh san ket qua `docker inspect`, profile doc tep do.
+          docker inspect ilfreight_web > evidence/ci-13a-docker-inspect-web.json
           docker run --rm \
-            -v /var/run/docker.sock:/var/run/docker.sock:ro \
-            -v "$PWD/compliance:/profile" \
-            chef/inspec exec /profile \
-            --input container=ilfreight_web \
+            -v "$PWD/compliance:/profile:ro" \
+            -v "$PWD/evidence:/evidence:ro" \
+            "$INSPEC_IMAGE" exec /profile \
+            --input container=ilfreight_web inspect_json=/evidence/ci-13a-docker-inspect-web.json \
             --chef-license=accept-silent \
             --reporter cli json:/dev/null 2>&1 | tee evidence/ci-13-inspec.txt
 
@@ -469,12 +479,15 @@ jobs:
         id: verify
         continue-on-error: true
         shell: bash
+        env:
+          INSPEC_IMAGE: chef/inspec@sha256:a68cacc3693f89abfe5eaee76cbeb42a9ada691f0f0088c68accd5416785bc66
         run: |
+          docker inspect ilfreight_web > evidence/ci-16a-docker-inspect-sau-phat-hanh.json
           docker run --rm \
-            -v /var/run/docker.sock:/var/run/docker.sock:ro \
-            -v "$PWD/compliance:/profile" \
-            chef/inspec exec /profile \
-            --input container=ilfreight_web \
+            -v "$PWD/compliance:/profile:ro" \
+            -v "$PWD/evidence:/evidence:ro" \
+            "$INSPEC_IMAGE" exec /profile \
+            --input container=ilfreight_web inspect_json=/evidence/ci-16a-docker-inspect-sau-phat-hanh.json \
             --chef-license=accept-silent \
             --reporter cli json:/dev/null 2>&1 | tee evidence/ci-16-cd-postdeploy-inspec.txt
 

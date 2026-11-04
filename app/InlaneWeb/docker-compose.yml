@@ -30,10 +30,18 @@ services:
         VCS_REF: ${VCS_REF:-dev}
     image: inlaneweb-db:1.0.0
     container_name: ilfreight_db
+    # Bi mat di vao container duoi dang TEP, khong duoi dang bien moi truong.
+    # Ly do: bien moi truong doc duoc bang `docker inspect`, nen bi mat dat o do
+    # la bi mat da bi tiet lo. Phep kiem ilf-run-04-no-secrets-in-env do dung
+    # dieu nay o trang thai chay. Doi chieu PCI DSS 8.6.2.
+    secrets:
+      - mysql_root_password
+      - app_db_password
+      - test_db_password
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      APP_DB_PASSWORD: ${APP_DB_PASSWORD}
-      TEST_DB_PASSWORD: ${TEST_DB_PASSWORD}
+      MARIADB_ROOT_PASSWORD_FILE: /run/secrets/mysql_root_password
+      APP_DB_PASSWORD_FILE: /run/secrets/app_db_password
+      TEST_DB_PASSWORD_FILE: /run/secrets/test_db_password
     # KHONG cong bo cong CSDL ra host: chi container web ket noi noi bo.
     networks: [labnet]
     labels:
@@ -73,12 +81,22 @@ services:
       timeout: 5s
       retries: 3
       start_period: 10s
+    secrets:
+      - app_db_password
     environment:
       DB_HOST: db
       DB_USER: ilf_app
-      DB_PASS: ${APP_DB_PASSWORD}
+      DB_PASS_FILE: /run/secrets/app_db_password
       DB_NAME: ilfreight
     networks: [labnet]
+
+secrets:
+  mysql_root_password:
+    file: ./secrets/mysql_root_password
+  app_db_password:
+    file: ./secrets/app_db_password
+  test_db_password:
+    file: ./secrets/test_db_password
 
 volumes:
   db_data:

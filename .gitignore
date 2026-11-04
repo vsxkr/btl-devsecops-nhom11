@@ -18,3 +18,6 @@ __pycache__/
 .env
 app/InlaneWeb/.env
 .inspect/
+
+# Bi mat dang tep cho container, sinh tai cho, khong commit
+app/InlaneWeb/secrets/

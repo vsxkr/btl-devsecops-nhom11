@@ -40,19 +40,11 @@ say() { printf '\n==> %s\n' "$*"; }
 
 say "0. Chuan bi bien moi truong"
 ENV_FILE="$ROOT/app/InlaneWeb/.env"
-if [ ! -f "$ENV_FILE" ]; then
-  # Sinh mat khau ngau nhien CHI DUNG CHO MOI TRUONG KIEM THU CUC BO.
-  gen() { head -c 18 /dev/urandom | base64 | tr -d '=+/' | cut -c1-20; }
-  {
-    echo "MYSQL_ROOT_PASSWORD=$(gen)"
-    echo "APP_DB_PASSWORD=$(gen)"
-    echo "TEST_DB_PASSWORD=$(gen)"
-    echo "VCS_REF=$(git -C "$ROOT" rev-parse --short HEAD 2>/dev/null || echo dev)"
-  } > "$ENV_FILE"
-  echo "   da sinh $ENV_FILE voi mat khau ngau nhien cho moi truong kiem thu"
-else
-  echo "   dung $ENV_FILE co san"
-fi
+# Mot cho sinh bi mat duy nhat, dung cho ca bo test va cho stage CD. Truoc day
+# doan sinh nay nam ngay trong tep nay, nen hai duong co the lech nhau: tep .env
+# duoc sinh nhung cac tep trong secrets/ thi khong, va container khong khoi dong
+# duoc vi khong doc duoc /run/secrets.
+bash "$ROOT/ci/make_env.sh" "$ENV_FILE"
 # shellcheck disable=SC1090
 set -a; . "$ENV_FILE"; set +a
 TEST_DB_USER="${TEST_DB_USER:-ilf_test}"

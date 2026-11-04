@@ -56,23 +56,75 @@ conftest test fixtures/branch-protection-compliant.json -p policy/ --namespace r
 Fixture này là hình dạng cấu hình đạt. Bật thật trên GitHub là một thao tác trong
 Settings, và cần chính Nam làm vì chỉ chủ repo có quyền.
 
-## Bằng chứng mạnh nhất, chính sách đã chặn thật một lần
+## Bằng chứng mạnh nhất, cổng tự nó không chặn
 
-Một lần đẩy lên `refs/heads/main` với tiêu đề commit sai chuẩn bị chặn:
+Đây là phát hiện quan trọng nhất của Nam, và nó nói về chính pipeline.
+
+Ba cổng chính sách ở stage 1 ghi ra kết luận vi phạm trong tệp kết quả của chính
+nó, rồi vẫn trả về trạng thái thành công. Nguyên nhân là một dòng:
+
+```yaml
+./conftest test "branch-${b}.json" -p policy/ --namespace repo --no-color   | tee -a evidence/ci-03-branch-protection.txt
+```
+
+Bước `run` không khai báo `shell`, nên GitHub Actions dùng `bash -e {0}`, bản này
+không bật `-o pipefail`. Mã thoát của cả chuỗi lệnh pipe là mã thoát của `tee`,
+luôn bằng 0.
+
+Cách chứng minh: đặt cạnh nhau trạng thái bước và nội dung tệp kết quả do chính
+bước đó sinh ra, lấy từ artifact `evidence-policy-as-code` của cùng run.
+
+| Lượt đo | Trạng thái nhánh `main` | Kết quả Conftest | Trạng thái bước |
+| :--- | :--- | :--- | :---: |
+| run `40748974196` | `protected: false` | 1 failure | success, sai |
+| run `41810794218` | `protected: false` | 1 failure | failure, đúng |
+| run `41812598120` | `protected: true` | 0 failure | success, đúng |
+
+Lượt thứ hai là lượt phải nhấn khi demo: cùng trạng thái hệ thống, cùng bộ quy
+tắc, nhưng trạng thái bước đổi dấu. Khác biệt duy nhất là một dòng khai báo
+`shell: bash`.
+
+Đối chứng nằm ngay trong cùng tệp workflow: cổng CVE giữ mã thoát bằng
+`${PIPESTATUS[0]}` và bước kiểm cú pháp PHP đối chiếu lại bằng `grep`, nên hai
+bước đó chặn đúng chức năng. Nói rõ với thầy: đây không phải hiểu sai công cụ,
+mà là áp dụng không nhất quán một nguyên tắc đã biết.
+
+## Bằng chứng thứ hai, chính sách chặn sai và cách xử lý
+
+Cổng CS-01 từ chối một commit của chính nhóm trong run `41812598120`:
 
 ```
-LOI VI PHAM CHINH SACH DAT TEN COMMIT (CONVENTIONAL COMMITS)
-Commit [a3ff9cb]: "release: v1.0.1 - Trien khai ha tang giam sat Loki va Grafana..."
-##[error]Process completed with exit code 1.
+[LOI] VI PHAM QUY UOC DAT TEN COMMIT
+- Commit [42279bd]: "sec(deploy,sonar): va cau hinh trien khai thuc te..."
 ```
 
-Job `[STAGE 1] Policy Guard` thất bại, và **năm job sau bị skipped**. Sau đó commit
-`a9b4259` lúc 23:11 sửa chính `COMMIT_REGEX` để cho phép tiêu đề release.
+Lý do: biểu thức chỉ nhận một scope, không nhận danh sách cách nhau bởi dấu
+phẩy. Nhưng lịch sử kho mã đã có `feat(report,telemetry): ...` từ trước, tức quy
+tắc đang từ chối một dạng nhóm dùng thật.
 
-Đây là vòng đời Policy-as-Code đầy đủ: chính sách chặn, chính sách bắt sai, chính
-sách được sửa bằng cách sửa mã chính sách, tất cả có dấu vết trong Git. Nói rõ với
-thầy rằng đây là **cảnh báo sai**, và cách xử lý một cảnh báo sai là sửa luật chứ
-không phải tắt cổng.
+Cách xử lý: mở rộng biểu thức, rồi thêm `tests/test_policy_guard.py` giữ cả hai
+chiều, trong đó có chiều mà bộ test cũ không có là "dạng hợp lệ phải được chấp
+nhận". Bộ test này chạy **trước** khi cổng được dùng, cùng nguyên tắc với
+`conftest verify`.
+
+Thông điệp khi demo: một cổng từ chối đầu vào hợp lệ cũng là một cổng sai, và
+cách xử lý là sửa quy tắc rồi thêm phép kiểm, không phải tắt cổng.
+
+## Bằng chứng thứ ba, ngoại lệ có thời hạn
+
+Nhánh `main` phải giữ trạng thái có khiếm khuyết để làm đối tượng đánh giá, trong
+khi CS-01 cấm đẩy trực tiếp. Giải pháp là một bản ghi trong
+`policy/exceptions.json` đủ bốn trường, có thời hạn. Ba kịch bản trong
+`evidence/20-policy-guard-cs01.txt`:
+
+| Kịch bản | Kết luận | Mã thoát |
+| :--- | :--- | :---: |
+| Ngoại lệ `EX-2026-01` còn hạn đến 31/12/2026 | đạt, ghi rõ người phê duyệt | 0 |
+| Cùng lần đẩy đó, ngoại lệ hết hạn | chặn, nêu tên ngoại lệ và lý do | 1 |
+| Thay đổi đến từ pull request đã hợp nhất | đạt, không cần ngoại lệ | 0 |
+
+Thêm nữa, `ci/check_exceptions.py` làm stage 1 thất bại nếu trong tệp còn một
+ngoại lệ đã hết hạn, nên không ai phải nhớ đi thu hồi.
 
 ## Bản vá
 

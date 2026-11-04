@@ -18,13 +18,37 @@
 
 require_once __DIR__ . '/logger.php';
 
+/**
+ * Doc mot bi mat, uu tien dang <TEN>_FILE.
+ *
+ * Ly do uu tien tep: bien moi truong cua container doc duoc bang
+ * `docker inspect` va hien trong moi ban ghi su kien, nen mot bi mat dat o day
+ * la mot bi mat da bi tiet lo. Phep kiem ilf-run-04-no-secrets-in-env trong
+ * compliance/ do dung dieu nay o trang thai chay. Doi chieu PCI DSS 8.6.2.
+ *
+ * Khong co gia tri du phong dang hang: thieu ca hai duong thi tra ve chuoi rong
+ * va ham db() dung han.
+ */
+function secret_from_env(string $name): string
+{
+    $path = getenv($name . '_FILE');
+    if (is_string($path) && $path !== '') {
+        if (!is_readable($path)) {
+            throw new RuntimeException(sprintf('Khong doc duoc tep bi mat %s', $name . '_FILE'));
+        }
+        return trim((string) file_get_contents($path));
+    }
+    $value = getenv($name);
+    return is_string($value) ? $value : '';
+}
+
 function db(): mysqli
 {
     static $conn = null;
     if ($conn === null) {
         $host = getenv('DB_HOST');
         $user = getenv('DB_USER');
-        $pass = getenv('DB_PASS');
+        $pass = secret_from_env('DB_PASS');
         $name = getenv('DB_NAME');
 
         // Fail closed: thieu bat ky bien nao thi dung, khong doan gia tri.

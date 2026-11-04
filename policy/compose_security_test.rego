@@ -152,3 +152,19 @@ test_missing_healthcheck_warns if {
 	some w in warn with input as stripped({"healthcheck"})
 	contains(w, "no healthcheck")
 }
+
+# Khoa ket thuc bang _FILE chua DUONG DAN tro toi tep bi mat, khong chua bi mat.
+# Day la dang dung hon dang bien moi truong, vi bien moi truong doc duoc bang
+# `docker inspect`. Ban truoc cua quy tac bao vi pham tren chinh dang dung nay.
+test_secret_path_key_not_denied if {
+	count([m |
+		some m in deny with input as patched({"environment": {"DB_PASS_FILE": "/run/secrets/app_db_password"}})
+		contains(m, "CREDENTIALS")
+	]) == 0
+}
+
+# Chieu con lai phai giu nguyen: mot bi mat dang chuoi hang van bi tu choi.
+test_hardcoded_secret_still_denied if {
+	some m in deny with input as patched({"environment": {"DB_PASS": "password"}})
+	contains(m, "CREDENTIALS")
+}
