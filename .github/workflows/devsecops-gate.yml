@@ -1,14 +1,30 @@
 # =============================================================================
 # devsecops-gate.yml — Day chuyen CO CHAN THAT.
 #
-# Nguyen tac: moi chang la mot CONG. Cong that bai thi cac chang sau bi bo qua,
+# Nguyen tac: moi stage la mot CONG. Cong that bai thi cac stage sau bi bo qua,
 # va pull request khong hop nhat duoc. Khong co cong nao chi bao cao.
 #
-# Day chinh la cho ban goc cua nhom bi loi: bien ENFORCE_QUALITY_GATE duoc gan
-# `${{ inputs.enforce_quality_gate || 'false' }}`, va vi `inputs` chi ton tai voi
-# workflow_dispatch nen gia tri luon la 'false'. Trong khi do ci/sonarqube.py doc
-# bien nay voi gia tri mac dinh "true" o ca hai cho (dong 393 va 434), tuc script
-# von fail-closed. Cach sua la KHONG ghi de bien do.
+# BAY DA GAP VA DA SUA, ghi lai de khong tai pham:
+#
+#   1. Bien ENFORCE_QUALITY_GATE tung duoc gan `${{ inputs.enforce_quality_gate
+#      || 'false' }}`. Vi `inputs` chi ton tai voi workflow_dispatch nen gia tri
+#      luon la 'false', trong khi ci/sonarqube.py doc bien nay voi mac dinh
+#      "true". Cach sua la KHONG ghi de bien do.
+#
+#   2. Bay NANG HON, do chinh nhom phat hien ngay 04/11/2026 khi doi chieu
+#      trang thai buoc voi noi dung tep ket qua do chinh buoc do sinh ra:
+#      moi buoc `run` khong khai bao `shell` deu chay duoi `bash -e {0}`, va
+#      ban nay KHONG bat `-o pipefail`. Voi mot cau lenh dang
+#
+#          ./conftest test ... | tee -a evidence/ci-0X.txt
+#
+#      ma thoat cua ca chuoi lenh pipe la ma thoat cua `tee`, luon bang 0.
+#      Conftest tra ve 1 nhung buoc van bao thanh cong. Ba cong o stage 1 va
+#      hai cong o stage 4 da khong chan gi trong suot thoi gian pipeline duoc
+#      coi la co chan (run 40748974196 va 40748974200).
+#      Cach sua: MOI buoc co dau pipe phai khai bao `shell: bash`, vi GitHub
+#      Actions chay shell nay bang `bash --noprofile --norc -eo pipefail {0}`.
+#      Noi khac: giu ma thoat bang ${PIPESTATUS[0]}.
 #
 # Viec ghi nhan trang thai hien tai ma khong chan la mot cong viec KHAC, nam o
 # workflow security-baseline.yml. Hai thu nay khong duoc dung chung mot ten.
@@ -22,6 +38,7 @@ on:
     branches: [dev, main]
   push:
     branches: [dev, main, patched]
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -48,37 +65,47 @@ jobs:
   stage1_policy_as_code:
     name: "[CHANG 1] Policy as Code, cau hinh va quan tri"
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      # Can de doc truong `protection` cua mot nhanh. Voi token chi co
+      # `contents: read`, GitHub tra ve `protected` nhung bo truong `protection`,
+      # nen chi quy tac thu nhat cua repo_policy.rego con hieu luc.
+      administration: read
     steps:
       - uses: actions/checkout@v4
 
       - name: Cai Conftest ban ghim
+        shell: bash
         run: |
           curl -sSL "https://github.com/open-policy-agent/conftest/releases/download/v${CONFTEST_VERSION}/conftest_${CONFTEST_VERSION}_Linux_x86_64.tar.gz" \
             | tar xz conftest
           ./conftest --version
 
       - name: Kiem chinh sach truoc khi dung lam cong
-        # Lab Conftest, Step 2: phai cho unit test cua chinh luat dat TRUOC khi
-        # dung luat de chan bat ky thu gi.
+        # Lab Conftest, Step 2: phai cho unit test cua chinh quy tac dat TRUOC
+        # khi dung quy tac de chan bat ky thu gi.
+        shell: bash
         run: |
           mkdir -p evidence
           ./conftest verify -p policy/ --no-color | tee evidence/ci-00-conftest-verify.txt
           grep -qE "[1-9][0-9]* tests, [0-9]+ passed, 0 .*0 failures" evidence/ci-00-conftest-verify.txt
 
       - name: Chinh sach lop build, Dockerfile
+        shell: bash
         run: |
           for f in app/InlaneWeb/web/Dockerfile app/InlaneWeb/db/Dockerfile; do
-            echo "== $f =="
+            echo "== $f ==" | tee -a evidence/ci-01-dockerfile.txt
             ./conftest test "$f" -p policy/ --namespace dockerfile --no-color \
               | tee -a evidence/ci-01-dockerfile.txt
           done
 
       - name: Chinh sach lop trien khai, Compose
+        shell: bash
         run: |
           for f in app/InlaneWeb/docker-compose.yml \
                    app/InlaneWeb/docker-compose.prod.yml \
                    app/InlaneWeb/docker-compose.monitoring.yml; do
-            echo "== $f =="
+            echo "== $f ==" | tee -a evidence/ci-02-compose.txt
             ./conftest test "$f" -p policy/ --namespace compose --no-color \
               | tee -a evidence/ci-02-compose.txt
           done
@@ -86,6 +113,8 @@ jobs:
       - name: Bao dam cong thuc su danh gia, khong phai 0 test
         # Bay duoc ghi trong ca handout va lab: thieu --namespace thi Conftest in
         # "0 tests, 0 failures" va tra ma thoat 0, trong khi khong danh gia gi.
+        if: always()
+        shell: bash
         run: |
           if grep -qE "^0 tests," evidence/ci-01-dockerfile.txt evidence/ci-02-compose.txt; then
             echo "LOI: co lan chay danh gia 0 test, cong nay khong kiem gi ca"
@@ -93,17 +122,50 @@ jobs:
           fi
 
       - name: Chinh sach lop quan tri, bao ve nhanh
+        if: always()
+        shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          for b in main dev; do
+          # Chi danh gia nhung nhanh VUA thuoc dien chinh sach quan tri VUA
+          # thuc su ton tai. Ban truoc lap cung tren "main dev" trong khi kho ma
+          # nguon khong co nhanh dev, nen Conftest danh gia mot doi tuong rong
+          # va ghi "branch 'null'" vao tep ket qua.
+          GOVERNED="main dev"
+          EXISTING=$(curl -sSL -H "Authorization: Bearer $GH_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            "${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/branches?per_page=100" \
+            | python3 -c "import json,sys; print(' '.join(b['name'] for b in json.load(sys.stdin)))")
+          echo "Nhanh co that trong kho ma nguon: $EXISTING" | tee -a evidence/ci-03-branch-protection.txt
+          echo "Nhanh thuoc dien chinh sach CS-01: $GOVERNED" | tee -a evidence/ci-03-branch-protection.txt
+
+          BRANCHES=""
+          for g in $GOVERNED; do
+            case " $EXISTING " in
+              *" $g "*) BRANCHES="$BRANCHES $g" ;;
+              *) echo "Nhanh '$g' thuoc dien chinh sach nhung khong ton tai, khong danh gia." \
+                   | tee -a evidence/ci-03-branch-protection.txt ;;
+            esac
+          done
+
+          RC=0
+          for b in $BRANCHES; do
             curl -sSL -H "Authorization: Bearer $GH_TOKEN" \
               -H "Accept: application/vnd.github+json" \
               "${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/branches/${b}" \
-              | python3 -c "import json,sys; d=json.load(sys.stdin); json.dump({'name':d.get('name'),'protected':d.get('protected'),'protection':d.get('protection')}, open('branch-'+sys.argv[1]+'.json','w'))" "$b"
-            ./conftest test "branch-${b}.json" -p policy/ --namespace repo --no-color \
+              > "branch-${b}.raw.json"
+
+            # Kiem cau truc du lieu dau vao TRUOC khi danh gia. Khong co buoc
+            # nay thi mot phan hoi loi van duoc dua vao Conftest va ket luan
+            # "vi pham" tren mot doi tuong khong ton tai.
+            python3 ci/check_branch_payload.py "branch-${b}.raw.json" "branch-${b}.json" \
               | tee -a evidence/ci-03-branch-protection.txt
+
+            echo "== nhanh ${b} ==" | tee -a evidence/ci-03-branch-protection.txt
+            ./conftest test "branch-${b}.json" -p policy/ --namespace repo --no-color \
+              | tee -a evidence/ci-03-branch-protection.txt || RC=1
           done
+          exit $RC
 
       - uses: actions/upload-artifact@v4
         if: always()
@@ -130,6 +192,7 @@ jobs:
       - name: Kiem cu phap PHP 8.2
         id: lint
         continue-on-error: true
+        shell: bash
         run: |
           mkdir -p evidence
           docker run --rm --network none \
@@ -141,6 +204,7 @@ jobs:
 
       - name: Dung SonarQube tam thoi
         id: server
+        shell: bash
         run: |
           mkdir -p "$REPORT_DIR"
           if [ "$(sysctl -n vm.max_map_count)" -lt 524288 ]; then sudo sysctl -w vm.max_map_count=524288; fi
@@ -171,9 +235,10 @@ jobs:
           GITHUB_SHA: ${{ github.sha }}
         run: python3 ci/sonarqube.py report --timeout 600
 
-      - name: Semgrep, bo luat P1 den P5 cua nhom cong cac bo cong khai
+      - name: Semgrep, bo quy tac P1 den P5 cua nhom cong cac bo cong khai
         id: semgrep
         continue-on-error: true
+        shell: bash
         run: |
           python3 -m pip install --quiet "semgrep==${SEMGREP_VERSION}"
           semgrep --metrics off --error \
@@ -189,6 +254,7 @@ jobs:
 
       - name: Chung minh cap fixture hai chieu
         continue-on-error: true
+        shell: bash
         run: |
           set +e
           semgrep --metrics off --error --config ci/semgrep-policy-php.yml \
@@ -206,7 +272,7 @@ jobs:
         if: always() && !cancelled()
         run: docker logs sonarqube-ci > "$REPORT_DIR/server.log" 2>&1 || true
 
-      - name: Cong ket qua cuoi cua chang
+      - name: Cong ket qua cuoi cua stage
         if: always() && steps.lint.conclusion != 'skipped'
         env:
           LINT_OUTCOME: ${{ steps.lint.outcome }}
@@ -234,12 +300,14 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Cai Trivy ban ghim
+        shell: bash
         run: |
           curl -sSL "https://github.com/aquasecurity/trivy/releases/download/v${TRIVY_VERSION}/trivy_${TRIVY_VERSION}_Linux-64bit.tar.gz" \
             | tar xz trivy
           ./trivy --version
 
       - name: SBOM cho hai anh nen
+        shell: bash
         run: |
           mkdir -p evidence sbom
           ./trivy image --quiet --format cyclonedx -o sbom/php-8.2-apache.cdx.json php:8.2-apache
@@ -248,11 +316,13 @@ jobs:
             | tee evidence/ci-08-sbom.txt
 
       - name: Quet bi mat
+        shell: bash
         run: ./trivy fs --scanners secret --no-progress app/ | tee evidence/ci-09-trivy-secret.txt
 
       - name: Cong CVE, chan khi co CRITICAL
         # Hai deck cua mon hoc ghi "builds fail on High CVEs". --exit-code 1 la
         # bat buoc; khong co no thi Trivy tra 0 du co 119 lo hong.
+        shell: bash
         run: |
           set +e
           ./trivy image --quiet --severity CRITICAL --exit-code 1 php:8.2-apache \
@@ -275,16 +345,21 @@ jobs:
 
   # ---------------------------------------------------------------------------
   stage4_test_driven_security:
-    name: "[CHANG 4] Test-Driven Security"
+    name: "[CHANG 4] Test-Driven Security va Compliance as Code"
     runs-on: ubuntu-latest
     needs: [stage2_security_as_code]
     steps:
       - uses: actions/checkout@v4
+
       - name: Chay bo test hanh vi
+        shell: bash
         run: |
           mkdir -p evidence
           bash tests/security/run.sh --keep-up 2>&1 | tee evidence/ci-12-tds.txt
+
       - name: Compliance as Code tren container dang chay
+        if: always()
+        shell: bash
         run: |
           docker run --rm \
             -v /var/run/docker.sock:/var/run/docker.sock:ro \
@@ -293,9 +368,11 @@ jobs:
             --input container=ilfreight_web \
             --chef-license=accept-silent \
             --reporter cli json:/dev/null 2>&1 | tee evidence/ci-13-inspec.txt
+
       - name: Ha stack
         if: always()
         run: docker compose -f app/InlaneWeb/docker-compose.yml down -v || true
+
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -303,10 +380,90 @@ jobs:
           path: evidence/
 
   # ---------------------------------------------------------------------------
-  stage5_gate_summary:
-    name: "[CHANG 5] Tong ket cong"
+  # CD. Chi chay tren nhanh ban va, vi nhanh main duoc giu o trang thai co
+  # khiem khuyet lam doi tuong danh gia va khong duoc phat hanh.
+  stage5_cd_release:
+    name: "[CHANG 5] CD, phat hanh co xac minh va quay lui"
     runs-on: ubuntu-latest
-    needs: [stage1_policy_guard, stage1_policy_as_code, stage2_security_as_code, stage3_supply_chain, stage4_test_driven_security]
+    needs: [stage2_security_as_code, stage3_supply_chain, stage4_test_driven_security]
+    if: github.ref == 'refs/heads/patched' && github.event_name != 'pull_request'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Ghi lai ban dang chay de co diem quay lui
+        id: pre
+        shell: bash
+        run: |
+          mkdir -p evidence
+          echo "moc ma nguon truoc phat hanh: ${GITHUB_SHA}" | tee evidence/ci-14-cd-rollback-point.txt
+          git rev-parse HEAD~1 2>/dev/null | tee -a evidence/ci-14-cd-rollback-point.txt || true
+
+      - name: Phat hanh len moi truong dich
+        id: deploy
+        shell: bash
+        run: |
+          docker compose -f app/InlaneWeb/docker-compose.yml up -d --build \
+            2>&1 | tee evidence/ci-15-cd-deploy.txt
+          for i in $(seq 1 30); do
+            s=$(docker inspect -f '{{.State.Health.Status}}' ilfreight_web 2>/dev/null || echo starting)
+            echo "lan $i: $s" | tee -a evidence/ci-15-cd-deploy.txt
+            [ "$s" = "healthy" ] && break
+            sleep 5
+          done
+          [ "$(docker inspect -f '{{.State.Health.Status}}' ilfreight_web)" = "healthy" ]
+
+      - name: Xac minh sau phat hanh, Compliance as Code
+        id: verify
+        continue-on-error: true
+        shell: bash
+        run: |
+          docker run --rm \
+            -v /var/run/docker.sock:/var/run/docker.sock:ro \
+            -v "$PWD/compliance:/profile" \
+            chef/inspec exec /profile \
+            --input container=ilfreight_web \
+            --chef-license=accept-silent \
+            --reporter cli json:/dev/null 2>&1 | tee evidence/ci-16-cd-postdeploy-inspec.txt
+
+      - name: Quay lui khi xac minh that bai
+        if: steps.verify.outcome == 'failure'
+        shell: bash
+        run: |
+          echo "Xac minh sau phat hanh that bai, tien hanh quay lui." \
+            | tee evidence/ci-17-cd-rollback.txt
+          docker compose -f app/InlaneWeb/docker-compose.yml down -v \
+            2>&1 | tee -a evidence/ci-17-cd-rollback.txt
+          echo "Moi truong dich da duoc dua ve trang thai truoc phat hanh." \
+            | tee -a evidence/ci-17-cd-rollback.txt
+          exit 1
+
+      - name: Ket luan phat hanh
+        shell: bash
+        run: |
+          echo "Phat hanh dat: container khoe va toan bo phep kiem tuan thu dat." \
+            | tee evidence/ci-18-cd-release-ok.txt
+
+      - name: Ha moi truong dich
+        if: always()
+        run: docker compose -f app/InlaneWeb/docker-compose.yml down -v || true
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: evidence-cd-release
+          path: evidence/
+
+  # ---------------------------------------------------------------------------
+  stage6_gate_summary:
+    name: "[TONG KET] Ket qua cac cong"
+    runs-on: ubuntu-latest
+    needs:
+      - stage1_policy_guard
+      - stage1_policy_as_code
+      - stage2_security_as_code
+      - stage3_supply_chain
+      - stage4_test_driven_security
+      - stage5_cd_release
     if: always()
     steps:
       - name: Ghi ket qua tung cong vao Step Summary
@@ -314,13 +471,14 @@ jobs:
           {
             echo "## Ket qua cac cong DevSecOps"
             echo
-            echo "| Chang | Cong | Ket qua |"
+            echo "| Stage | Cong | Ket qua |"
             echo "|---|---|---|"
             echo "| 1 | Policy Guard | ${{ needs.stage1_policy_guard.result }} |"
             echo "| 1 | Policy as Code | ${{ needs.stage1_policy_as_code.result }} |"
             echo "| 2 | Security as Code | ${{ needs.stage2_security_as_code.result }} |"
             echo "| 3 | Chuoi cung ung | ${{ needs.stage3_supply_chain.result }} |"
             echo "| 4 | TDS va CaC | ${{ needs.stage4_test_driven_security.result }} |"
+            echo "| 5 | CD, phat hanh va quay lui | ${{ needs.stage5_cd_release.result }} |"
           } >> "$GITHUB_STEP_SUMMARY"
       - name: Chan khi co bat ky cong nao that bai
         if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')

@@ -1,0 +1,13 @@
+{
+  "_mo_ta": "Danh sach ngoai le co ho so doi voi chinh sach an toan thong tin. Dieu khoan CS-08 yeu cau moi ngoai le phai co ly do, nguoi phe duyet dich danh va thoi han. Het han la het hieu luc, cong tu dong chan tro lai ma khong can ai can thiep.",
+  "exceptions": [
+    {
+      "id": "EX-2026-01",
+      "clause": "CS-01",
+      "branch": "main",
+      "reason": "Nhanh main duoc giu o trang thai co khiem khuyet de lam doi tuong danh gia cua bai tap lon. Ban va nam o nhanh patched. Viec dua ma vao main trong giai doan nay khong phai mot lan phat hanh len moi truong that.",
+      "approved_by": "Nguyen Giang Nam, truong nhom, B26CHAT030",
+      "expires": "2026-12-31"
+    }
+  ]
+}

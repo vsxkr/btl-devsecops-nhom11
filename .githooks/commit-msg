@@ -1,5 +1,12 @@
 #!/usr/bin/env bash
-# Git commit-msg hook: Kiểm tra định dạng Conventional Commits cục bộ trước khi commit
+# Git commit-msg hook: kiem dinh dang Conventional Commits ngay tren may truoc
+# khi commit duoc tao.
+#
+# Hook nay FAIL-CLOSED. Ban truoc tra ve 0 kem mot dong canh bao khi may khong
+# co Python, tuc bo qua kiem tra nhung van bao thanh cong. Do la dung tin hieu
+# sai: nguoi dung tin rang quy uoc da duoc kiem trong khi khong co gi duoc
+# kiem. Bao cao muc 4.2 ghi day la mot trong ba lop kiem soat khong co hieu
+# luc thi hanh.
 COMMIT_MSG_FILE="$1"
 
 if [ -f "$COMMIT_MSG_FILE" ]; then
@@ -8,7 +15,6 @@ else
     COMMIT_MSG="$1"
 fi
 
-# Chạy kiểm tra qua python/python3
 if command -v python3 >/dev/null 2>&1; then
     PY_BIN="python3"
 elif command -v python >/dev/null 2>&1; then
@@ -16,8 +22,13 @@ elif command -v python >/dev/null 2>&1; then
 elif command -v py >/dev/null 2>&1; then
     PY_BIN="py"
 else
-    echo "⚠️ Không tìm thấy Python để chạy policy guard, bỏ qua kiểm tra."
-    exit 0
+    echo ""
+    echo "======================================================================"
+    echo "[LOI] Khong tim thay Python de chay policy guard."
+    echo "Hook nay khong bo qua kiem tra, vi mot lan bo qua im lang con nguy hai"
+    echo "hon la khong co hook. Hay cai Python 3 roi commit lai."
+    echo "======================================================================"
+    exit 1
 fi
 
 "$PY_BIN" ci/policy_guard.py "$COMMIT_MSG"
@@ -26,9 +37,9 @@ EXIT_CODE=$?
 if [ $EXIT_CODE -ne 0 ]; then
   echo ""
   echo "======================================================================"
-  echo "❌ [Local Git Hook] Lệnh commit đã bị HỦY BỎ ngay trên máy của bạn!"
-  echo "💡 Vui lòng đặt lại tiêu đề commit theo chuẩn: <loại>(<phạm_vi>): <mô tả>"
-  echo "   Ví dụ: feat(auth): thêm chức năng xác thực token JWT"
+  echo "[LOI] Lenh commit bi tu choi ngay tren may cua ban."
+  echo "Dat lai tieu de commit theo chuan: <loai>(<pham_vi>): <mo ta>"
+  echo "Vi du: feat(auth): them chuc nang xac thuc token JWT"
   echo "======================================================================"
   exit 1
 fi

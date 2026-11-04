@@ -1,0 +1,28 @@
+### CHIEU DAT: ngoai le EX-2026-01 con han
+[Policy Guard] Kiem cac commit duoc day len ref: refs/heads/main
+[DAT, CO NGOAI LE] Day truc tiep vao nhanh 'main' duoc mien theo ngoai le EX-2026-01, het han 2026-12-31, nguoi phe duyet Nguyen Giang Nam, truong nhom, B26CHAT030.
+         Ly do: Nhanh main duoc giu o trang thai co khiem khuyet de lam doi tuong danh gia cua bai tap lon. Ban va nam o nhanh patched. Viec dua ma vao main trong giai doan nay khong phai mot lan phat hanh len moi truong that.
+[DAT] Toan bo 1 commit tuan thu quy uoc Conventional Commits.
+exit=0
+
+### CHIEU CHAN: ngoai le het han tu 2025-01-01
+[CANH BAO] Ngoai le bi loai bo, EX-2025-99: da het han ngay 2025-01-01
+
+======================================================================
+[LOI] VI PHAM CHINH SACH DUA MA VAO NHANH PHAT HANH
+======================================================================
+Day truc tiep vao nhanh phat hanh 'main' vi pham dieu khoan CS-01.
+Moi thay doi vao nhanh phat hanh phai di qua pull request co nguoi phe duyet.
+Neu day la truong hop bat buoc, phai ghi mot ngoai le co thoi han trong policy/exceptions.json voi du bon truong: clause, branch, reason, approved_by, expires.
+======================================================================
+
+::error title=Vi pham CS-01, day truc tiep vao nhanh phat hanh::Day truc tiep vao nhanh phat hanh 'main' vi pham dieu khoan CS-01.%0AMoi thay doi vao nhanh phat hanh phai di qua pull request co nguoi phe duyet.%0ANeu day la truong hop bat buoc, phai ghi mot ngoai le co thoi han trong policy/exceptions.json voi du bon truong: clause, branch, reason, approved_by, expires.
+[Policy Guard] Kiem cac commit duoc day len ref: refs/heads/main
+[DAT] Toan bo 1 commit tuan thu quy uoc Conventional Commits.
+exit=1
+
+### CHIEU DAT: thay doi den tu pull request da hop nhat
+[Policy Guard] Kiem cac commit duoc day len ref: refs/heads/main
+[DAT] Thay doi vao nhanh 'main' den tu mot pull request da hop nhat.
+[DAT] Toan bo 1 commit tuan thu quy uoc Conventional Commits.
+exit=0

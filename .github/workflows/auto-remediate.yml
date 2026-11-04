@@ -1,0 +1,102 @@
+# =============================================================================
+# auto-remediate.yml — Vong doi quy tac khi van hanh.
+#
+# Day la phan CD khong nam trong mot lan phat hanh cu the: he thong tu quan sat
+# chuoi cung ung cua chinh no, phat hien lo hong moi xuat hien sau khi da phat
+# hanh, roi mo mot pull request de dua viec xu ly tro lai dau day chuyen.
+#
+# Can cu dieu khoan CS-02 va CS-07 trong policy/00-chinh-sach-attt.md: cau hinh
+# trien khai phai qua cong, va cong phai chan chu khong chi bao cao. Mot lo hong
+# xuat hien sau ngay phat hanh khong vi pham cong nao ca, nen can mot vong lap
+# rieng de dua no vao dien kiem soat.
+# =============================================================================
+name: auto-remediate
+
+on:
+  schedule:
+    # 03:00 UTC moi thu Hai
+    - cron: "0 3 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+env:
+  TRIVY_VERSION: 0.70.0
+  WEB_IMAGE: php:8.2-apache
+  DB_IMAGE: mariadb:10.11
+
+jobs:
+  cve_watch:
+    name: "Theo doi CVE moi va mo pull request va loi"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Cai Trivy ban ghim
+        shell: bash
+        run: |
+          curl -sSL "https://github.com/aquasecurity/trivy/releases/download/v${TRIVY_VERSION}/trivy_${TRIVY_VERSION}_Linux-64bit.tar.gz" \
+            | tar xz trivy
+          ./trivy --version
+
+      - name: Quet hai anh nen
+        shell: bash
+        run: |
+          mkdir -p evidence
+          ./trivy image --quiet --format json --severity CRITICAL,HIGH \
+            -o evidence/cve-web.json "$WEB_IMAGE"
+          ./trivy image --quiet --format json --severity CRITICAL,HIGH \
+            -o evidence/cve-db.json "$DB_IMAGE"
+
+      - name: Doi chieu voi moc co so
+        id: watch
+        shell: bash
+        run: |
+          set +e
+          python3 ci/cve_watch.py \
+            "$WEB_IMAGE" evidence/cve-web.json \
+            "$DB_IMAGE" evidence/cve-db.json \
+            | tee evidence/cve-watch.txt
+          RC=${PIPESTATUS[0]}
+          set -e
+          echo "rc=$RC" >> "$GITHUB_OUTPUT"
+          if [ "$RC" -ne 0 ] && [ "$RC" -ne 10 ]; then exit "$RC"; fi
+
+      - name: Mo pull request va loi
+        if: steps.watch.outputs.rc == '10'
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          BRANCH="auto/cve-$(date -u +%Y%m%d)"
+          git config user.name "devsecops-gate"
+          git config user.email "devsecops-gate@users.noreply.github.com"
+          git checkout -b "$BRANCH"
+          git add sbom/cve-baseline.json
+          git commit -m "sec(sbom): cap nhat moc co so CVE cua anh nen"
+          git push origin "$BRANCH"
+          gh pr create \
+            --base patched \
+            --head "$BRANCH" \
+            --title "sec: co CVE moi tren anh nen, can danh gia va nang phien ban" \
+            --body-file evidence/auto-remediate-pr-body.md
+
+      - name: Ghi ket qua vao Step Summary
+        if: always()
+        shell: bash
+        run: |
+          {
+            echo "## Vong doi quy tac, theo doi chuoi cung ung"
+            echo
+            echo '```'
+            cat evidence/cve-watch.txt 2>/dev/null || echo "khong co ket qua"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: evidence-auto-remediate
+          path: evidence/
