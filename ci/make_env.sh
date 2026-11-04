@@ -57,7 +57,16 @@ write_secret() {
     exit 1
   fi
   printf '%s' "$value" > "$target"
-  chmod 600 "$target" 2>/dev/null || true
+  # Quyen 0444, khong phai 0600. Ly do da do duoc o run 41815649692: Compose dua
+  # tep bi mat vao container va GIU NGUYEN chu so huu cua tep tren host, trong
+  # khi hai container chay bang hai tai khoan khong dac quyen khac nhau (mysql va
+  # www-data). Voi quyen 0600 thi ca hai deu khong doc duoc va MariaDB khong khoi
+  # dong noi.
+  # Danh doi nay chi chap nhan duoc o moi truong kiem thu: bi mat la chuoi ngau
+  # nhien sinh cho tung lan chay va mat cung lan chay. O moi truong that, bi mat
+  # den tu noi quan ly bi mat cua trinh dieu phoi, kem dung chu so huu, nen
+  # khong can mo quyen doc cho moi nguoi.
+  chmod 444 "$target" 2>/dev/null || true
   echo "      $target"
 }
 

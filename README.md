@@ -25,7 +25,7 @@ ci/                  Security as Code
   check_exceptions.py         thi hanh CS-08, ngoai le het han lam stage 1 do
   cve_watch.py                theo doi CVE moi sau khi phat hanh
 tests/security/      Test-Driven Security, 6 phep kiem hanh vi
-compliance/          Compliance as Code, 6 control InSpec tren container dang chay
+compliance/          Compliance as Code, 7 control InSpec tren container dang chay
 fixtures/            cap doi chung: ban co y sai va ban da sua, cho tung lop
 patches/             ban va, gom phan chua telemetry
 evidence/            output da luu cua tung lenh kiem chung, co ghi ma thoat

@@ -36,6 +36,20 @@ cfg = if inspect_file.to_s.empty?
         json(inspect_file).params.first
       end
 
+control 'ilf-run-00-dang-chay' do
+  impact 1.0
+  title 'Container thuc su dang chay'
+  desc "Kiem soat nay duoc them sau khi do duoc mot sai sot cua chinh phep kiem "        "o run 41815649692: container `web` khong khoi dong duoc vi `db` khong khoe, "        "nhung `docker inspect` van tra ve day du cau hinh cua container DA TAO, nen "        "ca sau control con lai deu dat. Mot profile tuan thu dat tren mot container "        "khong chay la mot ket qua vo nghia. Vi vay trang thai chay phai la dieu kien "        "dau tien, khong phai mot gia thiet."
+  describe 'State.Running' do
+    subject { cfg.dig('State', 'Running') }
+    it { should eq true }
+  end
+  describe 'State.Health.Status' do
+    subject { cfg.dig('State', 'Health', 'Status') }
+    it { should eq 'healthy' }
+  end
+end
+
 control 'ilf-run-01-non-root' do
   impact 1.0
   title 'Container khong chay bang root'
