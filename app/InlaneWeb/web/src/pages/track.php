@@ -6,6 +6,7 @@ render_header('Tra cứu vận đơn');
     <h1>Tra cứu vận đơn</h1>
     <p class="muted">Nhập mã vận đơn (tracking number) để xem trạng thái lô hàng.</p>
     <form class="searchbar" onsubmit="return doTrack(event)">
+        <label class="sr-only" for="tracking">Mã vận đơn</label>
         <input type="text" id="tracking" placeholder="Ví dụ: ILF1042CN">
         <button class="btn" type="submit">Theo dõi</button>
     </form>

@@ -45,7 +45,8 @@ if ($cres) {
     <h2 style="margin-top:20px">Thêm bình luận</h2>
     <form action="/shipments/<?= intval($id) ?>/comments" method="post">
         <div class="form-row">
-            <textarea name="content" rows="3" placeholder="Nhập bình luận..."></textarea>
+            <label class="sr-only" for="comment-content">Nội dung bình luận</label>
+            <textarea id="comment-content" name="content" rows="3" placeholder="Nhập bình luận..."></textarea>
         </div>
         <button class="btn" type="submit">Gửi bình luận</button>
     </form>

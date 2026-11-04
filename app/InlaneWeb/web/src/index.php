@@ -41,7 +41,7 @@ $method = $_SERVER['REQUEST_METHOD'];
 // Helper: dispatch toi file handler trong /pages
 function page(string $file): void
 {
-    require __DIR__ . '/pages/' . $file;
+    require_once __DIR__ . '/pages/' . $file;
     exit;
 }
 

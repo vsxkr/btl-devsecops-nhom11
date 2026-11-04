@@ -6,7 +6,8 @@ render_header('Trang chủ');
     <h1>Vận tải &amp; Logistics toàn cầu</h1>
     <p>Tra cứu cảng biển, theo dõi vận đơn và quản lý lô hàng của bạn với IlFreight Logistics.</p>
     <form class="searchbar" action="/ports" method="get">
-        <input type="text" name="q" placeholder="Nhập mã cảng, ví dụ: CN, SG, DXB..." autofocus>
+        <label class="sr-only" for="home-port-q">Mã cảng cần tra cứu</label>
+        <input type="text" id="home-port-q" name="q" placeholder="Nhập mã cảng, ví dụ: CN, SG, DXB..." autofocus>
         <button class="btn" type="submit">Tra cứu cảng</button>
     </form>
 </div>

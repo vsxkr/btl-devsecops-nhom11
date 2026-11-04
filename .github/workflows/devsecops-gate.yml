@@ -61,6 +61,10 @@ jobs:
       - name: Kiem quy uoc dat ten commit va PR
         run: python3 ci/policy_guard.py
 
+      - name: Kiem ho so ngoai le chinh sach, CS-08
+        if: always()
+        run: python3 ci/check_exceptions.py
+
   # ---------------------------------------------------------------------------
   stage1_policy_as_code:
     name: "[CHANG 1] Policy as Code, cau hinh va quan tri"
@@ -96,22 +100,30 @@ jobs:
       - name: Chinh sach lop build, Dockerfile
         shell: bash
         run: |
+          # Danh gia HET cac tep roi moi that bai. Neu de `set -e` dung vong lap
+          # tai tep dau tien vi pham thi tep sau khong duoc kiem, va ho so bang
+          # chung thieu mat phan con lai.
+          RC=0
           for f in app/InlaneWeb/web/Dockerfile app/InlaneWeb/db/Dockerfile; do
             echo "== $f ==" | tee -a evidence/ci-01-dockerfile.txt
             ./conftest test "$f" -p policy/ --namespace dockerfile --no-color \
-              | tee -a evidence/ci-01-dockerfile.txt
+              | tee -a evidence/ci-01-dockerfile.txt || RC=1
           done
+          exit $RC
 
       - name: Chinh sach lop trien khai, Compose
+        if: always()
         shell: bash
         run: |
+          RC=0
           for f in app/InlaneWeb/docker-compose.yml \
                    app/InlaneWeb/docker-compose.prod.yml \
                    app/InlaneWeb/docker-compose.monitoring.yml; do
             echo "== $f ==" | tee -a evidence/ci-02-compose.txt
             ./conftest test "$f" -p policy/ --namespace compose --no-color \
-              | tee -a evidence/ci-02-compose.txt
+              | tee -a evidence/ci-02-compose.txt || RC=1
           done
+          exit $RC
 
       - name: Bao dam cong thuc su danh gia, khong phai 0 test
         # Bay duoc ghi trong ca handout va lab: thieu --namespace thi Conftest in

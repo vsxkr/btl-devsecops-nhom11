@@ -8,6 +8,14 @@
       "reason": "Nhanh main duoc giu o trang thai co khiem khuyet de lam doi tuong danh gia cua bai tap lon. Ban va nam o nhanh patched. Viec dua ma vao main trong giai doan nay khong phai mot lan phat hanh len moi truong that.",
       "approved_by": "Nguyen Giang Nam, truong nhom, B26CHAT030",
       "expires": "2026-12-31"
+    },
+    {
+      "id": "EX-2026-02",
+      "clause": "CS-07",
+      "scope": "cong Semgrep tai stage 2",
+      "reason": "Dot va thu hai duoc hoan co chu dich: phep kiem TDS-6 can mot truy van that bai that lam doi tuong kiem chung. Trong thoi gian do Semgrep chay voi continue-on-error nen ghi nhan ma khong chan. Cap fixture hai chieu va cong CVE van chan.",
+      "approved_by": "Nguyen Giang Nam, truong nhom, B26CHAT030",
+      "expires": "2026-12-31"
     }
   ]
 }

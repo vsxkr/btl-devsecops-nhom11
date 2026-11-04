@@ -25,8 +25,8 @@ render_header('Hồ sơ');
     <h2>Cập nhật hồ sơ</h2>
     <form action="/account/update" method="post">
         <div class="form-row">
-            <label>Email</label>
-            <input type="text" name="email" value="<?= htmlspecialchars($u['email']) ?>">
+            <label for="acc-email">Email</label>
+            <input type="text" id="acc-email" name="email" value="<?= htmlspecialchars($u['email']) ?>">
         </div>
         <button class="btn" type="submit">Lưu thay đổi</button>
     </form>

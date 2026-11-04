@@ -1,12 +1,29 @@
 {
   "name": "main",
-  "protected": false,
+  "protected": true,
   "protection": {
-    "enabled": false,
+    "enabled": true,
     "required_status_checks": {
-      "enforcement_level": "off",
-      "contexts": [],
-      "checks": []
+      "enforcement_level": "non_admins",
+      "contexts": [
+        "[CHANG 1] Policy Guard, ten commit va pull request",
+        "[CHANG 1] Policy as Code, cau hinh va quan tri",
+        "[CHANG 2] Security as Code, SonarQube va Semgrep"
+      ],
+      "checks": [
+        {
+          "context": "[CHANG 1] Policy Guard, ten commit va pull request",
+          "app_id": 15368
+        },
+        {
+          "context": "[CHANG 1] Policy as Code, cau hinh va quan tri",
+          "app_id": 15368
+        },
+        {
+          "context": "[CHANG 2] Security as Code, SonarQube va Semgrep",
+          "app_id": 15368
+        }
+      ]
     }
   }
 }

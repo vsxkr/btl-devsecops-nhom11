@@ -14,7 +14,8 @@ $q = $_GET['q'] ?? '';
 <div class="card">
     <h1>Tra cứu cảng biển</h1>
     <form class="searchbar" action="/ports" method="get">
-        <input type="text" name="q" value="<?= htmlspecialchars($q) ?>" placeholder="Mã cảng...">
+        <label class="sr-only" for="ports-q">Mã cảng cần tra cứu</label>
+        <input type="text" id="ports-q" name="q" value="<?= htmlspecialchars($q) ?>" placeholder="Mã cảng...">
         <button class="btn" type="submit">Tra cứu</button>
     </form>
 

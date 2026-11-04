@@ -33,8 +33,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 ?>
     <form action="/admin/reports/export" method="post">
         <div class="form-row">
-            <label>Tên báo cáo</label>
-            <input type="text" name="report_name" placeholder="vd: q1_2024">
+            <label for="report-name">Tên báo cáo</label>
+            <input type="text" id="report-name" name="report_name" placeholder="vd: q1_2024">
         </div>
         <button class="btn" type="submit">Tạo báo cáo</button>
     </form>

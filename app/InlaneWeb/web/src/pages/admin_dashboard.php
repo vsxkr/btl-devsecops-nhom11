@@ -23,7 +23,8 @@ render_header('Quản trị');
 <div class="card">
     <h2>Tìm khách hàng</h2>
     <form class="searchbar" action="/admin" method="get">
-        <input type="text" name="customer" value="<?= htmlspecialchars($_GET['customer'] ?? '') ?>" placeholder="Tên khách hàng...">
+        <label class="sr-only" for="admin-customer">Tên khách hàng</label>
+        <input type="text" id="admin-customer" name="customer" value="<?= htmlspecialchars($_GET['customer'] ?? '') ?>" placeholder="Tên khách hàng...">
         <button class="btn" type="submit">Tìm</button>
     </form>
     <?php
