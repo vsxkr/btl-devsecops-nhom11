@@ -9,12 +9,14 @@ rules:
       Bat buoc lay bi mat tu moi truong va thoat som khi thieu.
     patterns:
       - pattern-either:
-          - pattern: getenv($NAME) ?: $FALLBACK
-          - pattern: getenv($NAME) ?? $FALLBACK
-          - pattern: $_ENV[$NAME] ?: $FALLBACK
-          - pattern: $_ENV[$NAME] ?? $FALLBACK
-          - pattern: $_SERVER[$NAME] ?: $FALLBACK
-          - pattern: $_SERVER[$NAME] ?? $FALLBACK
+          # Phai dat trong dau nhay: toan tu "?:" cua PHP lam YAML hieu thanh
+          # mot cap khoa va gia tri, va tep khong phan tich duoc.
+          - pattern: "getenv($NAME) ?: $FALLBACK"
+          - pattern: "getenv($NAME) ?? $FALLBACK"
+          - pattern: "$_ENV[$NAME] ?: $FALLBACK"
+          - pattern: "$_ENV[$NAME] ?? $FALLBACK"
+          - pattern: "$_SERVER[$NAME] ?: $FALLBACK"
+          - pattern: "$_SERVER[$NAME] ?? $FALLBACK"
       - metavariable-regex:
           metavariable: $FALLBACK
           regex: ^['"].+['"]$

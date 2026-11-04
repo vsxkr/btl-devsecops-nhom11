@@ -65,12 +65,15 @@ jobs:
   stage1_policy_as_code:
     name: "[CHANG 1] Policy as Code, cau hinh va quan tri"
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      # Can de doc truong `protection` cua mot nhanh. Voi token chi co
-      # `contents: read`, GitHub tra ve `protected` nhung bo truong `protection`,
-      # nen chi quy tac thu nhat cua repo_policy.rego con hieu luc.
-      administration: read
+    # LUU Y VE PHAM VI TOKEN, da thu va bi tu choi:
+    # Khoi `permissions` cua GITHUB_TOKEN KHONG co khoa `administration`. Khai
+    # bao `administration: read` lam ca tep workflow khong phan tich duoc, va
+    # GitHub tao mot run that bai voi 0 job (run 41810605290).
+    # Hau qua la truong `protection` cua mot nhanh khong doc duoc bang token mac
+    # dinh cua workflow: GitHub tra ve `protected` nhung bo truong `protection`.
+    # Vi vay chi quy tac thu nhat cua repo_policy.rego con hieu luc trong CI,
+    # hai quy tac con lai can mot token co quyen quan tri kho ma nguon. Dieu nay
+    # duoc ghi lai trong bao cao muc 4.2.8 nhu mot gioi hanh cua phep kiem chung.
     steps:
       - uses: actions/checkout@v4
 
